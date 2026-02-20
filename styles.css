@@ -73,7 +73,7 @@
 }
 
 html {
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 body {
@@ -82,7 +82,7 @@ body {
     color: var(--color-text-primary);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    overflow-x: clip;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -127,6 +127,20 @@ header h1 {
 .header-left {
     display: flex;
     flex-direction: column;
+    gap: 2px;
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    object-fit: cover;
 }
 
 .tagline {
@@ -156,7 +170,8 @@ header h1 {
 }
 
 .theme-toggle .icon {
-    font-size: 1rem;
+    display: flex;
+    align-items: center;
     line-height: 1;
 }
 
@@ -258,6 +273,16 @@ header h1 {
     background: var(--color-bg);
     box-shadow: var(--shadow-md);
     transition: all 0.3s ease;
+}
+
+.latest-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.08), 0 4px 8px -2px rgba(0, 0, 0, 0.04);
+    border-color: var(--color-accent);
+}
+
+[data-theme="dark"] .latest-card:hover {
+    box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.5), 0 4px 8px -2px rgba(0, 0, 0, 0.3);
 }
 
 .latest-card>* {
@@ -390,19 +415,21 @@ header h1 {
 
 .versions-table th {
     background: var(--color-surface);
-    padding: 0.625rem 1rem;
+    padding: 0.5rem 1rem;
     text-align: left;
     font-size: 0.75rem;
     font-weight: 600;
     color: var(--color-text-secondary);
+    white-space: nowrap;
     border-bottom: 1px solid var(--color-border);
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .versions-table td {
-    padding: 1rem;
+    padding: 0.5rem 1rem;
     border-bottom: 1px solid var(--color-border);
     font-size: 0.875rem;
+    white-space: nowrap;
     transition: background-color 0.15s ease, border-color 0.3s ease;
 }
 
@@ -425,7 +452,21 @@ header h1 {
     color: var(--color-text-secondary);
 }
 
+/* Responsive label switching */
+.date-short,
+.label-short {
+    display: none;
+}
+
+.date-full,
+.label-full {
+    display: inline;
+}
+
 .table-download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
     color: var(--color-text-secondary);
     text-decoration: none;
     padding: 0.25rem 0.5rem;
@@ -483,6 +524,18 @@ header h1 {
     }
 }
 
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* ============================================
    Footer
    ============================================ */
@@ -520,17 +573,17 @@ footer a:hover {
 
     .app-layout {
         flex-direction: column;
-        gap: var(--spacing-lg);
-        padding-top: var(--spacing-lg);
+        gap: var(--spacing-md);
+        padding-top: var(--spacing-md);
     }
 
     .sidebar {
         width: 100%;
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: var(--spacing-md);
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: var(--spacing-sm);
         background: var(--color-surface);
-        padding: var(--spacing-md);
+        padding: var(--spacing-sm) var(--spacing-md);
         border-radius: var(--radius-md);
         border: 1px solid var(--color-border);
         transition: background-color 0.3s ease, border-color 0.3s ease;
@@ -538,6 +591,14 @@ footer a:hover {
 
     .sidebar-section {
         margin-bottom: 0;
+    }
+
+    .sidebar-section h2 {
+        display: none;
+    }
+
+    .filter-group {
+        margin-bottom: var(--spacing-sm);
     }
 
     .sidebar-footer {
@@ -553,30 +614,28 @@ footer a:hover {
         flex-wrap: wrap;
     }
 
-    /* Table scrolling hint */
+    /* Table: full-width horizontal scroll */
     .versions-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
         position: relative;
+        width: 100%;
     }
 
-    .versions-table-container::after {
-        content: 'Scroll →';
-        position: absolute;
-        right: 0.5rem;
-        top: 0.5rem;
-        font-size: 0.625rem;
-        background: var(--color-surface);
-        padding: 2px 6px;
-        border-radius: 4px;
-        color: var(--color-text-secondary);
-        pointer-events: none;
-        border: 1px solid var(--color-border);
-        transition: background-color 0.3s ease, border-color 0.3s ease;
+    .download-buttons-cell {
+        display: flex;
+        gap: 0.25rem;
+        flex-wrap: wrap;
     }
 }
 
 @media (max-width: 480px) {
     header h1 {
-        font-size: 1.125rem;
+        font-size: 1rem;
+    }
+
+    .tagline {
+        display: none;
     }
 
     .latest-card h2 {
@@ -590,11 +649,29 @@ footer a:hover {
     .download-btn {
         width: 100%;
         justify-content: center;
-        padding: 0.75rem;
+        padding: 0.625rem;
+    }
+
+    /* Hide Major column on small phones — the version string already shows Rhino 7/8 */
+    .versions-table th:nth-child(3),
+    .versions-table td:nth-child(3) {
+        display: none;
+    }
+
+    /* Switch to abbreviated labels */
+    .date-full,
+    .label-full {
+        display: none;
+    }
+
+    .date-short,
+    .label-short {
+        display: inline;
     }
 
     .versions-table td,
     .versions-table th {
-        padding: 0.75rem 0.5rem;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
     }
 }

@@ -32,6 +32,10 @@
     <!-- Robots -->
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+
     <!-- Fonts -->
     <link rel="stylesheet" href="styles.css?v=20260219">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,18 +58,31 @@
         }
     }
     </script>
+    <!-- Prevent flash of wrong theme -->
+    <script>
+        (function () {
+            var t = localStorage.getItem('theme') || 'system';
+            var effective = t === 'system'
+                ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+                : t;
+            document.documentElement.setAttribute('data-theme', effective);
+        })();
+    </script>
 </head>
 
 <body>
     <header>
         <div class="container">
             <div class="header-left">
-                <h1>Rhino Versions</h1>
+                <div class="header-brand">
+                    <img src="logo.png" alt="Rhino Versions Logo" class="header-logo">
+                    <h1>Rhino Versions</h1>
+                </div>
                 <p class="tagline">Official Rhino 3D build downloads and version history, updated daily from NuGet.</p>
             </div>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-                <span class="icon" id="theme-icon">🌙</span>
-                <span id="theme-label">Dark</span>
+                <span class="icon" id="theme-icon"></span>
+                <span id="theme-label">System</span>
             </button>
         </div>
     </header>
@@ -138,12 +155,10 @@
                     <div class="download-buttons">
                         <a href="#" id="latest-download-windows" class="download-btn cta-btn" target="_blank"
                             rel="noopener noreferrer" style="display: none;">
-                            <span class="btn-icon">💻</span>
                             Windows
                         </a>
                         <a href="#" id="latest-download-mac" class="download-btn cta-btn" target="_blank"
                             rel="noopener noreferrer" style="display: none;">
-                            <span class="btn-icon">🍎</span>
                             Mac
                         </a>
                     </div>

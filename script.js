@@ -1,3 +1,16 @@
+// Heroicons SVG strings — matches RhinoPackages ThemeToggle icons exactly
+const THEME_ICONS = {
+    system: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0H3" /></svg>',
+    light: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" /></svg>',
+    dark: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" /></svg>'
+};
+
+// Platform icons for download buttons
+const PLATFORM_ICONS = {
+    windows: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.8z"/></svg>',
+    mac: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.22.15-2.19 1.28-2.17 3.83.03 3.02 2.65 4.03 2.68 4.04l-.06.2M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>'
+};
+
 // Configuration
 const CONFIG = {
     // GitHub repository info - adjust based on your repo structure
@@ -304,22 +317,22 @@ function displayVersions(versions) {
         // Create download buttons for available platforms
         let downloadButtons = '';
         if (version.windowsUrl) {
-            downloadButtons += `<a href="${version.windowsUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer">💻 Windows</a>`;
+            downloadButtons += `<a href="${version.windowsUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.windows}<span class="label-full">Windows</span><span class="label-short">Win</span></a>`;
         }
         if (version.macUrl) {
-            downloadButtons += `<a href="${version.macUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer">🍎 Mac</a>`;
+            downloadButtons += `<a href="${version.macUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.mac}Mac</a>`;
         }
 
         // Format locale for display
         let localeDisplay = version.locale.toUpperCase();
         if (version.locale === 'multi') {
-            localeDisplay = 'MULTILINGUAL';
+            localeDisplay = '<span class="label-full">MULTILINGUAL</span><span class="label-short">Multi</span>';
         }
 
         row.innerHTML = `
             <td><span class="version-number">${version.fullVersion}</span></td>
-            <td>${formatDate(version.date)}</td>
-            <td><span class="major-badge">Rhino ${version.major}</span></td>
+            <td><span class="date-full">${formatDate(version.date, 'long')}</span><span class="date-short">${formatDate(version.date, 'short')}</span></td>
+            <td><span class="major-badge"><span class="label-full">Rhino ${version.major}</span><span class="label-short">R${version.major}</span></span></td>
             <td><span class="locale-badge">${localeDisplay}</span></td>
             <td class="download-buttons-cell">${downloadButtons}</td>
         `;
@@ -431,10 +444,10 @@ function handleSort(column) {
 /**
  * Format date for display
  */
-function formatDate(date) {
+function formatDate(date, monthStyle = 'long') {
     return new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'long',
+        year: monthStyle === 'short' ? '2-digit' : 'numeric',
+        month: monthStyle,
         day: 'numeric'
     }).format(date);
 }
@@ -444,40 +457,46 @@ function formatDate(date) {
 // ============================================
 
 /**
- * Initialize theme from localStorage or system preference
+ * Resolve the effective display theme (system → actual dark/light)
  */
-function initTheme() {
-    const saved = localStorage.getItem('theme');
-    if (saved) {
-        setTheme(saved);
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        setTheme('dark');
-    } else {
-        setTheme('light');
+function resolveTheme(theme) {
+    if (theme === 'system') {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
+    return theme;
 }
 
 /**
- * Set the theme and update the toggle button UI
+ * Initialize theme from localStorage (default: 'system')
  */
-function setTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
+function initTheme() {
+    const saved = localStorage.getItem('theme') || 'system';
+    applyTheme(saved);
+}
+
+/**
+ * Apply theme to DOM and update toggle button UI
+ */
+function applyTheme(theme) {
+    const effective = resolveTheme(theme);
+    document.documentElement.setAttribute('data-theme', effective);
     localStorage.setItem('theme', theme);
 
     const icon = document.getElementById('theme-icon');
     const label = document.getElementById('theme-label');
     if (icon && label) {
-        if (theme === 'dark') {
-            icon.textContent = '☀️';
-            label.textContent = 'Light';
-        } else {
-            icon.textContent = '🌙';
+        icon.innerHTML = THEME_ICONS[theme] || THEME_ICONS.system;
+        if (theme === 'system') {
+            label.textContent = 'System';
+        } else if (theme === 'dark') {
             label.textContent = 'Dark';
+        } else {
+            label.textContent = 'Light';
         }
     }
 }
 
-// Apply theme immediately to avoid flash
+// Apply theme immediately to avoid flash — also called inline in <head>
 initTheme();
 
 // ============================================
@@ -485,20 +504,20 @@ initTheme();
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Theme toggle
+    // 3-way theme toggle: system → light → dark → system
     const toggleBtn = document.getElementById('theme-toggle');
     if (toggleBtn) {
         toggleBtn.addEventListener('click', () => {
-            const current = document.documentElement.getAttribute('data-theme');
-            setTheme(current === 'dark' ? 'light' : 'dark');
+            const current = localStorage.getItem('theme') || 'system';
+            const next = current === 'system' ? 'light' : current === 'light' ? 'dark' : 'system';
+            applyTheme(next);
         });
     }
 
-    // Listen for system preference changes
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-        if (!localStorage.getItem('theme')) {
-            setTheme(e.matches ? 'dark' : 'light');
-        }
+    // React to system preference changes when in 'system' mode
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        const current = localStorage.getItem('theme') || 'system';
+        if (current === 'system') applyTheme('system');
     });
 
     // Load data

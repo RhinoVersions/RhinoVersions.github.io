@@ -117,10 +117,15 @@ jobs:
         with:
           path: .
 
+      - name: Zip site for release
+        if: steps.commit.outputs.changed == 'true'
+        run: zip -r site-export.zip . -x '.git/*' -x '.github/*'
+
       - name: Create GitHub Release
         if: steps.commit.outputs.changed == 'true'
         uses: ncipollo/release-action@v1
         with:
+          artifacts: "site-export.zip"
           tag: ${{ env.TAG_NAME }}
           name: Release ${{ env.TAG_NAME }}
           body: "Automatic deployment release with latest Rhino version data."
