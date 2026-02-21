@@ -74,10 +74,10 @@
     <header>
         <div class="container">
             <div class="header-left">
-                <div class="header-brand">
+                <a href="/" class="header-brand" aria-label="Rhino Versions Home">
                     <img src="logo.png" alt="Rhino Versions Logo" class="header-logo">
                     <h1>Rhino Versions</h1>
-                </div>
+                </a>
                 <p class="tagline">Official Rhino 3D build downloads and version history, updated daily from NuGet.</p>
             </div>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
@@ -179,30 +179,10 @@
                     <p>Unable to load version history</p>
                 </div>
 
-                <div class="versions-table-container glass-card" id="versions-table-container" style="display: none;">
-                    <table class="versions-table" id="versions-table">
-                        <thead>
-                            <tr>
-                                <th class="sortable" data-sort="version">
-                                    Version
-                                    <span class="sort-icon">↕</span>
-                                </th>
-                                <th class="sortable" data-sort="date">
-                                    Build Date
-                                    <span class="sort-icon">↕</span>
-                                </th>
-                                <th class="sortable" data-sort="major">
-                                    Major
-                                    <span class="sort-icon">↕</span>
-                                </th>
-                                <th>Language</th>
-                                <th>Downloads</th>
-                            </tr>
-                        </thead>
-                        <tbody id="versions-tbody">
-                            <!-- Populated by JavaScript -->
-                        </tbody>
-                    </table>
+                <div class="versions-list-container" id="versions-table-container" style="display: none;">
+                    <div class="versions-list" id="versions-list">
+                        <!-- Populated by JavaScript -->
+                    </div>
                 </div>
             </section>
         </main>
@@ -224,7 +204,7 @@
     </footer>
 
 
-    <script src="script.js"></script>
+    <script src="script.js?v=20260220"></script>
 </body>
 
 </html>

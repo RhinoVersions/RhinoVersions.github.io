@@ -24,6 +24,12 @@ const CONFIG = {
 // State
 let allVersions = [];
 let currentSort = { column: 'date', ascending: false };
+let expandedVersionCards = new Set();
+let deepLinkState = {
+    version: null,
+    locale: null,
+    hasAutoScrolled: false
+};
 
 // ============================================
 // Data Fetching & Parsing
@@ -283,9 +289,9 @@ async function loadAllVersions() {
         allVersions = Array.from(versionMap.values());
 
         // Display
-        displayVersions(allVersions);
+        filterVersions();
 
-        // Show table, hide loading
+        // Show cards, hide loading
         loadingEl.style.display = 'none';
         containerEl.style.display = 'block';
 
@@ -301,46 +307,87 @@ async function loadAllVersions() {
 // ============================================
 
 /**
- * Display versions in the table
+ * Display versions as expandable cards
  */
 function displayVersions(versions) {
-    const tbody = document.getElementById('versions-tbody');
+    const listEl = document.getElementById('versions-list');
     const countEl = document.getElementById('version-count');
+    const localeFilter = document.getElementById('locale-filter').value;
 
-    tbody.innerHTML = '';
+    listEl.innerHTML = '';
 
-    versions.forEach((version, index) => {
-        const row = document.createElement('tr');
-        row.style.animationDelay = `${index * 0.02}s`;
-        row.style.animation = 'fadeInUp 0.5s ease both';
+    versions.forEach((versionGroup, index) => {
+        const card = document.createElement('article');
+        card.className = 'version-card glass-card';
+        card.style.animationDelay = `${index * 0.02}s`;
+        card.style.animation = 'fadeInUp 0.5s ease both';
+        card.dataset.version = versionGroup.fullVersion;
 
-        // Create download buttons for available platforms
-        let downloadButtons = '';
-        if (version.windowsUrl) {
-            downloadButtons += `<a href="${version.windowsUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.windows}<span class="label-full">Windows</span><span class="label-short">Win</span></a>`;
-        }
-        if (version.macUrl) {
-            downloadButtons += `<a href="${version.macUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.mac}Mac</a>`;
-        }
-
-        // Format locale for display
-        let localeDisplay = version.locale.toUpperCase();
-        if (version.locale === 'multi') {
-            localeDisplay = '<span class="label-full">MULTILINGUAL</span><span class="label-short">Multi</span>';
+        const isDeepLinkedCard = isDeepLinkedVersion(versionGroup);
+        if (isDeepLinkedCard) {
+            card.classList.add('deep-linked-card');
         }
 
-        row.innerHTML = `
-            <td><span class="version-number">${version.fullVersion}</span></td>
-            <td><span class="date-full">${formatDate(version.date, 'long')}</span><span class="date-short">${formatDate(version.date, 'short')}</span></td>
-            <td><span class="major-badge"><span class="label-full">Rhino ${version.major}</span><span class="label-short">R${version.major}</span></span></td>
-            <td><span class="locale-badge">${localeDisplay}</span></td>
-            <td class="download-buttons-cell">${downloadButtons}</td>
+        const deepLinkLocale = pickDeepLinkLocale(versionGroup, localeFilter);
+        const deepLinkHref = buildVersionDeepLink(versionGroup.fullVersion, deepLinkLocale);
+        const isExpanded = expandedVersionCards.has(versionGroup.fullVersion) || isDeepLinkedCard;
+
+        if (isExpanded) {
+            expandedVersionCards.add(versionGroup.fullVersion);
+            card.classList.add('expanded');
+        }
+
+        card.innerHTML = `
+            <div class="version-card-header" role="button" tabindex="0" aria-expanded="${isExpanded}">
+                <div class="version-card-main">
+                    <a href="${deepLinkHref}" class="version-link"><span class="version-number">${versionGroup.fullVersion}</span></a>
+                    <span class="major-badge">Rhino ${versionGroup.major}</span>
+                </div>
+                <div class="version-card-meta">
+                    <span class="version-date">${formatDate(versionGroup.date, 'long')}</span>
+                    <span class="version-accordion-icon">${isExpanded ? '−' : '+'}</span>
+                </div>
+            </div>
+            <div class="version-card-body" style="display: ${isExpanded ? 'block' : 'none'};">
+                ${buildVersionCardRows(versionGroup, localeFilter)}
+            </div>
         `;
 
-        tbody.appendChild(row);
+        const headerButton = card.querySelector('.version-card-header');
+        const body = card.querySelector('.version-card-body');
+        const icon = card.querySelector('.version-accordion-icon');
+        const versionLink = card.querySelector('.version-link');
+
+        versionLink.addEventListener('click', (event) => {
+            event.stopPropagation();
+        });
+
+        const toggleExpanded = () => {
+            const expanded = card.classList.toggle('expanded');
+            headerButton.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            body.style.display = expanded ? 'block' : 'none';
+            icon.textContent = expanded ? '−' : '+';
+
+            if (expanded) {
+                expandedVersionCards.add(versionGroup.fullVersion);
+            } else {
+                expandedVersionCards.delete(versionGroup.fullVersion);
+            }
+        };
+
+        headerButton.addEventListener('click', toggleExpanded);
+        headerButton.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                toggleExpanded();
+            }
+        });
+
+        listEl.appendChild(card);
     });
 
     countEl.textContent = `Showing ${versions.length} version${versions.length !== 1 ? 's' : ''}`;
+    scrollToDeepLinkedRowIfNeeded();
 }
 
 /**
@@ -351,7 +398,7 @@ function filterVersions() {
     const majorFilter = document.getElementById('major-filter').value;
     const localeFilter = document.getElementById('locale-filter').value;
 
-    let filtered = allVersions;
+    let filtered = groupVersions(allVersions);
 
     // Filter by major version
     if (majorFilter !== 'all') {
@@ -360,17 +407,21 @@ function filterVersions() {
 
     // Filter by locale
     if (localeFilter !== 'all') {
-        filtered = filtered.filter(v => v.locale === localeFilter);
+        filtered = filtered.filter(v => v.entries.some(entry => entry.locale === localeFilter));
     }
 
     // Filter by search term
     if (searchTerm) {
         filtered = filtered.filter(v =>
             v.fullVersion.toLowerCase().includes(searchTerm) ||
+            v.buildKey.toLowerCase().includes(searchTerm) ||
             v.dateString.includes(searchTerm) ||
-            v.locale.toLowerCase().includes(searchTerm) ||
-            v.windowsFilename?.toLowerCase().includes(searchTerm) ||
-            v.macFilename?.toLowerCase().includes(searchTerm)
+            v.entries.some(entry =>
+                entry.fullVersion.toLowerCase().includes(searchTerm) ||
+                entry.locale.toLowerCase().includes(searchTerm) ||
+                entry.windowsFilename?.toLowerCase().includes(searchTerm) ||
+                entry.macFilename?.toLowerCase().includes(searchTerm)
+            )
         );
     }
 
@@ -378,6 +429,185 @@ function filterVersions() {
     filtered = sortVersions(filtered, currentSort.column, currentSort.ascending);
 
     displayVersions(filtered);
+}
+
+/**
+ * Group locale/platform entries under each unique version
+ */
+function groupVersions(versions) {
+    const groupedMap = new Map();
+
+    versions.forEach(version => {
+        const key = getVersionBuildKey(version.fullVersion);
+        if (!groupedMap.has(key)) {
+            groupedMap.set(key, {
+                buildKey: key,
+                fullVersion: version.fullVersion,
+                major: version.major,
+                date: version.date,
+                dateString: version.dateString,
+                entriesByLocale: new Map()
+            });
+        }
+
+        const group = groupedMap.get(key);
+
+        // Keep a representative latest build for the grouped major.minor card
+        if (compareFullVersions(version.fullVersion, group.fullVersion) > 0) {
+            group.fullVersion = version.fullVersion;
+            group.date = version.date;
+            group.dateString = version.dateString;
+        }
+
+        if (!group.entriesByLocale.has(version.locale)) {
+            group.entriesByLocale.set(version.locale, {
+                fullVersion: version.fullVersion,
+                locale: version.locale,
+                windowsUrl: null,
+                macUrl: null,
+                windowsFilename: null,
+                macFilename: null,
+                windowsVersion: null,
+                macVersion: null
+            });
+        }
+
+        const entry = group.entriesByLocale.get(version.locale);
+
+        if (version.windowsUrl && (!entry.windowsVersion || compareFullVersions(version.fullVersion, entry.windowsVersion) > 0)) {
+            entry.windowsUrl = version.windowsUrl;
+            entry.windowsFilename = version.windowsFilename;
+            entry.windowsVersion = version.fullVersion;
+        }
+
+        if (version.macUrl && (!entry.macVersion || compareFullVersions(version.fullVersion, entry.macVersion) > 0)) {
+            entry.macUrl = version.macUrl;
+            entry.macFilename = version.macFilename;
+            entry.macVersion = version.fullVersion;
+        }
+
+        if (compareFullVersions(version.fullVersion, entry.fullVersion) > 0) {
+            entry.fullVersion = version.fullVersion;
+        }
+    });
+
+    return Array.from(groupedMap.values()).map(group => {
+        const entries = Array.from(group.entriesByLocale.values())
+            .map(entry => ({
+                fullVersion: entry.fullVersion,
+                locale: entry.locale,
+                windowsUrl: entry.windowsUrl,
+                macUrl: entry.macUrl,
+                windowsFilename: entry.windowsFilename,
+                macFilename: entry.macFilename
+            }))
+            .filter(entry => entry.windowsUrl || entry.macUrl)
+            .sort((a, b) => a.locale.localeCompare(b.locale));
+
+        return {
+            buildKey: group.buildKey,
+            fullVersion: group.fullVersion,
+            major: group.major,
+            date: group.date,
+            dateString: group.dateString,
+            entries
+        };
+    });
+}
+
+/**
+ * Build expanded accordion body rows (locale + platform downloads)
+ */
+function buildVersionCardRows(versionGroup, localeFilter) {
+    const macFallback = versionGroup.entries.find(entry => entry.locale === 'multi' && entry.macUrl);
+    const localizedEntries = versionGroup.entries
+        .filter(entry => entry.locale !== 'multi')
+        .sort((a, b) => a.locale.localeCompare(b.locale));
+
+    const rows = [];
+
+    if (localizedEntries.length > 0) {
+        localizedEntries.forEach(entry => {
+            let buttons = '';
+            if (entry.windowsUrl) {
+                buttons += `<a href="${entry.windowsUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.windows}<span class="label-full">Windows</span><span class="label-short">Win</span></a>`;
+            }
+            if (entry.macUrl || macFallback?.macUrl) {
+                buttons += `<a href="${entry.macUrl || macFallback.macUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.mac}Mac</a>`;
+            }
+
+            rows.push(`
+                <div class="version-card-row">
+                    <span class="locale-badge">${entry.locale.toUpperCase()}</span>
+                    <div class="download-buttons-cell">${buttons}</div>
+                </div>
+            `);
+        });
+    } else {
+        versionGroup.entries
+            .sort((a, b) => a.locale.localeCompare(b.locale))
+            .forEach(entry => {
+                let buttons = '';
+                if (entry.windowsUrl) {
+                    buttons += `<a href="${entry.windowsUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.windows}<span class="label-full">Windows</span><span class="label-short">Win</span></a>`;
+                }
+                if (entry.macUrl) {
+                    buttons += `<a href="${entry.macUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.mac}Mac</a>`;
+                }
+
+                const localeLabel = entry.locale === 'multi' ? 'MULTILINGUAL' : entry.locale.toUpperCase();
+                rows.push(`
+                    <div class="version-card-row">
+                        <span class="locale-badge">${localeLabel}</span>
+                        <div class="download-buttons-cell">${buttons}</div>
+                    </div>
+                `);
+            });
+    }
+
+    if (rows.length === 0) {
+        return '<p class="version-card-empty">No downloads for this version.</p>';
+    }
+
+    return rows.join('');
+}
+
+/**
+ * Pick locale used in generated deep-link URL for a version card
+ */
+function pickDeepLinkLocale(versionGroup, localeFilter) {
+    if (localeFilter !== 'all' && versionGroup.entries.some(entry => entry.locale === localeFilter)) {
+        return localeFilter;
+    }
+
+    const firstNonMulti = versionGroup.entries.find(entry => entry.locale !== 'multi');
+    if (firstNonMulti) return firstNonMulti.locale;
+    return versionGroup.entries[0]?.locale || 'all';
+}
+
+/**
+ * Group by major.minor so Windows/Mac rows stay together in one card
+ */
+function getVersionBuildKey(fullVersion) {
+    const parts = fullVersion.split('.');
+    return parts.slice(0, 2).join('.');
+}
+
+/**
+ * Compare semantic-ish Rhino build versions, e.g. 8.12.26043.12345
+ */
+function compareFullVersions(a, b) {
+    const aParts = a.split('.').map(part => parseInt(part, 10) || 0);
+    const bParts = b.split('.').map(part => parseInt(part, 10) || 0);
+    const maxLen = Math.max(aParts.length, bParts.length);
+
+    for (let i = 0; i < maxLen; i++) {
+        const aVal = aParts[i] || 0;
+        const bVal = bParts[i] || 0;
+        if (aVal !== bVal) return aVal - bVal;
+    }
+
+    return 0;
 }
 
 /**
@@ -412,31 +642,6 @@ function sortVersions(versions, column, ascending) {
     return sorted;
 }
 
-/**
- * Handle sort button click
- */
-function handleSort(column) {
-    // Toggle sort direction if clicking same column
-    if (currentSort.column === column) {
-        currentSort.ascending = !currentSort.ascending;
-    } else {
-        currentSort.column = column;
-        currentSort.ascending = false; // Default to descending for new column
-    }
-
-    // Update sort icons
-    document.querySelectorAll('.sortable').forEach(th => {
-        const icon = th.querySelector('.sort-icon');
-        if (th.dataset.sort === column) {
-            icon.textContent = currentSort.ascending ? '↑' : '↓';
-        } else {
-            icon.textContent = '↕';
-        }
-    });
-
-    filterVersions();
-}
-
 // ============================================
 // Utilities
 // ============================================
@@ -450,6 +655,91 @@ function formatDate(date, monthStyle = 'long') {
         month: monthStyle,
         day: 'numeric'
     }).format(date);
+}
+
+/**
+ * Parse deep-link parameters from URL (?version=...&locale=...)
+ */
+function parseDeepLinkFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const versionParam = params.get('version')?.trim() || null;
+    const localeParam = params.get('locale')?.trim().toLowerCase() || null;
+    const normalizedVersion = versionParam?.replace(/[^\d.]/g, '') || null;
+    // Accept partial versions (e.g. 8.18) and full versions (e.g. 8.18.25100.11001)
+    const versionPattern = /^\d+(\.\d+){1,3}$/;
+
+    return {
+        version: normalizedVersion && versionPattern.test(normalizedVersion) ? normalizedVersion : null,
+        locale: localeParam
+    };
+}
+
+/**
+ * Apply deep-link values to initial filters so target row is visible
+ */
+function applyDeepLinkToFilters() {
+    if (!deepLinkState.version) return;
+
+    const searchInput = document.getElementById('search-input');
+    const majorFilter = document.getElementById('major-filter');
+    const localeFilter = document.getElementById('locale-filter');
+
+    searchInput.value = deepLinkState.version;
+
+    const major = deepLinkState.version.split('.')[0];
+    if (majorFilter.querySelector(`option[value="${major}"]`)) {
+        majorFilter.value = major;
+    }
+
+    if (deepLinkState.locale && localeFilter.querySelector(`option[value="${deepLinkState.locale}"]`)) {
+        localeFilter.value = deepLinkState.locale;
+    } else {
+        localeFilter.value = 'all';
+    }
+}
+
+/**
+ * Build a shareable deep-link URL for a specific version+locale card
+ */
+function buildVersionDeepLink(version, locale) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('version', version);
+    url.searchParams.set('locale', locale);
+    return url.toString();
+}
+
+/**
+ * Check whether a version card matches the currently requested deep-link
+ */
+function isDeepLinkedVersion(versionEntry) {
+    if (!deepLinkState.version) return false;
+
+    const versionMatches =
+        versionMatchesQuery(versionEntry.fullVersion, deepLinkState.version) ||
+        versionMatchesQuery(versionEntry.buildKey, deepLinkState.version) ||
+        versionEntry.entries.some(entry => versionMatchesQuery(entry.fullVersion, deepLinkState.version));
+    const localeMatches = !deepLinkState.locale || versionEntry.entries.some(entry => entry.locale === deepLinkState.locale);
+    return versionMatches && localeMatches;
+}
+
+/**
+ * Match deep-link version queries as exact or dotted-prefix (e.g. 8.18 matches 8.18.x.x)
+ */
+function versionMatchesQuery(value, query) {
+    return value === query || value.startsWith(`${query}.`);
+}
+
+/**
+ * Auto-scroll once to the deep-linked card after render
+ */
+function scrollToDeepLinkedRowIfNeeded() {
+    if (!deepLinkState.version || deepLinkState.hasAutoScrolled) return;
+
+    const targetRow = document.querySelector('.deep-linked-card');
+    if (targetRow) {
+        targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        deepLinkState.hasAutoScrolled = true;
+    }
 }
 
 // ============================================
@@ -504,6 +794,9 @@ initTheme();
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    deepLinkState = parseDeepLinkFromUrl();
+    applyDeepLinkToFilters();
+
     // 3-way theme toggle: system → light → dark → system
     const toggleBtn = document.getElementById('theme-toggle');
     if (toggleBtn) {
@@ -533,8 +826,4 @@ document.addEventListener('DOMContentLoaded', () => {
         filterVersions();
     });
 
-    // Set up sort handlers
-    document.querySelectorAll('.sortable').forEach(th => {
-        th.addEventListener('click', () => handleSort(th.dataset.sort));
-    });
 });

@@ -134,6 +134,8 @@ header h1 {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    text-decoration: none;
+    color: inherit;
 }
 
 .header-logo {
@@ -392,7 +394,7 @@ header h1 {
 }
 
 /* ============================================
-   Versions Table
+   Versions Accordion
    ============================================ */
 .versions-section h2 {
     font-size: 0.875rem;
@@ -403,43 +405,84 @@ header h1 {
     letter-spacing: 0.025em;
 }
 
-.versions-table-container {
+.versions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.version-card {
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    overflow: hidden;
+    transition: border-color 0.2s ease, transform 0.15s ease;
 }
 
-.versions-table {
+.version-card.expanded {
+    border-color: rgba(59, 130, 246, 0.35);
+}
+
+.version-card:hover {
+    transform: translateY(-1px);
+}
+
+.version-card.deep-linked-card {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.35);
+}
+
+.version-card-header {
     width: 100%;
-    border-collapse: collapse;
+    padding: 0.85rem 1rem;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    color: inherit;
 }
 
-.versions-table th {
-    background: var(--color-surface);
-    padding: 0.5rem 1rem;
-    text-align: left;
-    font-size: 0.75rem;
-    font-weight: 600;
+.version-card-header:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+    border-radius: var(--radius-md);
+}
+
+.version-card-main {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.version-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     color: var(--color-text-secondary);
-    white-space: nowrap;
-    border-bottom: 1px solid var(--color-border);
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+    font-size: 0.8125rem;
 }
 
-.versions-table td {
-    padding: 0.5rem 1rem;
-    border-bottom: 1px solid var(--color-border);
-    font-size: 0.875rem;
-    white-space: nowrap;
-    transition: background-color 0.15s ease, border-color 0.3s ease;
+.version-accordion-icon {
+    width: 1.25rem;
+    text-align: center;
+    font-size: 1rem;
+    line-height: 1;
 }
 
-.versions-table tbody tr {
-    transition: all 0.15s ease;
+.version-card-body {
+    border-top: 1px solid var(--color-border);
+    padding: 0.75rem 1rem;
 }
 
-.versions-table tbody tr:hover {
-    background-color: var(--color-surface);
-    transform: translateX(2px);
+.version-card-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.4rem 0;
+}
+
+.version-card-row+.version-card-row {
+    border-top: 1px dashed var(--color-border);
 }
 
 .version-number {
@@ -447,9 +490,36 @@ header h1 {
     color: var(--color-accent);
 }
 
+.version-link {
+    text-decoration: none;
+}
+
+.version-link:hover .version-number {
+    text-decoration: underline;
+}
+
 .major-badge {
     font-size: 0.75rem;
     color: var(--color-text-secondary);
+}
+
+.locale-badge {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    min-width: 7.25rem;
+}
+
+.download-buttons-cell {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.version-card-empty {
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+    padding: 0.35rem 0;
 }
 
 /* Responsive label switching */
@@ -485,16 +555,6 @@ header h1 {
 
 [data-theme="dark"] .table-download-btn:hover {
     background: rgba(96, 165, 250, 0.1);
-}
-
-/* Sortable headers */
-.sortable {
-    cursor: pointer;
-    user-select: none;
-}
-
-.sortable:hover {
-    color: var(--color-text-primary);
 }
 
 /* ============================================
@@ -614,18 +674,30 @@ footer a:hover {
         flex-wrap: wrap;
     }
 
-    /* Table: full-width horizontal scroll */
-    .versions-table-container {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        position: relative;
-        width: 100%;
+    .version-card-header {
+        padding: 0.75rem;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .version-card-main,
+    .version-card-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.15rem;
+    }
+
+    .version-card-body {
+        padding: 0.65rem 0.75rem;
+    }
+
+    .version-card-row {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
     .download-buttons-cell {
-        display: flex;
-        gap: 0.25rem;
-        flex-wrap: wrap;
+        justify-content: flex-start;
     }
 }
 
@@ -652,12 +724,6 @@ footer a:hover {
         padding: 0.625rem;
     }
 
-    /* Hide Major column on small phones — the version string already shows Rhino 7/8 */
-    .versions-table th:nth-child(3),
-    .versions-table td:nth-child(3) {
-        display: none;
-    }
-
     /* Switch to abbreviated labels */
     .date-full,
     .label-full {
@@ -669,9 +735,15 @@ footer a:hover {
         display: inline;
     }
 
-    .versions-table td,
-    .versions-table th {
-        padding: 0.4rem 0.75rem;
-        font-size: 0.8rem;
+    .version-card-header {
+        padding: 0.65rem;
+    }
+
+    .version-card-body {
+        padding: 0.5rem 0.65rem;
+    }
+
+    .locale-badge {
+        min-width: auto;
     }
 }
