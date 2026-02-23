@@ -17,8 +17,8 @@ const CONFIG = {
     REPO_OWNER: 'RhinoVersions',
     REPO_NAME: 'rhinoversions.github.io',
     BRANCH: 'main',
-    LATEST_MD_PATH: 'rhino-versions.md',
-    ALL_MD_PATH: 'rhino-versions-all.md',
+    LATEST_MD_PATH: 'data/rhino-versions.md',
+    ALL_MD_PATH: 'data/rhino-versions-all.md',
     DEFAULT_SORT: { column: 'date', ascending: false }
 };
 
@@ -87,11 +87,11 @@ async function fetchWithCache(url) {
 async function fetchMarkdownFromGitHub(path) {
     // If running locally, use relative path
     if (isLocalEnvironment()) {
-        const filename = path.split('/').pop();
-        const response = await fetch(`./${filename}`);
+        // Use path directly to support subdirectories (e.g. data/rhino-versions.md)
+        const response = await fetch(path);
 
         if (!response.ok) {
-            throw new Error(`Failed to fetch ${filename}: ${response.status} ${response.statusText}`);
+            throw new Error(`Failed to fetch ${path}: ${response.status} ${response.statusText}`);
         }
 
         return await response.text();

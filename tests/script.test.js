@@ -7,7 +7,7 @@ const {
     formatDate,
     resolveTheme,
     getVersionBuildKey
-} = require('../script.js');
+} = require('../assets/js/script.js');
 
 // Mock window for resolveTheme
 global.window = {
