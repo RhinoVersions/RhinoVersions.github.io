@@ -846,7 +846,9 @@ function applyTheme(theme) {
 }
 
 // Apply theme immediately to avoid flash — also called inline in <head>
-initTheme();
+if (typeof window !== 'undefined') {
+    initTheme();
+}
 
 // ============================================
 // Contributors
@@ -891,42 +893,60 @@ async function loadContributors() {
 // Event Listeners & Initialization
 // ============================================
 
-document.addEventListener('DOMContentLoaded', () => {
-    cachedSearchInput = document.getElementById('search-input');
-    cachedMajorFilter = document.getElementById('major-filter');
-    cachedLocaleFilter = document.getElementById('locale-filter');
+if (typeof window !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        cachedSearchInput = document.getElementById('search-input');
+        cachedMajorFilter = document.getElementById('major-filter');
+        cachedLocaleFilter = document.getElementById('locale-filter');
 
-    deepLinkState = parseDeepLinkFromUrl();
-    applyDeepLinkToFilters();
+        deepLinkState = parseDeepLinkFromUrl();
+        applyDeepLinkToFilters();
 
-    // 3-way theme toggle: system → light → dark → system
-    const toggleBtn = document.getElementById('theme-toggle');
-    if (toggleBtn) {
-        toggleBtn.addEventListener('click', () => {
+        // 3-way theme toggle: system → light → dark → system
+        const toggleBtn = document.getElementById('theme-toggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                const current = localStorage.getItem('theme') || 'system';
+                const next = current === 'system' ? 'light' : current === 'light' ? 'dark' : 'system';
+                applyTheme(next);
+            });
+        }
+
+        // React to system preference changes when in 'system' mode
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
             const current = localStorage.getItem('theme') || 'system';
-            const next = current === 'system' ? 'light' : current === 'light' ? 'dark' : 'system';
-            applyTheme(next);
+            if (current === 'system') applyTheme('system');
         });
-    }
 
-    // React to system preference changes when in 'system' mode
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-        const current = localStorage.getItem('theme') || 'system';
-        if (current === 'system') applyTheme('system');
-    });
-
-    // Load data
-    loadLatestVersion();
-    loadAllVersions();
-    loadContributors();
-
-    // Set up event listeners
-    document.getElementById('search-input').addEventListener('input', debounce(filterVersions, 300));
-    document.getElementById('major-filter').addEventListener('change', filterVersions);
-    document.getElementById('locale-filter').addEventListener('change', () => {
-        // Reload latest version when locale changes
+        // Load data
         loadLatestVersion();
-        filterVersions();
-    });
+        loadAllVersions();
+        loadContributors();
 
-});
+        // Set up event listeners
+        document.getElementById('search-input').addEventListener('input', debounce(filterVersions, 300));
+        document.getElementById('major-filter').addEventListener('change', filterVersions);
+        document.getElementById('locale-filter').addEventListener('change', () => {
+            // Reload latest version when locale changes
+            loadLatestVersion();
+            filterVersions();
+        });
+    });
+}
+
+// ============================================
+// Exports for testing
+// ============================================
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        THEME_ICONS,
+        PLATFORM_ICONS,
+        CONFIG,
+        parseMarkdownLinks,
+        parseVersionFromFilename,
+        compareFullVersions,
+        formatDate,
+        resolveTheme,
+        getVersionBuildKey
+    };
+}
