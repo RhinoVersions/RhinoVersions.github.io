@@ -624,6 +624,40 @@ footer a:hover {
 }
 
 /* ============================================
+   Contributors
+   ============================================ */
+.contributors-list {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.contributor-bubble {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 2px solid var(--color-border);
+}
+
+.contributor-bubble:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-accent);
+    z-index: 10;
+}
+
+.contributor-bubble img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ============================================
    Responsive Design
    ============================================ */
 @media (max-width: 768px) {
