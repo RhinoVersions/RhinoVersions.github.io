@@ -697,7 +697,6 @@ function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
         const later = () => {
-            clearTimeout(timeout);
             func(...args);
         };
         clearTimeout(timeout);
@@ -924,7 +923,7 @@ if (typeof window !== 'undefined') {
         loadContributors();
 
         // Set up event listeners
-        document.getElementById('search-input').addEventListener('input', debounce(filterVersions, 300));
+        document.getElementById('search-input').addEventListener('input', debounce(filterVersions, 250));
         document.getElementById('major-filter').addEventListener('change', filterVersions);
         document.getElementById('locale-filter').addEventListener('change', () => {
             // Reload latest version when locale changes
