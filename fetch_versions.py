@@ -169,6 +169,28 @@ def url_exists(url: str) -> bool:
         return False
 
 
+def check_first_valid_url(candidates: List[str]) -> Optional[str]:
+    """
+    Check multiple URLs concurrently and return the first one that exists.
+    Maintains the priority order of the input list.
+    """
+    if not candidates:
+        return None
+
+    # Avoid thread overhead for single candidate
+    if len(candidates) == 1:
+        return candidates[0] if url_exists(candidates[0]) else None
+
+    with ThreadPoolExecutor(max_workers=len(candidates)) as executor:
+        # map() preserves the order of results corresponding to the input iterator
+        results = list(executor.map(url_exists, candidates))
+
+    for url, exists in zip(candidates, results):
+        if exists:
+            return url
+    return None
+
+
 def ensure_newline(s: str) -> str:
     return s if s.endswith("\n") else s + "\n"
 
@@ -325,10 +347,7 @@ def main():
                 # For older versions, use exact-match URL without verification
                 version_index = stable.index(v)
                 if version_index < MAC_HEAD_LIMIT:
-                    for cand_url in mac_candidates:
-                        if url_exists(cand_url):
-                            valid_mac_url = cand_url
-                            break
+                    valid_mac_url = check_first_valid_url(mac_candidates)
                 else:
                     # For old versions, assume exact match (first candidate)
                     valid_mac_url = mac_candidates[0] if mac_candidates else None
@@ -399,11 +418,7 @@ def main():
                 # Mac Latest
                 # We need to find the Mac version corresponding to this Windows version
                 mac_candidates = build_mac_url_candidates(v_latest)
-                valid_mac_url = None
-                for cand_url in mac_candidates:
-                    if url_exists(cand_url):
-                        valid_mac_url = cand_url
-                        break
+                valid_mac_url = check_first_valid_url(mac_candidates)
                 
                 if valid_mac_url:
                     fn_mac = os.path.basename(urlparse(valid_mac_url).path)

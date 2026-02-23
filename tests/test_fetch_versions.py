@@ -106,6 +106,32 @@ class FetchVersionsTests(unittest.TestCase):
             self.assertEqual(count, 2)
             self.assertTrue(md_all.read_text(encoding="utf-8").strip().startswith("- [rhino_en-us_8.24.25281.15001.exe]"))
 
+    @patch("fetch_versions.url_exists")
+    def test_check_first_valid_url(self, mock_url_exists):
+        # Case 1: First candidate valid
+        mock_url_exists.side_effect = lambda u: u == "valid1"
+        res = fv.check_first_valid_url(["valid1", "valid2"])
+        self.assertEqual(res, "valid1")
+
+        # Case 2: First candidate invalid, second valid
+        mock_url_exists.side_effect = lambda u: u == "valid2"
+        res = fv.check_first_valid_url(["invalid1", "valid2"])
+        self.assertEqual(res, "valid2")
+
+        # Case 3: All invalid
+        mock_url_exists.side_effect = lambda u: False
+        res = fv.check_first_valid_url(["invalid1", "invalid2"])
+        self.assertIsNone(res)
+
+        # Case 4: Empty list
+        res = fv.check_first_valid_url([])
+        self.assertIsNone(res)
+
+        # Case 5: Single item valid
+        mock_url_exists.side_effect = lambda u: True
+        res = fv.check_first_valid_url(["single"])
+        self.assertEqual(res, "single")
+
 
 if __name__ == "__main__":
     unittest.main()
