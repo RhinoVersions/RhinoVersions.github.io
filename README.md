@@ -30,9 +30,10 @@ python3 -m http.server 8000
 ## Structure
 
 - `.github/workflows/`: Automation logic for NuGet tracking.
-- `fetch_versions.py`: Core logic for scraping and markdown generation.
-- `rhino-versions-all.md`: Auto-generated database of all versions.
-- `index.html` / `styles.css` / `script.js`: Vanilla frontend components.
+- `scripts/`: Backend scripts (fetching versions, verification).
+- `data/`: Auto-generated markdown data files.
+- `assets/`: Frontend resources (CSS, JS, Images).
+- `index.html`: Main entry point.
 
 ## License
 

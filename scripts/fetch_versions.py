@@ -19,8 +19,8 @@ BULLET_RE = re.compile(r'^\s{4}- \[.*\]\(.*\)\s*$')
 # Environment variables with defaults
 MAJORS_RAW = os.getenv("RHINO_MAJORS", "7,8")
 LOCALES_RAW = os.getenv("RHINO_LOCALES", "en-us,de-de,es-es,fr-fr,it-it,ja-jp,ko-kr,zh-cn,zh-tw")
-MD_LATEST = os.getenv("MD_PATH", "rhino-versions.md")
-MD_ALL = os.getenv("MD_PATH_ALL", "rhino-versions-all.md")
+MD_LATEST = os.getenv("MD_PATH", "data/rhino-versions.md")
+MD_ALL = os.getenv("MD_PATH_ALL", "data/rhino-versions-all.md")
 HEAD_CHECK_LATEST = os.getenv("HEAD_CHECK_LATEST", "true").lower() == "true"
 HEAD_CHECK_ALL = os.getenv("HEAD_CHECK_ALL", "false").lower() == "true"
 MAC_HEAD_LIMIT = int(os.getenv("MAC_HEAD_LIMIT", "10"))  # Only HEAD-check Mac URLs for the N newest versions

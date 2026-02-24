@@ -12,7 +12,10 @@ def run(playwright):
     page.evaluate("window.getSelection().selectAllChildren(document.querySelector('h1'))")
 
     # Take a screenshot
-    page.screenshot(path="verification_selection.png")
+    import os
+    output_path = os.path.join(os.path.dirname(__file__), "../tests/artifacts/verification_selection.png")
+    page.screenshot(path=output_path)
+    print(f"Screenshot saved to {output_path}")
 
     browser.close()
 

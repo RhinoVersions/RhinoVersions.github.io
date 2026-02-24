@@ -24,8 +24,8 @@ jobs:
     env:
       RHINO_MAJORS: "7,8"
       RHINO_LOCALES: "en-us,de-de,es-es,fr-fr,it-it,ja-jp,ko-kr,zh-cn,zh-tw"
-      MD_PATH: "rhino-versions.md"
-      MD_PATH_ALL: "rhino-versions-all.md"
+      MD_PATH: "data/rhino-versions.md"
+      MD_PATH_ALL: "data/rhino-versions-all.md"
       HEAD_CHECK_LATEST: "true"
       HEAD_CHECK_ALL: "false"
       MAC_HEAD_LIMIT: "10"
@@ -48,18 +48,18 @@ jobs:
         run: pip install requests
 
       - name: Run backend unit tests
-        run: python -m unittest discover -s tests -p 'test_*.py' -v
+        run: PYTHONPATH=scripts python -m unittest discover -s tests -p 'test_*.py' -v
 
       # ── Phase 1: Lightweight check ──────────────────────────
       - name: Quick check for new versions
         id: check
-        run: python fetch_versions.py --check-only
+        run: python scripts/fetch_versions.py --check-only
 
       # ── Phase 2: Full build (only if new versions exist) ────
       - name: Build latest + all versions files from NuGet
         id: build
         if: steps.check.outputs.new_versions == 'true'
-        run: python fetch_versions.py
+        run: python scripts/fetch_versions.py
 
       - name: Job summary
         if: steps.check.outputs.new_versions == 'true'

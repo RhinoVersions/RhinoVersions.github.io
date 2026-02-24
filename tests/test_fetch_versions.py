@@ -1,5 +1,6 @@
 import datetime as dt
 import sys
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -13,6 +14,9 @@ if "requests" not in sys.modules:
         head=lambda *args, **kwargs: None,
         RequestException=Exception,
     )
+
+# Add scripts directory to path to allow import
+sys.path.append(os.path.join(os.path.dirname(__file__), '../scripts'))
 
 import fetch_versions as fv
 
