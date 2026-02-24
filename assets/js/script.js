@@ -33,6 +33,8 @@ let deepLinkState = {
 let cachedSearchInput = null;
 let cachedMajorFilter = null;
 let cachedLocaleFilter = null;
+// Cache for grouped versions to avoid re-calculation on filter change
+let cachedGroupedVersions = null;
 
 // ============================================
 // Data Fetching & Parsing
@@ -318,6 +320,7 @@ async function loadAllVersions() {
         });
 
         allVersions = Array.from(versionMap.values());
+        cachedGroupedVersions = groupVersions(allVersions);
 
         // Display
         filterVersions();
@@ -346,6 +349,9 @@ function displayVersions(versions) {
     const localeFilter = document.getElementById('locale-filter').value;
 
     listEl.innerHTML = '';
+
+    // Use DocumentFragment to batch DOM updates and minimize reflows
+    const fragment = document.createDocumentFragment();
 
     versions.forEach((versionGroup, index) => {
         const card = document.createElement('article');
@@ -414,8 +420,10 @@ function displayVersions(versions) {
             }
         });
 
-        listEl.appendChild(card);
+        fragment.appendChild(card);
     });
+
+    listEl.appendChild(fragment);
 
     countEl.textContent = `Showing ${versions.length} version${versions.length !== 1 ? 's' : ''}`;
     scrollToDeepLinkedRowIfNeeded();
@@ -429,7 +437,7 @@ function filterVersions() {
     const majorFilter = cachedMajorFilter.value;
     const localeFilter = cachedLocaleFilter.value;
 
-    let filtered = groupVersions(allVersions);
+    let filtered = cachedGroupedVersions || groupVersions(allVersions);
 
     // Filter by major version
     if (majorFilter !== 'all') {
