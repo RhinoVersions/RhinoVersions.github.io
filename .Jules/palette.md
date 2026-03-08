@@ -1,0 +1,3 @@
+## 2023-10-27 - Robust Accordion and Button ARIA Linking
+**Learning:** Found a missing link in accessible accordions for the version cards where the header button didn't `aria-control` the body region, making screen readers unaware of the content relationship. Additionally, generic button text like "Windows" inside lists needs specific context (e.g., version number) to avoid ambiguity when read out of context.
+**Action:** Always ensure accordion toggles use `aria-controls` with a matching target ID, `aria-expanded` reflecting the state, and `aria-hidden="true"` for decorative icons. For repeating buttons like downloads, inject dynamic `aria-label` text containing specifics like version numbers and locales so they are distinguishable in a screen reader links list.
