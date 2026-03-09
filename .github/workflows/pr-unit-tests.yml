@@ -1,0 +1,31 @@
+name: Pull Request Unit Tests
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run backend unit tests
+        run: PYTHONPATH=scripts python -m unittest discover -s tests -p 'test_*.py' -v
+
+      - name: Run frontend unit tests
+        run: node --test tests/script.test.js
