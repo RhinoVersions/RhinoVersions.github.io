@@ -357,6 +357,28 @@ function displayVersions(versions) {
 
     listEl.innerHTML = '';
 
+    if (versions.length === 0) {
+        listEl.innerHTML = `
+            <div class="empty-state" style="text-align: center; padding: 2rem;">
+                <p style="color: var(--color-text-secondary); margin-bottom: 1rem;">No versions found matching your filters.</p>
+                <button id="clear-filters-btn" class="cta-btn download-btn" style="cursor: pointer; border: none; font-family: inherit;">Clear Filters</button>
+            </div>
+        `;
+
+        const clearBtn = document.getElementById('clear-filters-btn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                cachedSearchInput.value = '';
+                cachedMajorFilter.value = 'all';
+                cachedLocaleFilter.value = 'all';
+                filterVersions();
+            });
+        }
+
+        countEl.textContent = 'Showing 0 versions';
+        return;
+    }
+
     // Use DocumentFragment to batch DOM updates and minimize reflows
     const fragment = document.createDocumentFragment();
 
