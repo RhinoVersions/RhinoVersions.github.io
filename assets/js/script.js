@@ -971,6 +971,14 @@ if (typeof window !== 'undefined') {
             loadLatestVersion();
             filterVersions();
         });
+
+        // Keyboard shortcut for search
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                cachedSearchInput.focus();
+            }
+        });
     });
 }
 
