@@ -133,18 +133,18 @@
                 </div>
             </div>
             <div class="sidebar-footer">
-                <p id="version-count">-</p>
+                <p id="version-count" role="status" aria-live="polite" aria-atomic="true">-</p>
             </div>
         </aside>
 
         <main class="main-content">
             <!-- Latest Version Hero Section -->
             <section id="latest-section" class="latest-section">
-                <div class="loading-state" id="loading-latest">
+                <div class="loading-state" id="loading-latest" role="status" aria-live="polite">
                     <div class="loader"></div>
                     <p>Loading latest version...</p>
                 </div>
-                <div class="error-state" id="error-latest" style="display: none;">
+                <div class="error-state" id="error-latest" style="display: none;" role="alert">
                     <p>Unable to load latest version data</p>
                 </div>
                 <div class="latest-card glass-card" id="latest-card" style="display: none;">
@@ -182,11 +182,11 @@
                     <h2>Version History</h2>
                 </div>
 
-                <div class="loading-state" id="loading-all">
+                <div class="loading-state" id="loading-all" role="status" aria-live="polite">
                     <div class="loader"></div>
                     <p>Loading version history...</p>
                 </div>
-                <div class="error-state" id="error-all" style="display: none;">
+                <div class="error-state" id="error-all" style="display: none;" role="alert">
                     <p>Unable to load version history</p>
                 </div>
 
