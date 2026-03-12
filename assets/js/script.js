@@ -267,11 +267,13 @@ async function loadLatestVersion() {
 
         if (windowsLink) {
             windowsBtn.href = windowsLink.url;
+            windowsBtn.setAttribute('aria-label', `Download Rhino ${versionInfo.fullVersion} for Windows`);
             windowsBtn.style.display = 'inline-block';
         }
 
         if (macLink) {
             macBtn.href = macLink.url;
+            macBtn.setAttribute('aria-label', `Download Rhino ${versionInfo.fullVersion} for Mac`);
             macBtn.style.display = 'inline-block';
         }
 
@@ -873,6 +875,7 @@ function applyTheme(theme) {
 
     const icon = document.getElementById('theme-icon');
     const label = document.getElementById('theme-label');
+    const toggleBtn = document.getElementById('theme-toggle');
     if (icon && label) {
         icon.innerHTML = THEME_ICONS[theme] || THEME_ICONS.system;
         if (theme === 'system') {
@@ -882,6 +885,10 @@ function applyTheme(theme) {
         } else {
             label.textContent = 'Light';
         }
+    }
+    if (toggleBtn) {
+        const displayTheme = theme.charAt(0).toUpperCase() + theme.slice(1);
+        toggleBtn.setAttribute('aria-label', `Toggle theme (Currently: ${displayTheme})`);
     }
 }
 
@@ -914,6 +921,7 @@ async function loadContributors() {
             bubble.target = '_blank';
             bubble.rel = 'noopener noreferrer';
             bubble.title = user.login;
+            bubble.setAttribute('aria-label', `View ${user.login}'s GitHub profile`);
 
             const img = document.createElement('img');
             img.src = user.avatar_url;
