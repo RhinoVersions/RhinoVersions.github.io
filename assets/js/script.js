@@ -443,6 +443,7 @@ function displayVersions(versions) {
             } else {
                 expandedVersionCards.delete(versionGroup.fullVersion);
             }
+            updateLatestSectionVisibility();
         };
 
         headerButton.addEventListener('click', toggleExpanded);
@@ -460,6 +461,17 @@ function displayVersions(versions) {
 
     countEl.textContent = `Showing ${versions.length} version${versions.length !== 1 ? 's' : ''}`;
     scrollToDeepLinkedRowIfNeeded();
+    updateLatestSectionVisibility();
+}
+
+/**
+ * Update the visibility of the latest version section based on expanded cards
+ */
+function updateLatestSectionVisibility() {
+    const latestSection = document.getElementById('latest-section');
+    if (latestSection) {
+        latestSection.style.display = expandedVersionCards.size > 0 ? 'none' : 'block';
+    }
 }
 
 /**
