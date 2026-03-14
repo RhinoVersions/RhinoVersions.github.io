@@ -261,6 +261,9 @@ async function loadLatestVersion() {
         document.getElementById('latest-version').textContent = versionInfo.fullVersion;
         document.getElementById('latest-date').textContent = formatDate(versionInfo.date);
 
+        const localeDisplay = versionInfo.locale === 'multi' ? 'Multilingual' : versionInfo.locale;
+        document.getElementById('latest-locale').textContent = escapeHTML(localeDisplay);
+
         // Update download buttons
         const windowsBtn = document.getElementById('latest-download-windows');
         const macBtn = document.getElementById('latest-download-mac');
@@ -268,13 +271,19 @@ async function loadLatestVersion() {
         if (windowsLink) {
             windowsBtn.href = windowsLink.url;
             windowsBtn.setAttribute('aria-label', `Download Rhino ${versionInfo.fullVersion} for Windows`);
-            windowsBtn.style.display = 'inline-block';
+            windowsBtn.innerHTML = `${PLATFORM_ICONS.windows} Windows`;
+            windowsBtn.style.display = 'inline-flex';
+        } else {
+            windowsBtn.style.display = 'none';
         }
 
         if (macLink) {
             macBtn.href = macLink.url;
             macBtn.setAttribute('aria-label', `Download Rhino ${versionInfo.fullVersion} for Mac`);
-            macBtn.style.display = 'inline-block';
+            macBtn.innerHTML = `${PLATFORM_ICONS.mac} Mac`;
+            macBtn.style.display = 'inline-flex';
+        } else {
+            macBtn.style.display = 'none';
         }
 
         // Show card, hide loading
