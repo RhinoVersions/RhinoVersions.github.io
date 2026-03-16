@@ -383,6 +383,7 @@ function displayVersions(versions) {
                 cachedMajorFilter.value = 'all';
                 cachedLocaleFilter.value = 'all';
                 filterVersions();
+                cachedSearchInput.focus();
             });
         }
 
