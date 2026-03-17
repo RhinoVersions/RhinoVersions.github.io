@@ -424,7 +424,7 @@ function displayVersions(versions) {
                     <span class="major-badge">Rhino ${escapeHTML(versionGroup.major)}</span>
                 </div>
                 <div class="version-card-meta">
-                    <span class="version-date">${formatDate(versionGroup.date, 'long')}</span>
+                    <span class="version-date"><span class="date-full">${formatDate(versionGroup.date, 'long')}</span><span class="date-short">${formatDate(versionGroup.date, 'short')}</span></span>
                     <span class="version-accordion-icon" aria-hidden="true">${isExpanded ? '−' : '+'}</span>
                 </div>
             </div>

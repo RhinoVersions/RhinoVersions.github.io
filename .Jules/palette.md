@@ -1,3 +1,3 @@
-## 2024-05-15 - Dynamic aria-labels on stateful buttons
-**Learning:** Static `aria-label`s on stateful buttons completely override internal text content, masking the current state from screen readers.
-**Action:** When creating a stateful button, either use visually hidden text that dynamically changes with the state, or dynamically update the `aria-label` attribute itself via JavaScript.
+## 2024-03-17 - Responsive Text Truncation Pattern
+**Learning:** In narrow mobile views (under 480px), full textual labels (like long dates or platform names) can cause layout breakage or awkward wrapping inside version cards. Using CSS classes `.date-full`/`.date-short` (and similar `.label-full`/`.label-short`) to conditionally display different lengths of text based on screen size is a very clean and reusable pattern in this repository's design system. It maintains clarity without sacrificing layout integrity.
+**Action:** When adding new dates, labels, or badges to the UI, remember to leverage these `*-full` and `*-short` utility classes so the design scales gracefully down to mobile.
