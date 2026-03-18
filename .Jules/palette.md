@@ -1,3 +1,7 @@
 ## 2024-03-17 - Responsive Text Truncation Pattern
 **Learning:** In narrow mobile views (under 480px), full textual labels (like long dates or platform names) can cause layout breakage or awkward wrapping inside version cards. Using CSS classes `.date-full`/`.date-short` (and similar `.label-full`/`.label-short`) to conditionally display different lengths of text based on screen size is a very clean and reusable pattern in this repository's design system. It maintains clarity without sacrificing layout integrity.
 **Action:** When adding new dates, labels, or badges to the UI, remember to leverage these `*-full` and `*-short` utility classes so the design scales gracefully down to mobile.
+
+## 2024-03-18 - Tactile Feedback and Screen Reader Noise Reduction
+**Learning:** Adding subtle `:active` pseudo-class states (like `transform: scale(0.95)` or `translateY(0)`) to buttons and cards provides essential tactile feedback on click/tap, making the UI feel responsive. Additionally, images inside links that already contain descriptive text or `aria-label`s should explicitly have `alt=""` and `aria-hidden="true"` to prevent screen readers from reading redundant information.
+**Action:** Always include `:active` states alongside `:hover` for interactive elements. Ensure decorative or redundant images inside labeled interactive elements are explicitly hidden from assistive technologies.
