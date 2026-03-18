@@ -179,6 +179,10 @@ header h1 {
     color: var(--color-text-primary);
 }
 
+.theme-toggle:active {
+    transform: scale(0.95);
+}
+
 .theme-toggle .icon {
     display: flex;
     align-items: center;
@@ -327,6 +331,11 @@ header h1 {
     box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.5), 0 4px 8px -2px rgba(0, 0, 0, 0.3);
 }
 
+.latest-card:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
 .latest-card>* {
     margin-bottom: var(--spacing-lg);
 }
@@ -433,6 +442,11 @@ header h1 {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
+.cta-btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
 /* ============================================
    Versions Accordion
    ============================================ */
@@ -465,6 +479,10 @@ header h1 {
 
 .version-card:hover {
     transform: translateY(-1px);
+}
+
+.version-card:active {
+    transform: translateY(0);
 }
 
 .version-card.deep-linked-card {
@@ -599,6 +617,10 @@ header h1 {
     background: rgba(96, 165, 250, 0.1);
 }
 
+.table-download-btn:active {
+    transform: scale(0.98);
+}
+
 /* ============================================
    Loading & Feedback
    ============================================ */
@@ -690,6 +712,11 @@ footer a:hover {
     box-shadow: var(--shadow-md);
     border-color: var(--color-accent);
     z-index: 10;
+}
+
+.contributor-bubble:active {
+    transform: scale(0.95);
+    box-shadow: var(--shadow-sm);
 }
 
 .contributor-bubble img {

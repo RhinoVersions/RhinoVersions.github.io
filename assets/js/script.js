@@ -947,7 +947,8 @@ async function loadContributors() {
 
             const img = document.createElement('img');
             img.src = user.avatar_url;
-            img.alt = user.login;
+            img.alt = '';
+            img.setAttribute('aria-hidden', 'true');
             img.loading = 'lazy';
 
             bubble.appendChild(img);
