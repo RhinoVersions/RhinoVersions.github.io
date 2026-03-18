@@ -235,7 +235,7 @@ async function loadLatestVersion() {
 
             // For Windows, match the target locale
             if (link.filename.endsWith('.exe')) {
-                if (parsed.locale === targetLocale) {
+                if (!windowsLink && parsed.locale === targetLocale) {
                     windowsLink = link;
                     if (!versionInfo) versionInfo = parsed;
                 }
@@ -244,7 +244,7 @@ async function loadLatestVersion() {
             else if (link.filename.endsWith('.dmg')) {
                 // Mac is usually multi, so we accept it regardless of targetLocale
                 // unless we want to be strict, but for now 'multi' is what we have.
-                if (parsed.locale === 'multi' || parsed.locale === targetLocale) {
+                if (!macLink && (parsed.locale === 'multi' || parsed.locale === targetLocale)) {
                     macLink = link;
                     // Only set versionInfo from Mac if we haven't found Windows yet
                     // (Windows usually has the locale-specific info we might want, though Mac is fine too)
