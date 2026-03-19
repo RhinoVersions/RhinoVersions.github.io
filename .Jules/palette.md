@@ -5,3 +5,6 @@
 ## 2024-03-18 - Tactile Feedback and Screen Reader Noise Reduction
 **Learning:** Adding subtle `:active` pseudo-class states (like `transform: scale(0.95)` or `translateY(0)`) to buttons and cards provides essential tactile feedback on click/tap, making the UI feel responsive. Additionally, images inside links that already contain descriptive text or `aria-label`s should explicitly have `alt=""` and `aria-hidden="true"` to prevent screen readers from reading redundant information.
 **Action:** Always include `:active` states alongside `:hover` for interactive elements. Ensure decorative or redundant images inside labeled interactive elements are explicitly hidden from assistive technologies.
+## 2026-03-19 - Focus State Border Radius
+**Learning:** When applying a global `:focus-visible` style to links and buttons, overriding the `border-radius` (e.g., `border-radius: var(--radius-sm);`) distorts the shape of already rounded elements (like circular avatar buttons or pill-shaped toggles) when they receive keyboard focus.
+**Action:** Use `border-radius: inherit;` or simply omit it and let the browser's default focus ring wrap the element's actual shape.
