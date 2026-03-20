@@ -8,3 +8,7 @@
 ## 2026-03-19 - Focus State Border Radius
 **Learning:** When applying a global `:focus-visible` style to links and buttons, overriding the `border-radius` (e.g., `border-radius: var(--radius-sm);`) distorts the shape of already rounded elements (like circular avatar buttons or pill-shaped toggles) when they receive keyboard focus.
 **Action:** Use `border-radius: inherit;` or simply omit it and let the browser's default focus ring wrap the element's actual shape.
+
+## 2026-04-12 - Nested Interactive Elements Keyboard Accessibility
+**Learning:** When a nested interactive element (like a link inside an accordion button) handles a `click` event with `stopPropagation()`, keyboard events (`Enter` or `Space`) can still bubble up to the parent interactive element if not explicitly stopped. This causes the parent's `keydown` handler to execute instead of or alongside the child's default behavior, breaking keyboard accessibility for the nested element.
+**Action:** Always ensure that nested interactive elements explicitly stop propagation for relevant `keydown` events (`Enter` and `Space`) in addition to `click` events to prevent parent handlers from intercepting the interaction.
