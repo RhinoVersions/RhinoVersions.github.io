@@ -442,6 +442,12 @@ function displayVersions(versions) {
             event.stopPropagation();
         });
 
+        versionLink.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.stopPropagation();
+            }
+        });
+
         const toggleExpanded = () => {
             const expanded = card.classList.toggle('expanded');
             headerButton.setAttribute('aria-expanded', expanded ? 'true' : 'false');
