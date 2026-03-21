@@ -12,3 +12,7 @@
 ## 2026-04-12 - Nested Interactive Elements Keyboard Accessibility
 **Learning:** When a nested interactive element (like a link inside an accordion button) handles a `click` event with `stopPropagation()`, keyboard events (`Enter` or `Space`) can still bubble up to the parent interactive element if not explicitly stopped. This causes the parent's `keydown` handler to execute instead of or alongside the child's default behavior, breaking keyboard accessibility for the nested element.
 **Action:** Always ensure that nested interactive elements explicitly stop propagation for relevant `keydown` events (`Enter` and `Space`) in addition to `click` events to prevent parent handlers from intercepting the interaction.
+
+## 2024-04-15 - Keyboard Navigation Loop: Focus and Release
+**Learning:** Providing a keyboard shortcut (like `/`) to focus an input is excellent for power users, but it creates a "focus trap" if there's no equally fast way to release that focus and return to standard document navigation. Users expect `Escape` to act as a universal "cancel" or "release" action. If `Escape` only clears the input but leaves it focused, the user is still stuck in the input field.
+**Action:** Always pair focus-shortcuts with an `Escape` fallback. When implementing an input, ensure `Escape` clears the input's content first. If the input is already empty, a second `Escape` press (or the first if it was empty) should explicitly call `.blur()` on the element to release focus and complete the keyboard navigation loop.

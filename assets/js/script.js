@@ -1002,6 +1002,19 @@ if (typeof window !== 'undefined') {
 
         // Set up event listeners
         document.getElementById('search-input').addEventListener('input', debounce(filterVersions, 300));
+
+        // Escape key to clear search or blur
+        document.getElementById('search-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (e.target.value) {
+                    e.target.value = '';
+                    filterVersions();
+                } else {
+                    e.target.blur();
+                }
+            }
+        });
+
         document.getElementById('major-filter').addEventListener('change', filterVersions);
         document.getElementById('locale-filter').addEventListener('change', () => {
             // Reload latest version when locale changes
