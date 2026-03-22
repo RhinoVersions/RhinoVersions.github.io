@@ -420,7 +420,7 @@ function displayVersions(versions) {
         card.innerHTML = `
             <div id="${panelId}-heading" class="version-card-header" role="button" tabindex="0" aria-expanded="${isExpanded}" aria-controls="${panelId}">
                 <div class="version-card-main">
-                    <a href="${escapeHTML(deepLinkHref)}" class="version-link" aria-label="Version ${escapeHTML(versionGroup.fullVersion)}"><span class="version-number">${escapeHTML(versionGroup.fullVersion)}</span></a>
+                    <a href="${escapeHTML(deepLinkHref)}" class="version-link" aria-label="Copy link to version ${escapeHTML(versionGroup.fullVersion)}" title="Copy link to version ${escapeHTML(versionGroup.fullVersion)}"><span class="version-number">${escapeHTML(versionGroup.fullVersion)}</span></a>
                     <span class="major-badge">Rhino ${escapeHTML(versionGroup.major)}</span>
                 </div>
                 <div class="version-card-meta">
@@ -438,13 +438,33 @@ function displayVersions(versions) {
         const icon = card.querySelector('.version-accordion-icon');
         const versionLink = card.querySelector('.version-link');
 
-        versionLink.addEventListener('click', (event) => {
+        const copyDeepLink = (event) => {
+            event.preventDefault();
             event.stopPropagation();
-        });
+
+            const absoluteUrl = versionLink.href;
+
+            navigator.clipboard.writeText(absoluteUrl).then(() => {
+                const versionNumberEl = versionLink.querySelector('.version-number');
+
+                versionNumberEl.textContent = 'Copied!';
+                versionNumberEl.style.color = 'var(--color-success)';
+
+                // Silently update URL
+                window.history.replaceState({}, '', absoluteUrl);
+
+                setTimeout(() => {
+                    versionNumberEl.textContent = versionGroup.fullVersion;
+                    versionNumberEl.style.color = '';
+                }, 1500);
+            });
+        };
+
+        versionLink.addEventListener('click', copyDeepLink);
 
         versionLink.addEventListener('keydown', (event) => {
             if (event.key === 'Enter' || event.key === ' ') {
-                event.stopPropagation();
+                copyDeepLink(event);
             }
         });
 
