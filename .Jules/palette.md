@@ -20,3 +20,7 @@
 ## 2026-05-20 - Seamless Deep Link Interactions
 **Learning:** Using deep link URLs in `href` attributes inside a heavily stateful single-page application dashboard causes jarring full-page reloads when clicked by a user intending to "copy" the link. This behavior unexpectedly clears their current filter and search states.
 **Action:** For shareable deep links within a dashboard, intercept the `click` and `keydown` (`Enter`/`Space`) events. Instead of allowing standard navigation, use `navigator.clipboard.writeText()` to copy the link, provide immediate inline visual feedback (e.g., changing text to "Copied!"), and update the address bar silently using `window.history.replaceState()`. Always update the `aria-label` and `title` to clarify that the link will "Copy link to version..." to set correct user expectations.
+
+## 2026-05-25 - Skip Link Focus Ring Clipping
+**Learning:** When using a visually hidden `.skip-link` accessibility pattern that drops down into the viewport on focus, placing the element exactly at `left: 0` causes the left edge of the browser's focus ring (`outline`) to clip against the viewport boundary, reducing visibility and failing WCAG focus indicator requirements.
+**Action:** Always provide a positive horizontal viewport offset (e.g., `left: 8px`) alongside the vertical offset when styling absolutely positioned skip links to ensure their focus indicators are fully visible on screen.
