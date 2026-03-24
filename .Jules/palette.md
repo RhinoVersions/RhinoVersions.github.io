@@ -24,3 +24,7 @@
 ## 2026-05-25 - Skip Link Focus Ring Clipping
 **Learning:** When using a visually hidden `.skip-link` accessibility pattern that drops down into the viewport on focus, placing the element exactly at `left: 0` causes the left edge of the browser's focus ring (`outline`) to clip against the viewport boundary, reducing visibility and failing WCAG focus indicator requirements.
 **Action:** Always provide a positive horizontal viewport offset (e.g., `left: 8px`) alongside the vertical offset when styling absolutely positioned skip links to ensure their focus indicators are fully visible on screen.
+
+## 2026-05-26 - Invisible Feedback on Clipboard Actions
+**Learning:** When executing inline visual changes within an interactive element (e.g., momentarily updating a link's text to "Copied!"), screen readers often ignore the update because the element isn't marked as a live region. Users relying on assistive technology receive absolutely no confirmation that their clipboard action was successful.
+**Action:** Always pair visual, temporary text changes (like copy-to-clipboard success states) with an `aria-live="polite"` visually hidden announcer (`sr-only`) to ensure screen readers explicitly narrate the success to the user.
