@@ -446,9 +446,14 @@ function displayVersions(versions) {
 
             navigator.clipboard.writeText(absoluteUrl).then(() => {
                 const versionNumberEl = versionLink.querySelector('.version-number');
+                const srAnnouncer = document.getElementById('sr-announcer');
 
                 versionNumberEl.textContent = 'Copied!';
                 versionNumberEl.style.color = 'var(--color-success)';
+
+                if (srAnnouncer) {
+                    srAnnouncer.textContent = `Link copied to clipboard for version ${versionGroup.fullVersion}`;
+                }
 
                 // Silently update URL
                 window.history.replaceState({}, '', absoluteUrl);
@@ -456,6 +461,10 @@ function displayVersions(versions) {
                 setTimeout(() => {
                     versionNumberEl.textContent = versionGroup.fullVersion;
                     versionNumberEl.style.color = '';
+
+                    if (srAnnouncer) {
+                        srAnnouncer.textContent = '';
+                    }
                 }, 1500);
             });
         };
