@@ -564,10 +564,29 @@ header h1 {
 
 .version-link {
     text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
 }
 
 .version-link:hover .version-number {
     text-decoration: underline;
+}
+
+.copy-link-icon {
+    opacity: 0;
+    color: var(--color-text-secondary);
+    transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.version-card:hover .copy-link-icon {
+    opacity: 0.5;
+}
+
+.version-link:hover .copy-link-icon,
+.version-link:focus-visible .copy-link-icon {
+    opacity: 1;
+    color: var(--color-accent);
 }
 
 .major-badge {

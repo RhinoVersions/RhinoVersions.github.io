@@ -28,3 +28,7 @@
 ## 2026-05-26 - Invisible Feedback on Clipboard Actions
 **Learning:** When executing inline visual changes within an interactive element (e.g., momentarily updating a link's text to "Copied!"), screen readers often ignore the update because the element isn't marked as a live region. Users relying on assistive technology receive absolutely no confirmation that their clipboard action was successful.
 **Action:** Always pair visual, temporary text changes (like copy-to-clipboard success states) with an `aria-live="polite"` visually hidden announcer (`sr-only`) to ensure screen readers explicitly narrate the success to the user.
+
+## 2026-03-26 - Visual Affordance for Hidden Actions
+**Learning:** Invisible clipboard actions (like copying a deep link when clicking on a version number) are completely undiscoverable to new users unless there is a visual affordance. Simply changing the text on click to "Copied!" only rewards accidental discovery. Adding a subtle link icon that appears on card hover and fully highlights on link hover/focus clearly communicates the copy functionality before the user interacts.
+**Action:** For UI elements that trigger hidden clipboard operations, always pair the action with a contextual icon (like a link or copy icon). Ensure the icon fades in or changes state on hover/focus to provide clear visual affordance.
