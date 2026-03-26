@@ -11,6 +11,8 @@ const PLATFORM_ICONS = {
     mac: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.22.15-2.19 1.28-2.17 3.83.03 3.02 2.65 4.03 2.68 4.04l-.06.2M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>'
 };
 
+const LINK_ICON = '<svg class="copy-link-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>';
+
 // Configuration
 const CONFIG = {
     // GitHub repository info - adjust based on your repo structure
@@ -420,7 +422,7 @@ function displayVersions(versions) {
         card.innerHTML = `
             <div id="${panelId}-heading" class="version-card-header" role="button" tabindex="0" aria-expanded="${isExpanded}" aria-controls="${panelId}">
                 <div class="version-card-main">
-                    <a href="${escapeHTML(deepLinkHref)}" class="version-link" aria-label="Copy link to version ${escapeHTML(versionGroup.fullVersion)}" title="Copy link to version ${escapeHTML(versionGroup.fullVersion)}"><span class="version-number">${escapeHTML(versionGroup.fullVersion)}</span></a>
+                    <a href="${escapeHTML(deepLinkHref)}" class="version-link" aria-label="Copy link to version ${escapeHTML(versionGroup.fullVersion)}" title="Copy link to version ${escapeHTML(versionGroup.fullVersion)}"><span class="version-number">${escapeHTML(versionGroup.fullVersion)}</span>${LINK_ICON}</a>
                     <span class="major-badge">Rhino ${escapeHTML(versionGroup.major)}</span>
                 </div>
                 <div class="version-card-meta">
@@ -446,10 +448,12 @@ function displayVersions(versions) {
 
             navigator.clipboard.writeText(absoluteUrl).then(() => {
                 const versionNumberEl = versionLink.querySelector('.version-number');
+                const copyIconEl = versionLink.querySelector('.copy-link-icon');
                 const srAnnouncer = document.getElementById('sr-announcer');
 
                 versionNumberEl.textContent = 'Copied!';
                 versionNumberEl.style.color = 'var(--color-success)';
+                if (copyIconEl) copyIconEl.style.display = 'none';
 
                 if (srAnnouncer) {
                     srAnnouncer.textContent = `Link copied to clipboard for version ${versionGroup.fullVersion}`;
@@ -461,6 +465,7 @@ function displayVersions(versions) {
                 setTimeout(() => {
                     versionNumberEl.textContent = versionGroup.fullVersion;
                     versionNumberEl.style.color = '';
+                    if (copyIconEl) copyIconEl.style.display = '';
 
                     if (srAnnouncer) {
                         srAnnouncer.textContent = '';
