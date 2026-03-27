@@ -372,9 +372,16 @@ function displayVersions(versions) {
 
     if (versions.length === 0) {
         listEl.innerHTML = `
-            <div class="empty-state" style="text-align: center; padding: 2rem;">
-                <p style="color: var(--color-text-secondary); margin-bottom: 1rem;">No versions found matching your filters.</p>
-                <button id="clear-filters-btn" class="cta-btn download-btn" style="cursor: pointer; border: none; font-family: inherit;">Clear Filters</button>
+            <div class="empty-state glass-card" style="text-align: center; padding: 3rem 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; border-style: dashed;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: 0.5;">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <div>
+                    <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--color-text-primary); margin-bottom: 0.25rem;">No versions found</h3>
+                    <p style="color: var(--color-text-secondary); font-size: 0.875rem;">We couldn't find any versions matching your current filters.</p>
+                </div>
+                <button id="clear-filters-btn" class="cta-btn download-btn" style="cursor: pointer; border: none; font-family: inherit; margin-top: 0.5rem;" aria-label="Clear all filters to show all versions">Clear Filters</button>
             </div>
         `;
 
