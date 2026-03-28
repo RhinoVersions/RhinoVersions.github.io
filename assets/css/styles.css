@@ -215,6 +215,9 @@ header h1 {
 .sidebar {
     width: 240px;
     flex-shrink: 0;
+    position: sticky;
+    top: var(--spacing-xl);
+    align-self: flex-start;
 }
 
 .sidebar-section h2 {
@@ -781,6 +784,9 @@ footer a:hover {
         border-radius: var(--radius-md);
         border: 1px solid var(--color-border);
         transition: background-color 0.3s ease, border-color 0.3s ease;
+        position: relative;
+        top: auto;
+        align-self: auto;
     }
 
     .sidebar-section {
