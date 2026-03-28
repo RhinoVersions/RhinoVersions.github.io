@@ -36,3 +36,7 @@
 ## 2026-03-27 - Visually Distinct Empty States
 **Learning:** Filter-heavy interfaces often result in states with zero matching items. Presenting this as plain, unstyled text feels incomplete and looks identical to loading/error fallbacks. By wrapping the empty state in a dashed container (using existing `.glass-card` classes) and pairing it with a contextual icon (like a magnifying glass) and clearer typography, users immediately recognize it as an expected state rather than an error. It also elevates the discoverability of recovery actions like the "Clear Filters" button.
 **Action:** Whenever implementing a search or filter result list, never use plain text for the "no results" state. Always design a visually distinct empty state container that includes a descriptive icon, clear headings, and a prominently placed recovery call-to-action to help the user proceed.
+
+## 2026-03-28 - Sticky Sidebar for Context Retention
+**Learning:** When a user scrolls down a long list of items (like a version history dashboard), a statically positioned filter sidebar disappears from view. This forces the user to manually scroll all the way back to the top of the page just to change a single filter or perform a new search, resulting in significant friction.
+**Action:** Always apply `position: sticky; align-self: flex-start;` to sidebars that control long adjacent content lists, ensuring the controls remain immediately accessible within the viewport at all times.
