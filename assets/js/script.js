@@ -434,7 +434,7 @@ function displayVersions(versions) {
                 </div>
                 <div class="version-card-meta">
                     <span class="version-date"><span class="date-full">${formatDate(versionGroup.date, 'long')}</span><span class="date-short">${formatDate(versionGroup.date, 'short')}</span></span>
-                    <span class="version-accordion-icon" aria-hidden="true">${isExpanded ? '−' : '+'}</span>
+                    <span class="version-accordion-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
                 </div>
             </div>
             <div id="${panelId}" class="version-card-body" style="display: ${isExpanded ? 'block' : 'none'};" role="region" aria-labelledby="${panelId}-heading">
@@ -493,7 +493,6 @@ function displayVersions(versions) {
             const expanded = card.classList.toggle('expanded');
             headerButton.setAttribute('aria-expanded', expanded ? 'true' : 'false');
             body.style.display = expanded ? 'block' : 'none';
-            icon.textContent = expanded ? '−' : '+';
 
             if (expanded) {
                 expandedVersionCards.add(versionGroup.fullVersion);
