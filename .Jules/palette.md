@@ -40,3 +40,7 @@
 ## 2026-03-28 - Sticky Sidebar for Context Retention
 **Learning:** When a user scrolls down a long list of items (like a version history dashboard), a statically positioned filter sidebar disappears from view. This forces the user to manually scroll all the way back to the top of the page just to change a single filter or perform a new search, resulting in significant friction.
 **Action:** Always apply `position: sticky; align-self: flex-start;` to sidebars that control long adjacent content lists, ensuring the controls remain immediately accessible within the viewport at all times.
+
+## 2026-03-30 - Reduced Motion Accessibility
+**Learning:** The application uses several smooth transitions, staggered fadeInUp animations on cards, and continuous spinning loaders. While these add visual polish, they can trigger nausea, dizziness, or headaches for users with vestibular motion disorders. Relying solely on standard styles without checking system-level motion preferences excludes these users and violates WCAG guidelines for animation.
+**Action:** Always include a `@media (prefers-reduced-motion: reduce)` block in the global CSS to neutralize animations, transitions, and smooth scrolling for users who have explicitly requested reduced motion at the OS level.
