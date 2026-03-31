@@ -716,11 +716,12 @@ footer {
 
 footer a {
     color: var(--color-accent);
-    text-decoration: none;
+    text-decoration: underline;
+    text-underline-offset: 2px;
 }
 
 footer a:hover {
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 .footer-version {
