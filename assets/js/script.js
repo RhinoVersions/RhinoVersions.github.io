@@ -272,7 +272,7 @@ async function loadLatestVersion() {
 
         if (windowsLink) {
             windowsBtn.href = windowsLink.url;
-            windowsBtn.setAttribute('aria-label', `Download Rhino ${versionInfo.fullVersion} for Windows`);
+            windowsBtn.setAttribute('aria-label', `Download Rhino ${versionInfo.fullVersion} for Windows (opens in a new tab)`);
             windowsBtn.innerHTML = `${PLATFORM_ICONS.windows} Windows`;
             windowsBtn.style.display = 'inline-flex';
         } else {
@@ -281,7 +281,7 @@ async function loadLatestVersion() {
 
         if (macLink) {
             macBtn.href = macLink.url;
-            macBtn.setAttribute('aria-label', `Download Rhino ${versionInfo.fullVersion} for Mac`);
+            macBtn.setAttribute('aria-label', `Download Rhino ${versionInfo.fullVersion} for Mac (opens in a new tab)`);
             macBtn.innerHTML = `${PLATFORM_ICONS.mac} Mac`;
             macBtn.style.display = 'inline-flex';
         } else {
@@ -671,10 +671,10 @@ function buildVersionCardRows(versionGroup, localeFilter) {
             let buttons = '';
                 const versionNumber = escapeHTML(versionGroup.fullVersion);
             if (entry.windowsUrl) {
-                    buttons += `<a href="${entry.windowsUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer" aria-label="Download Rhino version ${versionNumber} for Windows (${escapeHTML(entry.locale)})">${PLATFORM_ICONS.windows}<span class="label-full">Windows</span><span class="label-short">Win</span></a>`;
+                    buttons += `<a href="${entry.windowsUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer" aria-label="Download Rhino version ${versionNumber} for Windows (${escapeHTML(entry.locale)}) (opens in a new tab)">${PLATFORM_ICONS.windows}<span class="label-full">Windows</span><span class="label-short">Win</span></a>`;
             }
             if (entry.macUrl || macFallback?.macUrl) {
-                    buttons += `<a href="${entry.macUrl || macFallback.macUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer" aria-label="Download Rhino version ${versionNumber} for Mac (${escapeHTML(entry.locale)})">${PLATFORM_ICONS.mac}Mac</a>`;
+                    buttons += `<a href="${entry.macUrl || macFallback.macUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer" aria-label="Download Rhino version ${versionNumber} for Mac (${escapeHTML(entry.locale)}) (opens in a new tab)">${PLATFORM_ICONS.mac}Mac</a>`;
             }
 
             rows.push(`
@@ -691,10 +691,10 @@ function buildVersionCardRows(versionGroup, localeFilter) {
                 let buttons = '';
                     const versionNumber = escapeHTML(versionGroup.fullVersion);
                 if (entry.windowsUrl) {
-                        buttons += `<a href="${entry.windowsUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer" aria-label="Download Rhino version ${versionNumber} for Windows">${PLATFORM_ICONS.windows}<span class="label-full">Windows</span><span class="label-short">Win</span></a>`;
+                        buttons += `<a href="${entry.windowsUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer" aria-label="Download Rhino version ${versionNumber} for Windows (opens in a new tab)">${PLATFORM_ICONS.windows}<span class="label-full">Windows</span><span class="label-short">Win</span></a>`;
                 }
                 if (entry.macUrl) {
-                        buttons += `<a href="${entry.macUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer" aria-label="Download Rhino version ${versionNumber} for Mac">${PLATFORM_ICONS.mac}Mac</a>`;
+                        buttons += `<a href="${entry.macUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer" aria-label="Download Rhino version ${versionNumber} for Mac (opens in a new tab)">${PLATFORM_ICONS.mac}Mac</a>`;
                 }
 
                 const localeLabel = entry.locale === 'multi' ? 'MULTILINGUAL' : entry.locale.toUpperCase();
@@ -989,7 +989,7 @@ async function loadContributors() {
             bubble.target = '_blank';
             bubble.rel = 'noopener noreferrer';
             bubble.title = user.login;
-            bubble.setAttribute('aria-label', `View ${user.login}'s GitHub profile`);
+            bubble.setAttribute('aria-label', `View ${user.login}'s GitHub profile (opens in a new tab)`);
 
             const img = document.createElement('img');
             img.src = user.avatar_url;

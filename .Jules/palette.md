@@ -44,3 +44,7 @@
 ## 2026-03-30 - Reduced Motion Accessibility
 **Learning:** The application uses several smooth transitions, staggered fadeInUp animations on cards, and continuous spinning loaders. While these add visual polish, they can trigger nausea, dizziness, or headaches for users with vestibular motion disorders. Relying solely on standard styles without checking system-level motion preferences excludes these users and violates WCAG guidelines for animation.
 **Action:** Always include a `@media (prefers-reduced-motion: reduce)` block in the global CSS to neutralize animations, transitions, and smooth scrolling for users who have explicitly requested reduced motion at the OS level.
+
+## 2026-03-31 - External Link Accessibility
+**Learning:** Links that open in a new tab (`target="_blank"`) without warning are disorienting for screen reader users and those with cognitive disabilities. Relying solely on color to indicate a link (e.g., in a footer) fails WCAG contrast requirements if the contrast ratio between the link and surrounding text is low.
+**Action:** Always warn users when a link opens in a new tab. For visual links within text, append a visually hidden warning: `<span class="sr-only"> (opens in a new tab)</span>`. For icon buttons or complex interactive elements, append ` (opens in a new tab)` to the `aria-label`. To ensure links are distinguishable from surrounding text without relying on color alone, style inline links with `text-decoration: underline` by default.
