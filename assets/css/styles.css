@@ -571,6 +571,7 @@ header h1 {
 .version-number {
     font-weight: 600;
     color: var(--color-accent);
+    transition: color 0.2s ease;
 }
 
 .version-link {

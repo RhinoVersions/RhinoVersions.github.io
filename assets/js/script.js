@@ -12,6 +12,7 @@ const PLATFORM_ICONS = {
 };
 
 const LINK_ICON = '<svg class="copy-link-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>';
+const CHECK_ICON = '<svg class="copy-link-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 
 // Configuration
 const CONFIG = {
@@ -458,9 +459,8 @@ function displayVersions(versions) {
                 const copyIconEl = versionLink.querySelector('.copy-link-icon');
                 const srAnnouncer = document.getElementById('sr-announcer');
 
-                versionNumberEl.textContent = 'Copied!';
                 versionNumberEl.style.color = 'var(--color-success)';
-                if (copyIconEl) copyIconEl.style.display = 'none';
+                if (copyIconEl) copyIconEl.outerHTML = CHECK_ICON;
 
                 if (srAnnouncer) {
                     srAnnouncer.textContent = `Link copied to clipboard for version ${versionGroup.fullVersion}`;
@@ -470,9 +470,9 @@ function displayVersions(versions) {
                 window.history.replaceState({}, '', absoluteUrl);
 
                 setTimeout(() => {
-                    versionNumberEl.textContent = versionGroup.fullVersion;
                     versionNumberEl.style.color = '';
-                    if (copyIconEl) copyIconEl.style.display = '';
+                    const updatedIcon = versionLink.querySelector('.copy-link-icon');
+                    if (updatedIcon) updatedIcon.outerHTML = LINK_ICON;
 
                     if (srAnnouncer) {
                         srAnnouncer.textContent = '';

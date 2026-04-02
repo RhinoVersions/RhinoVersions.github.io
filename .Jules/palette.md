@@ -48,3 +48,7 @@
 ## 2026-03-31 - External Link Accessibility
 **Learning:** Links that open in a new tab (`target="_blank"`) without warning are disorienting for screen reader users and those with cognitive disabilities. Relying solely on color to indicate a link (e.g., in a footer) fails WCAG contrast requirements if the contrast ratio between the link and surrounding text is low.
 **Action:** Always warn users when a link opens in a new tab. For visual links within text, append a visually hidden warning: `<span class="sr-only"> (opens in a new tab)</span>`. For icon buttons or complex interactive elements, append ` (opens in a new tab)` to the `aria-label`. To ensure links are distinguishable from surrounding text without relying on color alone, style inline links with `text-decoration: underline` by default.
+
+## 2026-05-27 - Preventing Layout Shifts During Inline Feedback
+**Learning:** Swapping text of variable lengths (like a long version number "8.25.12345..." to "Copied!") during inline feedback causes jarring layout shifts, especially in densely packed lists or flex layouts. This breaks visual stability and degrades the UX.
+**Action:** Instead of changing text content, provide feedback by swapping fixed-width affordances (like changing a copy/link icon to a checkmark) and updating colors. This maintains the physical dimensions of the element while still clearly communicating success.
