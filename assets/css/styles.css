@@ -2,6 +2,7 @@
    CSS Custom Properties (Design Tokens)
    ============================================ */
 :root {
+    color-scheme: light;
     /* Colors - Light */
     --color-bg: #ffffff;
     --color-surface: #f9fafb;
@@ -50,6 +51,7 @@
    Dark Mode
    ============================================ */
 [data-theme="dark"] {
+    color-scheme: dark;
     --color-bg: #0d1117;
     --color-surface: #18181b;
     --color-text-primary: #e4e4e7;
