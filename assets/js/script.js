@@ -944,6 +944,13 @@ function applyTheme(theme) {
     const icon = document.getElementById('theme-icon');
     const label = document.getElementById('theme-label');
     const toggleBtn = document.getElementById('theme-toggle');
+
+    // Update theme-color meta tag for mobile browser UI
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+        metaThemeColor.setAttribute('content', effective === 'dark' ? '#0d1117' : '#ffffff');
+    }
+
     if (icon && label) {
         icon.innerHTML = THEME_ICONS[theme] || THEME_ICONS.system;
         if (theme === 'system') {
