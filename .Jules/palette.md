@@ -56,3 +56,7 @@
 ## 2026-06-01 - Comprehensive Native UI Theming
 **Learning:** Modern dark modes can't just stop at CSS variables for the page background. If `color-scheme` isn't declared, native browser UI components (like scrollbars, default `<select>` dropdowns, and form controls) remain stubbornly light, creating jarring visual inconsistencies. Additionally, on mobile browsers, the address bar's color is governed by the `<meta name="theme-color">` tag. If this tag isn't dynamically updated via JS when the theme toggles, users get a blinding white address bar floating above a dark-themed website.
 **Action:** When implementing dark mode, always pair CSS `color-scheme` properties (`light` on `:root`, `dark` on the dark-theme selector) with a JavaScript function that dynamically updates the `content` attribute of `<meta name="theme-color">` to ensure 100% cohesion across the browser's native UI.
+
+## 2026-06-02 - Form Input Focus Contrast
+**Learning:** Using a low-opacity box-shadow (like `rgba(59, 130, 246, 0.15)`) for form input focus states fails WCAG 2.1 Non-text Contrast requirements. Users with low vision or varying monitor calibrations may not see the focus ring, resulting in poor keyboard navigation.
+**Action:** Always use a solid `outline` (e.g., `outline: 2px solid var(--color-accent)`) with an offset rather than relying on subtle box-shadows to ensure focus states are clearly visible and accessible to all users.
