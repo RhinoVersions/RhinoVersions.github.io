@@ -382,7 +382,7 @@ function displayVersions(versions) {
                     <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--color-text-primary); margin-bottom: 0.25rem;">No versions found</h3>
                     <p style="color: var(--color-text-secondary); font-size: 0.875rem;">We couldn't find any versions matching your current filters.</p>
                 </div>
-                <button id="clear-filters-btn" class="cta-btn download-btn" style="cursor: pointer; border: none; font-family: inherit; margin-top: 0.5rem;" aria-label="Clear all filters to show all versions">Clear Filters</button>
+                <button id="clear-filters-btn" class="cta-btn download-btn" style="cursor: pointer; border: none; font-family: inherit; margin-top: 0.5rem;">Clear Filters</button>
             </div>
         `;
 

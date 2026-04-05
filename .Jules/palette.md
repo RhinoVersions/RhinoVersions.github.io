@@ -60,3 +60,11 @@
 ## 2026-06-02 - Form Input Focus Contrast
 **Learning:** Using a low-opacity box-shadow (like `rgba(59, 130, 246, 0.15)`) for form input focus states fails WCAG 2.1 Non-text Contrast requirements. Users with low vision or varying monitor calibrations may not see the focus ring, resulting in poor keyboard navigation.
 **Action:** Always use a solid `outline` (e.g., `outline: 2px solid var(--color-accent)`) with an offset rather than relying on subtle box-shadows to ensure focus states are clearly visible and accessible to all users.
+
+## 2026-06-03 - Text Color Contrast Across Themes
+**Learning:** Colors that are legible in dark mode may fail WCAG AA text contrast requirements (4.5:1) when inverted against a light background. For example, standard bright blues (`#3b82f6`) often fail on white backgrounds, while slightly darker shades (`#2563eb`) pass. Additionally, status colors like `--color-success` must be explicitly defined in dark mode; otherwise, they may inherit an overly dark value (like `#059669`) that is invisible against a dark background.
+**Action:** Always verify contrast ratios for both light and dark themes independently. When defining utility colors in CSS, ensure they are explicitly overridden in the `[data-theme="dark"]` block if the light mode equivalent is too dark to be readable on a dark surface.
+
+## 2026-06-03 - Label in Name Accessibility
+**Learning:** Providing an `aria-label` that is completely different from a button's visible text (e.g., a button displaying "Clear Filters" with an `aria-label` of "Clear all filters to show all versions") violates the WCAG "Label in Name" criterion. This prevents voice dictation users from targeting the button by speaking its visible text, as assistive technologies only register the `aria-label`.
+**Action:** For buttons with clear, visible text, avoid using an `aria-label`. If an `aria-label` is strictly necessary to provide extra context, the visible text must be fully included within it (e.g., "Clear Filters to show all versions"), though simply omitting the `aria-label` is almost always better for dictation users.
