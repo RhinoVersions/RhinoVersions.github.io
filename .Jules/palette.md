@@ -68,3 +68,7 @@
 ## 2026-06-03 - Label in Name Accessibility
 **Learning:** Providing an `aria-label` that is completely different from a button's visible text (e.g., a button displaying "Clear Filters" with an `aria-label` of "Clear all filters to show all versions") violates the WCAG "Label in Name" criterion. This prevents voice dictation users from targeting the button by speaking its visible text, as assistive technologies only register the `aria-label`.
 **Action:** For buttons with clear, visible text, avoid using an `aria-label`. If an `aria-label` is strictly necessary to provide extra context, the visible text must be fully included within it (e.g., "Clear Filters to show all versions"), though simply omitting the `aria-label` is almost always better for dictation users.
+
+## 2026-04-06 - Accordion Escape Key Navigation
+**Learning:** When designing expandable components like accordion cards, power users navigating via keyboard often expect the `Escape` key to act as a quick collapse mechanism, especially when focus is within the expanded content or on the container itself. If `Escape` isn't handled, the user must manually navigate back to the toggle button or use other means to close the section.
+**Action:** Always add an `Escape` key listener to the container of expandable content. When triggered, it should collapse the section and explicitly return keyboard focus back to the primary trigger (e.g., the `headerButton`) to maintain a smooth navigation loop.

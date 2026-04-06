@@ -510,6 +510,15 @@ function displayVersions(versions) {
             }
         });
 
+        card.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && card.classList.contains('expanded')) {
+                event.preventDefault();
+                event.stopPropagation();
+                toggleExpanded();
+                headerButton.focus();
+            }
+        });
+
         fragment.appendChild(card);
     });
 
