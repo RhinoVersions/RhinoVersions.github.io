@@ -72,3 +72,7 @@
 ## 2026-04-06 - Accordion Escape Key Navigation
 **Learning:** When designing expandable components like accordion cards, power users navigating via keyboard often expect the `Escape` key to act as a quick collapse mechanism, especially when focus is within the expanded content or on the container itself. If `Escape` isn't handled, the user must manually navigate back to the toggle button or use other means to close the section.
 **Action:** Always add an `Escape` key listener to the container of expandable content. When triggered, it should collapse the section and explicitly return keyboard focus back to the primary trigger (e.g., the `headerButton`) to maintain a smooth navigation loop.
+
+## 2026-06-03 - Text Color Contrast Across Themes
+**Learning:** Colors that are legible in dark mode may fail WCAG AA text contrast requirements (4.5:1) when inverted against a light background. For example, standard bright blues (`#3b82f6`) often fail on white backgrounds, while slightly darker shades (`#1d4ed8`) pass. Additionally, status colors like `--color-success` must be explicitly defined in dark mode; otherwise, they may inherit an overly dark value (like `#047857`) that is invisible against a dark background.
+**Action:** Always verify contrast ratios for both light and dark themes independently. When defining utility colors in CSS, ensure they are explicitly overridden in the `[data-theme="dark"]` block if the light mode equivalent is too dark to be readable on a dark surface.
