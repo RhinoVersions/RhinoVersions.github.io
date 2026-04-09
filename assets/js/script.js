@@ -916,6 +916,16 @@ function scrollToDeepLinkedRowIfNeeded() {
     const targetRow = document.querySelector('.deep-linked-card');
     if (targetRow) {
         targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Shift focus to the header so keyboard users start navigation at the linked item
+        const headerButton = targetRow.querySelector('.version-card-header');
+        if (headerButton) {
+            // Focus needs a slight delay to allow smooth scrolling to start so it doesn't get interrupted or reset
+            setTimeout(() => {
+                headerButton.focus({ preventScroll: true });
+            }, 50);
+        }
+
         deepLinkState.hasAutoScrolled = true;
     }
 }
