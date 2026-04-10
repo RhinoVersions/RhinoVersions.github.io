@@ -80,3 +80,7 @@
 ## 2026-04-09 - Focus Management on Deep Links
 **Learning:** When deep linking to a specific item in a long list, automatically scrolling the item into view is visually sufficient for sighted mouse users. However, for keyboard-only or screen reader users, visual scrolling doesn't change their logical location. Without programmatic focus management, they remain at the top of the document (or wherever focus last was) and must manually tab through the entire preceding page content to reach the element they just linked to.
 **Action:** When automatically scrolling an item into view (like a deep-linked row), always shift programmatic focus to a logical, interactive element within that item (e.g., `.focus({ preventScroll: true })` on the item's header or title). This ensures all users start their interaction at the intended destination.
+
+## 2026-06-03 - Predictive Tooltips for Toggle Buttons
+**Learning:** For multi-state buttons like a 3-way theme toggle (system → light → dark), indicating the current state is not always enough for clear interaction feedback. Sighted users hovering over the button can benefit from knowing what will happen when they click. While the visible label states the *current* condition, a `title` tooltip predicting the *next* state (e.g., "Switch to Light theme") sets clear expectations.
+**Action:** When implementing multi-state interactive elements, use the `title` attribute to provide a predictive tooltip that explicitly describes the next state in the sequence, improving clarity and confidence in the interaction.
