@@ -972,12 +972,21 @@ function applyTheme(theme) {
 
     if (icon && label) {
         icon.innerHTML = THEME_ICONS[theme] || THEME_ICONS.system;
+        let nextTheme = 'light';
         if (theme === 'system') {
             label.textContent = 'System';
+            nextTheme = 'light';
         } else if (theme === 'dark') {
             label.textContent = 'Dark';
+            nextTheme = 'system';
         } else {
             label.textContent = 'Light';
+            nextTheme = 'dark';
+        }
+
+        if (toggleBtn) {
+            const nextThemeDisplay = nextTheme.charAt(0).toUpperCase() + nextTheme.slice(1);
+            toggleBtn.title = `Switch to ${nextThemeDisplay} theme`;
         }
     }
 }
