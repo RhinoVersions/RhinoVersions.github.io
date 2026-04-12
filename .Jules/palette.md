@@ -84,3 +84,7 @@
 ## 2026-06-03 - Predictive Tooltips for Toggle Buttons
 **Learning:** For multi-state buttons like a 3-way theme toggle (system → light → dark), indicating the current state is not always enough for clear interaction feedback. Sighted users hovering over the button can benefit from knowing what will happen when they click. While the visible label states the *current* condition, a `title` tooltip predicting the *next* state (e.g., "Switch to Light theme") sets clear expectations.
 **Action:** When implementing multi-state interactive elements, use the `title` attribute to provide a predictive tooltip that explicitly describes the next state in the sequence, improving clarity and confidence in the interaction.
+
+## 2026-06-04 - Actionable Error States
+**Learning:** Presenting error states as plain text simply describing the issue (e.g. "Check your connection and refresh") is poor UX because it requires the user to figure out the UI controls (finding the browser refresh button). Error states styled consistently with empty states (e.g. `.glass-card` with an icon) help users recognize them quickly. More importantly, including a direct, actionable button (e.g. "Refresh Page") right in the error box reduces friction and guides users to the immediate recovery step.
+**Action:** When implementing an error state, never rely purely on text instructions. Always embed the primary recovery action directly into the error container as an interactive `<button>` (like a refresh trigger) to ensure an intuitive and actionable fallback experience.

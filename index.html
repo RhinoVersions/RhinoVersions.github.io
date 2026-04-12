@@ -150,7 +150,18 @@
                     <p>Loading latest version...</p>
                 </div>
                 <div class="error-state" id="error-latest" style="display: none;" role="alert">
-                    <p>Unable to load latest version data. Please check your connection and refresh to try again.</p>
+                    <div class="glass-card" style="text-align: center; padding: 2rem 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; border-style: dashed; border-color: var(--color-error);">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-error)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: 0.8;">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <div>
+                            <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--color-text-primary); margin-bottom: 0.25rem;">Connection Error</h3>
+                            <p style="color: var(--color-text-secondary); font-size: 0.875rem;">Unable to load latest version data. Please check your connection.</p>
+                        </div>
+                        <button onclick="window.location.reload()" class="cta-btn download-btn" style="cursor: pointer; border: none; font-family: inherit; margin-top: 0.5rem;">Refresh Page</button>
+                    </div>
                 </div>
                 <div class="latest-card glass-card" id="latest-card" style="display: none;">
                     <div class="latest-badge">Latest Release</div>
@@ -192,7 +203,18 @@
                     <p>Loading version history...</p>
                 </div>
                 <div class="error-state" id="error-all" style="display: none;" role="alert">
-                    <p>Unable to load version history. Please check your connection and refresh to try again.</p>
+                    <div class="glass-card" style="text-align: center; padding: 2rem 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; border-style: dashed; border-color: var(--color-error);">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-error)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: 0.8;">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <div>
+                            <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--color-text-primary); margin-bottom: 0.25rem;">Connection Error</h3>
+                            <p style="color: var(--color-text-secondary); font-size: 0.875rem;">Unable to load version history. Please check your connection.</p>
+                        </div>
+                        <button onclick="window.location.reload()" class="cta-btn download-btn" style="cursor: pointer; border: none; font-family: inherit; margin-top: 0.5rem;">Refresh Page</button>
+                    </div>
                 </div>
 
                 <div class="versions-list-container" id="versions-table-container" style="display: none;">
