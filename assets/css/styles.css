@@ -288,6 +288,15 @@ header h1 {
     color: var(--color-text-primary);
 }
 
+.filter-select {
+    cursor: pointer;
+}
+
+.search-input:hover,
+.filter-select:hover {
+    border-color: var(--color-text-secondary);
+}
+
 .search-input:focus,
 .filter-select:focus {
     outline: 2px solid var(--color-accent);
