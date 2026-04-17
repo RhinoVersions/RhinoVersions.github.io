@@ -92,3 +92,7 @@
 ## 2026-06-05 - Retaining aria-live Announcements on Mobile
 **Learning:** Using `display: none;` on a container removes its contents entirely from the accessibility tree. In responsive designs, if an `aria-live` region (such as a search result count like `#version-count`) is placed inside a sidebar that gets hidden on mobile with `display: none;`, screen reader users will no longer receive dynamic announcements, degrading the experience on small viewports.
 **Action:** When a UI element containing an active `aria-live` region needs to be hidden on mobile viewports to save space, never use `display: none;`. Instead, apply visually hidden CSS patterns (e.g., the `.sr-only` class) to the container to hide it visually while preserving its presence in the accessibility tree so dynamic announcements still trigger correctly.
+
+## 2026-06-06 - Input Hover Affordance
+**Learning:** Form elements like `.search-input` and `.filter-select` can feel unclickable or inactive to sighted users if they don't provide a visual `:hover` state prior to receiving focus. Additionally, drop-down style inputs like `<select>` are often more intuitive when they use a `cursor: pointer`, signaling that interacting with them will trigger an immediate menu rather than just text entry.
+**Action:** Always provide a subtle `:hover` state (e.g., slightly darkening the border color) for form inputs to indicate interactivity. For inputs that function as menus or toggles (like `<select>`), apply `cursor: pointer` to match the expected interaction model of a button.
