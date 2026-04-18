@@ -275,6 +275,46 @@ header h1 {
     transform: scale(0.8);
 }
 
+/* Hide native search cancel button */
+input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+}
+
+.clear-search-btn {
+    position: absolute;
+    right: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: transparent;
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.search-input:not(:placeholder-shown) ~ .clear-search-btn {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.clear-search-btn:hover {
+    background-color: var(--color-border);
+    color: var(--color-text-primary);
+}
+
+.clear-search-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
 .search-input,
 .filter-select {
     width: 100%;
@@ -302,6 +342,10 @@ header h1 {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
     border-color: var(--color-accent);
+}
+
+.search-input {
+    padding-right: 2.25rem; /* Space for clear button / shortcut hint */
 }
 
 .sidebar-footer {

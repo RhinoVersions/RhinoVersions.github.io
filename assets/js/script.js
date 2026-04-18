@@ -1074,6 +1074,16 @@ if (typeof window !== 'undefined') {
         // Set up event listeners
         document.getElementById('search-input').addEventListener('input', debounce(filterVersions, 300));
 
+        // Clear search button functionality
+        const clearSearchBtn = document.getElementById('clear-search-btn');
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', () => {
+                cachedSearchInput.value = '';
+                filterVersions();
+                cachedSearchInput.focus();
+            });
+        }
+
         // Escape key to clear search or blur
         document.getElementById('search-input').addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
