@@ -269,10 +269,47 @@ header h1 {
 }
 
 /* Hide shortcut when input is focused or has content */
-.search-input:focus + .shortcut-hint,
-.search-input:not(:placeholder-shown) + .shortcut-hint {
+.search-input:focus ~ .shortcut-hint,
+.search-input:not(:placeholder-shown) ~ .shortcut-hint {
     opacity: 0;
     transform: scale(0.8);
+}
+
+/* Custom clear button for search input */
+.search-input::-webkit-search-cancel-button {
+    display: none;
+    -webkit-appearance: none;
+}
+
+.clear-btn {
+    position: absolute;
+    right: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.2rem;
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease, color 0.2s ease;
+    border-radius: var(--radius-sm);
+}
+
+.clear-btn:hover {
+    color: var(--color-accent);
+}
+
+.clear-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.search-input:not(:placeholder-shown) ~ .clear-btn {
+    opacity: 1;
+    visibility: visible;
 }
 
 .search-input,
@@ -286,6 +323,10 @@ header h1 {
     transition: border-color 0.15s, background-color 0.3s ease, color 0.3s ease;
     background-color: var(--color-bg);
     color: var(--color-text-primary);
+}
+
+.search-input {
+    padding-right: 2rem; /* Make room for the clear button */
 }
 
 .filter-select {
