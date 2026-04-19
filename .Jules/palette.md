@@ -100,3 +100,7 @@
 ## 2026-06-07 - Accessible Custom Search Clear Buttons
 **Learning:** Native browser search clear buttons (like WebKit's `::-webkit-search-cancel-button`) are notoriously difficult to style consistently across browsers, and they often lack proper keyboard navigability or accessibility states. Additionally, providing an empty state action without proper sizing and contrast violates WCAG guidelines.
 **Action:** Always replace the native search clear button with a custom, accessible `<button type="button">` containing an SVG icon. Ensure this button has an `aria-label` or `title`. Furthermore, its visibility can be efficiently managed purely in CSS by positioning it as a sibling to the input and using `.input:not(:placeholder-shown) ~ .clear-btn`, keeping the DOM state logic clean while ensuring full cross-browser keyboard accessibility and styling control.
+
+## 2026-06-08 - Hiding Interactive Elements Completely
+**Learning:** Using `opacity: 0` and `pointer-events: none` on interactive elements (like a "Clear Search" button) is insufficient because the element remains in the accessibility tree and the DOM tab order. This creates a confusing "ghost" tab stop for keyboard-only users who might tab into an invisible button.
+**Action:** When hiding interactive elements that should not receive keyboard focus, always pair `opacity: 0` with `visibility: hidden`. Use CSS transitions to animate `opacity` and toggle `visibility` simultaneously, ensuring the element is removed from the accessibility tree and tab order when hidden.
