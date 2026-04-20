@@ -373,7 +373,7 @@ function displayVersions(versions) {
 
     if (versions.length === 0) {
         listEl.innerHTML = `
-            <div class="empty-state glass-card" style="text-align: center; padding: 3rem 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; border-style: dashed;">
+            <div class="empty-state glass-card" style="text-align: center; padding: 3rem 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; border-style: dashed; border-color: var(--color-border);">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: 0.5;">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>

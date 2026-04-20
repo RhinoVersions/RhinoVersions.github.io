@@ -104,3 +104,7 @@
 ## 2026-06-08 - Hiding Interactive Elements Completely
 **Learning:** Using `opacity: 0` and `pointer-events: none` on interactive elements (like a "Clear Search" button) is insufficient because the element remains in the accessibility tree and the DOM tab order. This creates a confusing "ghost" tab stop for keyboard-only users who might tab into an invisible button.
 **Action:** When hiding interactive elements that should not receive keyboard focus, always pair `opacity: 0` with `visibility: hidden`. Use CSS transitions to animate `opacity` and toggle `visibility` simultaneously, ensuring the element is removed from the accessibility tree and tab order when hidden.
+
+## 2026-06-09 - Distinct Containers for Empty States
+**Learning:** Presenting an empty state (e.g., "No versions found") using plain text often gets lost in the application layout, making it harder for users to realize what happened or what they need to do.
+**Action:** When implementing an empty state or error state, use visually distinct containers (such as adding a `.glass-card` class with a dashed border) to explicitly demarcate the section and draw attention to recovery actions (like "Clear Filters").
