@@ -108,3 +108,7 @@
 ## 2026-06-09 - Distinct Containers for Empty States
 **Learning:** Presenting an empty state (e.g., "No versions found") using plain text often gets lost in the application layout, making it harder for users to realize what happened or what they need to do.
 **Action:** When implementing an empty state or error state, use visually distinct containers (such as adding a `.glass-card` class with a dashed border) to explicitly demarcate the section and draw attention to recovery actions (like "Clear Filters").
+
+## 2026-06-10 - Input Field Visual Affordance
+**Learning:** Text input fields, especially search inputs, lack immediate visual affordance when they are empty. While placeholder text helps, adding a decorative icon (like a magnifying glass) directly inside the input container instantly communicates the field's purpose without requiring the user to read the text. Furthermore, using a general sibling combinator (`.input:focus ~ .icon`) to highlight the icon when the input is focused provides excellent interactive feedback and connects the icon visually to the user's action.
+**Action:** When designing primary search or filter inputs, always embed a decorative contextual icon within the input wrapper. Ensure the icon is positioned over the input (using padding to prevent text overlap), has `pointer-events: none;`, and changes color during the input's `:focus` state to reinforce interactivity. Always use general sibling combinators (`~`) instead of adjacent (`+`) for dynamic states to prevent DOM insertion order from breaking CSS rules.
