@@ -253,6 +253,18 @@ header h1 {
     align-items: center;
 }
 
+.search-icon {
+    position: absolute;
+    left: 0.75rem;
+    color: var(--color-text-secondary);
+    pointer-events: none;
+    transition: color 0.15s ease;
+}
+
+.search-input:focus ~ .search-icon {
+    color: var(--color-accent);
+}
+
 .shortcut-hint {
     position: absolute;
     right: 0.5rem;
@@ -269,8 +281,8 @@ header h1 {
 }
 
 /* Hide shortcut when input is focused or has content */
-.search-input:focus + .shortcut-hint,
-.search-input:not(:placeholder-shown) + .shortcut-hint {
+.search-input:focus ~ .shortcut-hint,
+.search-input:not(:placeholder-shown) ~ .shortcut-hint {
     opacity: 0;
     transform: scale(0.8);
 }
@@ -351,6 +363,7 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 .search-input {
+    padding-left: 2.25rem; /* Space for search icon */
     padding-right: 2.25rem; /* Space for clear button / shortcut hint */
 }
 
