@@ -159,11 +159,15 @@ header h1 {
     gap: 0.5rem;
     text-decoration: none;
     color: inherit;
-    transition: opacity 0.2s ease;
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 .header-brand:hover {
     opacity: 0.8;
+}
+
+.header-brand:active {
+    transform: scale(0.98);
 }
 
 .header-logo {
@@ -661,7 +665,8 @@ input[type="search"]::-webkit-search-cancel-button {
     gap: 0.35rem;
 }
 
-.version-link:hover .version-number {
+.version-link:hover .version-number,
+.version-link:focus-visible .version-number {
     text-decoration: underline;
 }
 
