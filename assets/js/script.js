@@ -12,7 +12,7 @@ const PLATFORM_ICONS = {
 };
 
 const LINK_ICON = '<svg class="copy-link-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>';
-const CHECK_ICON = '<svg class="copy-link-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+const CHECK_ICON = '<svg class="copy-link-icon copy-success-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 
 // Configuration
 const CONFIG = {
@@ -262,7 +262,9 @@ async function loadLatestVersion() {
 
         // Update UI
         document.getElementById('latest-version').textContent = versionInfo.fullVersion;
-        document.getElementById('latest-date').textContent = formatDate(versionInfo.date);
+        const latestDateEl = document.getElementById('latest-date');
+        latestDateEl.textContent = formatDate(versionInfo.date);
+        latestDateEl.setAttribute('datetime', versionInfo.dateString);
 
         const localeDisplay = versionInfo.locale === 'multi' ? 'Multilingual' : versionInfo.locale;
         document.getElementById('latest-locale').textContent = escapeHTML(localeDisplay);
@@ -434,7 +436,7 @@ function displayVersions(versions) {
                     <span class="major-badge">Rhino ${escapeHTML(versionGroup.major)}</span>
                 </div>
                 <div class="version-card-meta">
-                    <span class="version-date"><span class="date-full">${formatDate(versionGroup.date, 'long')}</span><span class="date-short">${formatDate(versionGroup.date, 'short')}</span></span>
+                    <time class="version-date" datetime="${escapeHTML(versionGroup.dateString)}"><span class="date-full">${formatDate(versionGroup.date, 'long')}</span><span class="date-short">${formatDate(versionGroup.date, 'short')}</span></time>
                     <span class="version-accordion-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
                 </div>
             </div>

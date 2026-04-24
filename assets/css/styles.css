@@ -686,6 +686,21 @@ input[type="search"]::-webkit-search-cancel-button {
     color: var(--color-accent);
 }
 
+.copy-success-icon {
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 .major-badge {
     font-size: 0.75rem;
     color: var(--color-text-secondary);

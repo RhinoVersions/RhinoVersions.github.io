@@ -119,3 +119,7 @@
 ## 2026-06-12 - Inline Success Feedback with Tooltips
 **Learning:** When providing inline success feedback for a click action (like copying to clipboard), visual changes like swapping icons or changing colors are effective, but mouse users often keep their cursor hovering over the element after clicking. The native browser tooltip (`title` attribute) remains visible and continues to show the original, now outdated, action (e.g., "Copy link to version..."). This creates a disconnect between the visual state ("Copied!") and the tooltip state.
 **Action:** When providing inline success feedback for a click action, temporarily update the element's native tooltip (`title` attribute) to a success message (e.g., "Copied!") alongside the visual changes, and seamlessly restore the original `title` after a brief timeout to reinforce the interaction for mouse users.
+
+## 2026-06-13 - Semantic Time Elements for Dates
+**Learning:** Using generic `<span>` elements to render dates, even if visually formatted properly, strips away semantic meaning for assistive technologies and machine readers. Screen readers may misinterpret ambiguous date formats, and search engines lose valuable structured data.
+**Action:** When rendering dates or times in the UI, always use the semantic HTML `<time>` element and include a valid, machine-readable `datetime` attribute (e.g., `YYYY-MM-DD`). This ensures dates are correctly parsed by assistive technologies, improves SEO, and provides a clear separation between the human-readable visual presentation and the machine-readable data.
