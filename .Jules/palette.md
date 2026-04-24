@@ -115,3 +115,7 @@
 ## 2026-06-11 - Consistent Keyboard Focus Underline
 **Learning:** Keyboard users tabbing to interactive elements like `.version-link` often see a focus ring but may miss text-level hover changes (like underlining `.version-number`), causing a visual disconnect between mouse and keyboard states.
 **Action:** Ensure CSS selectors providing `:hover` text enhancements (like `text-decoration: underline`) are paired with `:focus-visible` states to offer consistent visual feedback regardless of the input method.
+
+## 2026-06-12 - Inline Success Feedback with Tooltips
+**Learning:** When providing inline success feedback for a click action (like copying to clipboard), visual changes like swapping icons or changing colors are effective, but mouse users often keep their cursor hovering over the element after clicking. The native browser tooltip (`title` attribute) remains visible and continues to show the original, now outdated, action (e.g., "Copy link to version..."). This creates a disconnect between the visual state ("Copied!") and the tooltip state.
+**Action:** When providing inline success feedback for a click action, temporarily update the element's native tooltip (`title` attribute) to a success message (e.g., "Copied!") alongside the visual changes, and seamlessly restore the original `title` after a brief timeout to reinforce the interaction for mouse users.
