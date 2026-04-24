@@ -453,6 +453,7 @@ function displayVersions(versions) {
             event.stopPropagation();
 
             const absoluteUrl = versionLink.href;
+            const originalTitle = versionLink.title;
 
             navigator.clipboard.writeText(absoluteUrl).then(() => {
                 const versionNumberEl = versionLink.querySelector('.version-number');
@@ -461,6 +462,7 @@ function displayVersions(versions) {
 
                 versionNumberEl.style.color = 'var(--color-success)';
                 if (copyIconEl) copyIconEl.outerHTML = CHECK_ICON;
+                versionLink.title = 'Copied!';
 
                 if (srAnnouncer) {
                     srAnnouncer.textContent = `Link copied to clipboard for version ${versionGroup.fullVersion}`;
@@ -473,6 +475,7 @@ function displayVersions(versions) {
                     versionNumberEl.style.color = '';
                     const updatedIcon = versionLink.querySelector('.copy-link-icon');
                     if (updatedIcon) updatedIcon.outerHTML = LINK_ICON;
+                    versionLink.title = originalTitle;
 
                     if (srAnnouncer) {
                         srAnnouncer.textContent = '';
