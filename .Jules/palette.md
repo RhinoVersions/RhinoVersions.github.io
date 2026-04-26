@@ -123,3 +123,7 @@
 ## 2026-06-13 - Semantic Time Elements for Dates
 **Learning:** Using generic `<span>` elements to render dates, even if visually formatted properly, strips away semantic meaning for assistive technologies and machine readers. Screen readers may misinterpret ambiguous date formats, and search engines lose valuable structured data.
 **Action:** When rendering dates or times in the UI, always use the semantic HTML `<time>` element and include a valid, machine-readable `datetime` attribute (e.g., `YYYY-MM-DD`). This ensures dates are correctly parsed by assistive technologies, improves SEO, and provides a clear separation between the human-readable visual presentation and the machine-readable data.
+
+## 2026-06-14 - Contextual Empty States
+**Learning:** When users search for a specific term and get zero results, presenting a generic "No versions found matching your filters" empty state feels unresponsive. Providing contextual feedback by directly referencing their search term (e.g., "We couldn't find any versions matching '8.24.123'") reassures the user that the system processed their specific request and makes the empty state much more helpful and personalized.
+**Action:** Always inject the user's current search query directly into empty state messaging to provide clear, contextual feedback. Ensure the injected string is safely HTML-escaped to prevent XSS and wrapped in `word-break: break-word;` to prevent layout breakage from extremely long continuous strings.

@@ -374,6 +374,11 @@ function displayVersions(versions) {
     listEl.innerHTML = '';
 
     if (versions.length === 0) {
+        const searchTerm = cachedSearchInput && cachedSearchInput.value ? cachedSearchInput.value.trim() : '';
+        const emptyStateText = searchTerm
+            ? `We couldn't find any versions matching <strong style="word-break: break-word;">&quot;${escapeHTML(searchTerm)}&quot;</strong>.`
+            : `We couldn't find any versions matching your current filters.`;
+
         listEl.innerHTML = `
             <div class="empty-state glass-card" style="text-align: center; padding: 3rem 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; border-style: dashed; border-color: var(--color-border);">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: 0.5;">
@@ -382,7 +387,7 @@ function displayVersions(versions) {
                 </svg>
                 <div>
                     <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--color-text-primary); margin-bottom: 0.25rem;">No versions found</h3>
-                    <p style="color: var(--color-text-secondary); font-size: 0.875rem;">We couldn't find any versions matching your current filters.</p>
+                    <p style="color: var(--color-text-secondary); font-size: 0.875rem;">${emptyStateText}</p>
                 </div>
                 <button id="clear-filters-btn" class="cta-btn download-btn" style="cursor: pointer; border: none; font-family: inherit; margin-top: 0.5rem;">Clear Filters</button>
             </div>
