@@ -104,7 +104,7 @@
         <aside class="sidebar" aria-label="Filters">
             <div class="sidebar-section">
                 <h2>Filters</h2>
-                <div class="filters">
+                <search class="filters">
                     <div class="filter-group">
                         <label for="search-input">Search</label>
                         <div class="search-input-wrapper">
@@ -145,7 +145,7 @@
                             <option value="zh-tw">中文 (繁體)</option>
                         </select>
                     </div>
-                </div>
+                </search>
             </div>
             <div class="sidebar-footer">
                 <p id="version-count" role="status" aria-live="polite" aria-atomic="true">-</p>
@@ -153,6 +153,25 @@
         </aside>
 
         <main id="main-content" class="main-content" tabindex="-1">
+            <noscript>
+                <style>
+                    .loading-state, .versions-list-container, #latest-section, .versions-section { display: none !important; }
+                </style>
+                <div class="error-state" role="alert" style="display: block; padding: var(--spacing-xl);">
+                    <div class="glass-card" style="text-align: center; padding: 3rem 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; border-style: dashed; border-color: var(--color-error);">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-error)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: 0.8;">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        <div>
+                            <h2 style="font-size: 1.25rem; font-weight: 600; color: var(--color-text-primary); margin-bottom: 0.5rem;">JavaScript Required</h2>
+                            <p style="color: var(--color-text-secondary); font-size: 0.9375rem; max-width: 400px; margin: 0 auto;">Rhino Versions relies on JavaScript to fetch and display the latest build data. Please enable JavaScript in your browser settings to use this dashboard.</p>
+                        </div>
+                    </div>
+                </div>
+            </noscript>
+
             <!-- Latest Version Hero Section -->
             <section id="latest-section" class="latest-section" aria-label="Latest Release">
                 <div class="loading-state" id="loading-latest" role="status" aria-live="polite">
