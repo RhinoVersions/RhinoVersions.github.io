@@ -138,3 +138,7 @@
 ## 2026-04-29 - Synchronized Hover and Focus with :has
 **Learning:** When interactive elements are nested within complex layout containers (like `.version-card` or `.latest-card`), providing hover states on the parent container but only focus rings on the child elements creates a disjointed experience for keyboard users. They miss out on the elevated feedback of the entire component, making the design feel unpolished and less cohesive during keyboard navigation.
 **Action:** Utilize the `:has(:focus-visible)` pseudo-class selector on parent containers (e.g., `.card:hover, .card:has(:focus-visible)`) to synchronize visual elevations and state changes across both pointer and keyboard interactions, ensuring an equitable UX.
+
+## 2026-06-17 - Predictive Tooltips for Abbreviated Labels
+**Learning:** Visual labels like "Windows" or "Win", or accordion headers that rely on chevrons to indicate expansion, can be ambiguous. Sighted users benefit greatly from predictive tooltips (using the `title` attribute) that clarify the specific payload or action, such as "Download Rhino 8.0 for Windows" or "Expand details for version 8.0". This provides immediate context before interaction.
+**Action:** When visual labels are abbreviated, rely on symbols, or manage dynamic states, supplement them with descriptive, predictive `title` tooltips that explicitly clarify the outcome of clicking the element.
