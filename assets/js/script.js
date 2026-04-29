@@ -276,6 +276,7 @@ async function loadLatestVersion() {
         if (windowsLink) {
             windowsBtn.href = windowsLink.url;
             windowsBtn.removeAttribute('aria-label');
+            windowsBtn.setAttribute('title', `Download Rhino ${versionInfo.fullVersion} for Windows`);
             windowsBtn.innerHTML = `${PLATFORM_ICONS.windows} Windows<span class="sr-only"> - Download Rhino ${versionInfo.fullVersion} (opens in a new tab)</span>`;
             windowsBtn.style.display = 'inline-flex';
         } else {
@@ -285,6 +286,7 @@ async function loadLatestVersion() {
         if (macLink) {
             macBtn.href = macLink.url;
             macBtn.removeAttribute('aria-label');
+            macBtn.setAttribute('title', `Download Rhino ${versionInfo.fullVersion} for Mac`);
             macBtn.innerHTML = `${PLATFORM_ICONS.mac} Mac<span class="sr-only"> - Download Rhino ${versionInfo.fullVersion} (opens in a new tab)</span>`;
             macBtn.style.display = 'inline-flex';
         } else {
@@ -435,7 +437,7 @@ function displayVersions(versions) {
         const panelId = `version-panel-${escapeHTML(versionGroup.fullVersion).replace(/\./g, '-')}`;
 
         card.innerHTML = `
-            <div id="${panelId}-heading" class="version-card-header" role="button" tabindex="0" aria-expanded="${isExpanded}" aria-controls="${panelId}">
+            <div id="${panelId}-heading" class="version-card-header" role="button" tabindex="0" aria-expanded="${isExpanded}" aria-controls="${panelId}" title="${isExpanded ? 'Collapse' : 'Expand'} details for version ${escapeHTML(versionGroup.fullVersion)}">
                 <div class="version-card-main">
                     <a href="${escapeHTML(deepLinkHref)}" class="version-link" title="Copy link to version ${escapeHTML(versionGroup.fullVersion)}"><span class="version-number">${escapeHTML(versionGroup.fullVersion)}</span><span class="sr-only"> - Copy link</span>${LINK_ICON}</a>
                     <span class="major-badge">Rhino ${escapeHTML(versionGroup.major)}</span>
@@ -502,6 +504,7 @@ function displayVersions(versions) {
         const toggleExpanded = () => {
             const expanded = card.classList.toggle('expanded');
             headerButton.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            headerButton.setAttribute('title', expanded ? `Collapse details for version ${versionGroup.fullVersion}` : `Expand details for version ${versionGroup.fullVersion}`);
             body.style.display = expanded ? 'block' : 'none';
 
             if (expanded) {
@@ -690,10 +693,10 @@ function buildVersionCardRows(versionGroup, localeFilter) {
             let buttons = '';
                 const versionNumber = escapeHTML(versionGroup.fullVersion);
             if (entry.windowsUrl) {
-                    buttons += `<a href="${entry.windowsUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.windows}<span class="label-full">Windows</span><span class="label-short">Win</span><span class="sr-only"> - Download Rhino ${versionNumber} (${escapeHTML(entry.locale)}) (opens in a new tab)</span></a>`;
+                    buttons += `<a href="${entry.windowsUrl}" class="table-download-btn" title="Download Rhino ${versionNumber} for Windows" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.windows}<span class="label-full">Windows</span><span class="label-short">Win</span><span class="sr-only"> - Download Rhino ${versionNumber} (${escapeHTML(entry.locale)}) (opens in a new tab)</span></a>`;
             }
             if (entry.macUrl || macFallback?.macUrl) {
-                    buttons += `<a href="${entry.macUrl || macFallback.macUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.mac}Mac<span class="sr-only"> - Download Rhino ${versionNumber} (${escapeHTML(entry.locale)}) (opens in a new tab)</span></a>`;
+                    buttons += `<a href="${entry.macUrl || macFallback.macUrl}" class="table-download-btn" title="Download Rhino ${versionNumber} for Mac" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.mac}Mac<span class="sr-only"> - Download Rhino ${versionNumber} (${escapeHTML(entry.locale)}) (opens in a new tab)</span></a>`;
             }
 
             rows.push(`
@@ -710,10 +713,10 @@ function buildVersionCardRows(versionGroup, localeFilter) {
                 let buttons = '';
                     const versionNumber = escapeHTML(versionGroup.fullVersion);
                 if (entry.windowsUrl) {
-                        buttons += `<a href="${entry.windowsUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.windows}<span class="label-full">Windows</span><span class="label-short">Win</span><span class="sr-only"> - Download Rhino ${versionNumber} (opens in a new tab)</span></a>`;
+                        buttons += `<a href="${entry.windowsUrl}" class="table-download-btn" title="Download Rhino ${versionNumber} for Windows" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.windows}<span class="label-full">Windows</span><span class="label-short">Win</span><span class="sr-only"> - Download Rhino ${versionNumber} (opens in a new tab)</span></a>`;
                 }
                 if (entry.macUrl) {
-                        buttons += `<a href="${entry.macUrl}" class="table-download-btn" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.mac}Mac<span class="sr-only"> - Download Rhino ${versionNumber} (opens in a new tab)</span></a>`;
+                        buttons += `<a href="${entry.macUrl}" class="table-download-btn" title="Download Rhino ${versionNumber} for Mac" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.mac}Mac<span class="sr-only"> - Download Rhino ${versionNumber} (opens in a new tab)</span></a>`;
                 }
 
                 const localeLabel = entry.locale === 'multi' ? 'MULTILINGUAL' : entry.locale.toUpperCase();
