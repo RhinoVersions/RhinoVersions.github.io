@@ -134,3 +134,7 @@
 ## 2026-06-16 - Synced Hover and Focus Visible States
 **Learning:** Interactive elements that only provide a rich `:hover` state (like background color changes, drop shadows, or scaling effects) create a visual disconnect for keyboard users. While focus rings show where the focus is, missing out on the additional tactile feedback provided by `:hover` makes keyboard navigation feel like a second-class experience.
 **Action:** When implementing `:hover` states for interactive elements (such as buttons, cards, or contributor bubbles), always pair them with `:focus-visible` states to ensure that keyboard users receive the same rich visual feedback as mouse users, creating a more equitable user experience.
+
+## 2026-04-29 - Synchronized Hover and Focus with :has
+**Learning:** When interactive elements are nested within complex layout containers (like `.version-card` or `.latest-card`), providing hover states on the parent container but only focus rings on the child elements creates a disjointed experience for keyboard users. They miss out on the elevated feedback of the entire component, making the design feel unpolished and less cohesive during keyboard navigation.
+**Action:** Utilize the `:has(:focus-visible)` pseudo-class selector on parent containers (e.g., `.card:hover, .card:has(:focus-visible)`) to synchronize visual elevations and state changes across both pointer and keyboard interactions, ensuring an equitable UX.
