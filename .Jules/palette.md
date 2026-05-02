@@ -142,3 +142,7 @@
 ## 2026-06-17 - Predictive Tooltips for Abbreviated Labels
 **Learning:** Visual labels like "Windows" or "Win", or accordion headers that rely on chevrons to indicate expansion, can be ambiguous. Sighted users benefit greatly from predictive tooltips (using the `title` attribute) that clarify the specific payload or action, such as "Download Rhino 8.0 for Windows" or "Expand details for version 8.0". This provides immediate context before interaction.
 **Action:** When visual labels are abbreviated, rely on symbols, or manage dynamic states, supplement them with descriptive, predictive `title` tooltips that explicitly clarify the outcome of clicking the element.
+
+## 2026-06-18 - Select Input Affordance and Focus Highlights
+**Learning:** Native `<select>` element dropdown arrows vary wildly across browsers and operating systems, often ignoring color themes. Furthermore, when users focus on form inputs, the input box highlights but its associated `<label>` remains static, creating a weak visual association between the two elements.
+**Action:** Always override native `<select>` styling using `appearance: none` and provide a consistent, themeable custom SVG chevron via `background-image`. To strengthen the relationship between labels and inputs, use the `:focus-within` pseudo-class on the parent `.filter-group` container to dynamically highlight the text color of the `<label>` when its corresponding input is active.
