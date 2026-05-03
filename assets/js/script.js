@@ -401,6 +401,7 @@ function displayVersions(versions) {
                 cachedSearchInput.value = '';
                 cachedMajorFilter.value = 'all';
                 cachedLocaleFilter.value = 'all';
+                loadLatestVersion();
                 filterVersions();
                 cachedSearchInput.focus();
             });
@@ -1118,9 +1119,12 @@ if (typeof window !== 'undefined') {
 
         // Keyboard shortcut for search
         document.addEventListener('keydown', (e) => {
-            if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+            if ((e.key === '/' || (e.key === 'k' && (e.metaKey || e.ctrlKey))) &&
+                document.activeElement.tagName !== 'INPUT' &&
+                document.activeElement.tagName !== 'TEXTAREA') {
                 e.preventDefault();
                 cachedSearchInput.focus();
+                cachedSearchInput.select();
             }
         });
     });
