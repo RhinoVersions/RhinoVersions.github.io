@@ -458,12 +458,23 @@ function displayVersions(versions) {
         const icon = card.querySelector('.version-accordion-icon');
         const versionLink = card.querySelector('.version-link');
 
+        let copyTimeoutId;
         const copyDeepLink = (event) => {
             event.preventDefault();
             event.stopPropagation();
 
             const absoluteUrl = versionLink.href;
-            const originalTitle = versionLink.title;
+
+            // Only capture original title if we aren't already showing "Copied!"
+            if (versionLink.title !== 'Copied!') {
+                versionLink.dataset.originalTitle = versionLink.title;
+            }
+            const originalTitle = versionLink.dataset.originalTitle;
+
+            // Clear any existing timeout to prevent premature reset or state corruption
+            if (copyTimeoutId) {
+                clearTimeout(copyTimeoutId);
+            }
 
             navigator.clipboard.writeText(absoluteUrl).then(() => {
                 const versionNumberEl = versionLink.querySelector('.version-number');
@@ -481,11 +492,12 @@ function displayVersions(versions) {
                 // Silently update URL
                 window.history.replaceState({}, '', absoluteUrl);
 
-                setTimeout(() => {
+                copyTimeoutId = setTimeout(() => {
                     versionNumberEl.style.color = '';
                     const updatedIcon = versionLink.querySelector('.copy-link-icon');
                     if (updatedIcon) updatedIcon.outerHTML = LINK_ICON;
                     versionLink.title = originalTitle;
+                    delete versionLink.dataset.originalTitle;
 
                     if (srAnnouncer) {
                         srAnnouncer.textContent = '';
