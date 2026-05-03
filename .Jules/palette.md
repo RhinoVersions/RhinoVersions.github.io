@@ -146,3 +146,7 @@
 ## 2026-06-18 - Select Input Affordance and Focus Highlights
 **Learning:** Native `<select>` element dropdown arrows vary wildly across browsers and operating systems, often ignoring color themes. Furthermore, when users focus on form inputs, the input box highlights but its associated `<label>` remains static, creating a weak visual association between the two elements.
 **Action:** Always override native `<select>` styling using `appearance: none` and provide a consistent, themeable custom SVG chevron via `background-image`. To strengthen the relationship between labels and inputs, use the `:focus-within` pseudo-class on the parent `.filter-group` container to dynamically highlight the text color of the `<label>` when its corresponding input is active.
+
+## 2026-05-03 - Auto-Select Input Text on Keyboard Shortcut
+**Learning:** When users trigger a keyboard shortcut (like `/` or `Cmd+K`) to focus a search input, simply calling `.focus()` leaves the cursor at the end of any existing text. This forces users to manually delete the old query before typing a new one, breaking the fast, seamless experience shortcuts are meant to provide.
+**Action:** When implementing a shortcut to focus an input, always chain `.select()` immediately after `.focus()`. This automatically highlights any existing text, allowing the user's very next keystroke to overwrite it, perfectly matching their expectation of starting a new search instantly.
