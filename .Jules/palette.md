@@ -154,3 +154,7 @@
 ## 2026-06-19 - Pointer Cursor on Form Labels
 **Learning:** Form labels associated with inputs (e.g. `<label for="search-input">`) are inherently clickable and will shift focus to their corresponding input field. However, without a visual indicator like a pointer cursor, users may not realize they can click the label text to activate the field.
 **Action:** Add `cursor: pointer` to `<label>` elements associated with form inputs. This simple CSS addition increases the perceived click target area, significantly improving interaction affordance and making the form feel more responsive to user intent.
+
+## 2026-06-20 - Predictive Tooltips for Locales & Smooth Empty States
+**Learning:** Abbreviated locale labels (e.g. DE-DE) lack clarity for sighted users who may not know the language code. Similarly, empty states that pop in abruptly create a jarring experience compared to other smoothly animating components.
+**Action:** Append descriptive tooltips (`title="Language: [Full Name]"`) to elements with ambiguous abbreviations like locale codes, and ensure empty state containers utilize the same CSS entrance animations (like `fadeInUp`) as populated lists to maintain a cohesive interaction feel.
