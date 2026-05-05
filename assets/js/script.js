@@ -14,6 +14,18 @@ const PLATFORM_ICONS = {
 const LINK_ICON = '<svg class="copy-link-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>';
 const CHECK_ICON = '<svg class="copy-link-icon copy-success-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 
+const LOCALE_NAMES = {
+    'en-us': 'English (US)',
+    'de-de': 'Deutsch',
+    'es-es': 'Español',
+    'fr-fr': 'Français',
+    'it-it': 'Italiano',
+    'ja-jp': '日本語',
+    'ko-kr': '한국어',
+    'zh-cn': '中文 (简体)',
+    'zh-tw': '中文 (繁體)'
+};
+
 // Configuration
 const CONFIG = {
     // GitHub repository info - adjust based on your repo structure
@@ -382,7 +394,7 @@ function displayVersions(versions) {
             : `We couldn't find any versions matching your current filters.`;
 
         listEl.innerHTML = `
-            <div class="empty-state glass-card" style="text-align: center; padding: 3rem 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; border-style: dashed; border-color: var(--color-border);">
+            <div class="empty-state glass-card" style="text-align: center; padding: 3rem 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; border-style: dashed; border-color: var(--color-border); animation: fadeInUp 0.5s ease both;">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: 0.5;">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -715,9 +727,10 @@ function buildVersionCardRows(versionGroup, localeFilter) {
                     buttons += `<a href="${entry.macUrl || macFallback.macUrl}" class="table-download-btn" title="Download Rhino ${versionNumber} for Mac" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.mac}Mac<span class="sr-only"> - Download Rhino ${versionNumber} (${escapeHTML(entry.locale)}) (opens in a new tab)</span></a>`;
             }
 
+            const localeName = LOCALE_NAMES[entry.locale] || entry.locale;
             rows.push(`
                 <div class="version-card-row">
-                    <span class="locale-badge">${escapeHTML(entry.locale.toUpperCase())}</span>
+                    <span class="locale-badge" title="Language: ${escapeHTML(localeName)}">${escapeHTML(entry.locale.toUpperCase())}</span>
                     <div class="download-buttons-cell">${buttons}</div>
                 </div>
             `);
@@ -736,9 +749,10 @@ function buildVersionCardRows(versionGroup, localeFilter) {
                 }
 
                 const localeLabel = entry.locale === 'multi' ? 'MULTILINGUAL' : entry.locale.toUpperCase();
+                const titleAttr = entry.locale === 'multi' ? '' : ` title="Language: ${escapeHTML(LOCALE_NAMES[entry.locale] || entry.locale)}"`;
                 rows.push(`
                     <div class="version-card-row">
-                        <span class="locale-badge">${escapeHTML(localeLabel)}</span>
+                        <span class="locale-badge"${titleAttr}>${escapeHTML(localeLabel)}</span>
                         <div class="download-buttons-cell">${buttons}</div>
                     </div>
                 `);
