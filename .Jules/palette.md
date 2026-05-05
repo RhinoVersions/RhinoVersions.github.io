@@ -150,3 +150,7 @@
 ## 2026-05-03 - Auto-Select Input Text on Keyboard Shortcut
 **Learning:** When users trigger a keyboard shortcut (like `/` or `Cmd+K`) to focus a search input, simply calling `.focus()` leaves the cursor at the end of any existing text. This forces users to manually delete the old query before typing a new one, breaking the fast, seamless experience shortcuts are meant to provide.
 **Action:** When implementing a shortcut to focus an input, always chain `.select()` immediately after `.focus()`. This automatically highlights any existing text, allowing the user's very next keystroke to overwrite it, perfectly matching their expectation of starting a new search instantly.
+
+## 2026-06-19 - Pointer Cursor on Form Labels
+**Learning:** Form labels associated with inputs (e.g. `<label for="search-input">`) are inherently clickable and will shift focus to their corresponding input field. However, without a visual indicator like a pointer cursor, users may not realize they can click the label text to activate the field.
+**Action:** Add `cursor: pointer` to `<label>` elements associated with form inputs. This simple CSS addition increases the perceived click target area, significantly improving interaction affordance and making the form feel more responsive to user intent.

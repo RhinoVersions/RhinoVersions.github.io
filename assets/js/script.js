@@ -391,7 +391,10 @@ function displayVersions(versions) {
                     <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--color-text-primary); margin-bottom: 0.25rem;">No versions found</h3>
                     <p style="color: var(--color-text-secondary); font-size: 0.875rem;">${emptyStateText}</p>
                 </div>
-                <button id="clear-filters-btn" class="cta-btn download-btn" style="cursor: pointer; border: none; font-family: inherit; margin-top: 0.5rem;">Clear Filters</button>
+                <button type="button" id="clear-filters-btn" class="cta-btn download-btn" style="cursor: pointer; border: none; font-family: inherit; margin-top: 0.5rem;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    Clear Filters
+                </button>
             </div>
         `;
 
