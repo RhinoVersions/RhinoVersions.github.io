@@ -1127,7 +1127,7 @@ if (typeof window !== 'undefined') {
             });
         }
 
-        // Escape key to clear search or blur
+        // Escape key to clear search or blur, ArrowDown to focus first result
         document.getElementById('search-input').addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 if (e.target.value) {
@@ -1135,6 +1135,12 @@ if (typeof window !== 'undefined') {
                     filterVersions();
                 } else {
                     e.target.blur();
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                const firstResult = document.querySelector('.version-card-header');
+                if (firstResult) {
+                    firstResult.focus();
                 }
             }
         });
@@ -1144,6 +1150,36 @@ if (typeof window !== 'undefined') {
             // Reload latest version when locale changes
             loadLatestVersion();
             filterVersions();
+        });
+
+        // Arrow key navigation for version list
+        document.getElementById('versions-list').addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                const target = e.target;
+                if (!target.classList.contains('version-card-header')) return;
+
+                e.preventDefault();
+
+                const headers = Array.from(document.querySelectorAll('.version-card-header'));
+                const currentIndex = headers.indexOf(target);
+
+                if (e.key === 'ArrowDown') {
+                    if (currentIndex < headers.length - 1) {
+                        headers[currentIndex + 1].focus();
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    if (currentIndex > 0) {
+                        headers[currentIndex - 1].focus();
+                    } else {
+                        const searchInput = document.getElementById('search-input');
+                        if (searchInput) {
+                            searchInput.focus();
+                            // Also select text to align with fast UX of overwriting query
+                            searchInput.select();
+                        }
+                    }
+                }
+            }
         });
 
         // Keyboard shortcut for search
