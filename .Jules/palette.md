@@ -158,3 +158,7 @@
 ## 2026-06-20 - Predictive Tooltips for Locales & Smooth Empty States
 **Learning:** Abbreviated locale labels (e.g. DE-DE) lack clarity for sighted users who may not know the language code. Similarly, empty states that pop in abruptly create a jarring experience compared to other smoothly animating components.
 **Action:** Append descriptive tooltips (`title="Language: [Full Name]"`) to elements with ambiguous abbreviations like locale codes, and ensure empty state containers utilize the same CSS entrance animations (like `fadeInUp`) as populated lists to maintain a cohesive interaction feel.
+
+## 2026-06-21 - Seamless Keyboard Navigation for Search and Result Lists
+**Learning:** Users who heavily rely on keyboard navigation find it tedious to tab multiple times through filters to reach the search results after typing a query. Implementing an intuitive listbox navigation pattern (using `ArrowDown` from the search input to jump to the first result, and navigating between results with `ArrowDown`/`ArrowUp`) drastically speeds up the interaction and creates a power-user friendly, app-like experience. Pressing `ArrowUp` on the first result should seamlessly return focus to the search input, allowing quick refinement.
+**Action:** When creating filtering and search interfaces with a corresponding result list, always implement custom `ArrowDown`/`ArrowUp` keydown event handlers to link the input directly to the results, bypassing the intermediate tab stops to streamline the UX flow.
