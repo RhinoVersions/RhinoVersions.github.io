@@ -259,8 +259,8 @@ def check_only():
         _write_output("new_versions", "true")
 
     except Exception as e:
-        print(f"::warning::Check failed ({e}), triggering full build to be safe.")
-        _write_output("new_versions", "true")
+        print(f"::warning::NuGet check failed ({e}); skipping build to avoid cascading failure.")
+        _write_output("new_versions", "false")
 
 
 def _write_output(key: str, value: str):
