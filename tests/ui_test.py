@@ -35,7 +35,7 @@ class FrontendTests(unittest.TestCase):
 
     def test_homepage_loads_and_renders_versions(self):
         with sync_playwright() as p:
-            browser = p.chromium.launch()
+            browser = p.chromium.launch(args=["--no-sandbox", "--disable-dev-shm-usage"])
             page = browser.new_page()
             try:
                 page.goto(f"http://localhost:{PORT}")
