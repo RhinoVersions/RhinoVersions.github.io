@@ -1,5 +1,7 @@
 # Rhino Versions - Latest
 
+    - [rhino_8.32.26160.13002.dmg](https://files.mcneel.com/rhino/8/mac/releases/rhino_8.32.26160.13002.dmg)
+    - [rhino_en-us_8.32.26160.13001.exe](https://files.mcneel.com/dujour/exe/20260609/rhino_en-us_8.32.26160.13001.exe)
     - [rhino_8.31.26126.13432.dmg](https://files.mcneel.com/rhino/8/mac/releases/rhino_8.31.26126.13432.dmg)
     - [rhino_en-us_8.31.26126.13431.exe](https://files.mcneel.com/dujour/exe/20260506/rhino_en-us_8.31.26126.13431.exe)
     - [rhino_8.30.26103.11002.dmg](https://files.mcneel.com/rhino/8/mac/releases/rhino_8.30.26103.11002.dmg)
