@@ -277,6 +277,7 @@ async function loadLatestVersion() {
         const latestDateEl = document.getElementById('latest-date');
         latestDateEl.textContent = formatDate(versionInfo.date);
         latestDateEl.setAttribute('datetime', versionInfo.dateString);
+        latestDateEl.setAttribute('title', getRelativeTime(versionInfo.date));
 
         const localeDisplay = versionInfo.locale === 'multi' ? 'Multilingual' : versionInfo.locale;
         document.getElementById('latest-locale').textContent = escapeHTML(localeDisplay);
@@ -459,7 +460,7 @@ function displayVersions(versions) {
                     <span class="major-badge">Rhino ${escapeHTML(versionGroup.major)}</span>
                 </div>
                 <div class="version-card-meta">
-                    <time class="version-date" datetime="${escapeHTML(versionGroup.dateString)}"><span class="date-full">${formatDate(versionGroup.date, 'long')}</span><span class="date-short">${formatDate(versionGroup.date, 'short')}</span></time>
+                    <time class="version-date" datetime="${escapeHTML(versionGroup.dateString)}" title="${escapeHTML(getRelativeTime(versionGroup.date))}"><span class="date-full">${formatDate(versionGroup.date, 'long')}</span><span class="date-short">${formatDate(versionGroup.date, 'short')}</span></time>
                     <span class="version-accordion-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
                 </div>
             </div>
@@ -880,6 +881,37 @@ function formatDate(date, monthStyle = 'long') {
 }
 
 /**
+ * Get relative time string (e.g., "3 days ago")
+ */
+function getRelativeTime(date) {
+    // Avoid calculating relative time on the server side
+    if (typeof Intl === 'undefined') return '';
+
+    try {
+        const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+        // Calculate difference in milliseconds, then convert to whole days
+        // We use Math.floor with a consistent time of day to avoid timezone/time-of-day edge cases
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        const target = new Date(date);
+        target.setHours(0, 0, 0, 0);
+
+        const diffDays = Math.round((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (Math.abs(diffDays) < 30) {
+            return rtf.format(diffDays, 'day');
+        } else if (Math.abs(diffDays) < 365) {
+            return rtf.format(Math.round(diffDays / 30.44), 'month');
+        } else {
+            return rtf.format(Math.round(diffDays / 365.25), 'year');
+        }
+    } catch (e) {
+        console.warn('Relative time formatting failed:', e);
+        return '';
+    }
+}
+
+/**
  * Parse deep-link parameters from URL (?version=...&locale=...)
  */
 function parseDeepLinkFromUrl() {
@@ -1207,6 +1239,7 @@ if (typeof module !== 'undefined' && module.exports) {
         parseVersionFromFilename,
         compareFullVersions,
         formatDate,
+        getRelativeTime,
         resolveTheme,
         getVersionBuildKey
     };

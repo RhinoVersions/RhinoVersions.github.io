@@ -5,6 +5,7 @@ const {
     parseVersionFromFilename,
     compareFullVersions,
     formatDate,
+    getRelativeTime,
     resolveTheme,
     getVersionBuildKey
 } = require('../assets/js/script.js');
@@ -82,6 +83,23 @@ test('formatDate', async (t) => {
         assert.ok(formatted.includes('October'));
         assert.ok(formatted.includes('8'));
         assert.ok(formatted.includes('2025'));
+    });
+});
+
+test('getRelativeTime', async (t) => {
+    await t.test('should format relative time correctly', () => {
+        const now = new Date();
+        const today = new Date(now);
+        const yesterday = new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000);
+        const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+        const lastMonth = new Date(now.getTime() - 35 * 24 * 60 * 60 * 1000);
+        const twoYearsAgo = new Date(now.getTime() - 2 * 365 * 24 * 60 * 60 * 1000);
+
+        assert.strictEqual(getRelativeTime(today), 'today');
+        assert.strictEqual(getRelativeTime(yesterday), 'yesterday');
+        assert.strictEqual(getRelativeTime(threeDaysAgo), '3 days ago');
+        assert.strictEqual(getRelativeTime(lastMonth), 'last month');
+        assert.strictEqual(getRelativeTime(twoYearsAgo), '2 years ago');
     });
 });
 
