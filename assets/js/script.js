@@ -279,7 +279,7 @@ async function loadLatestVersion() {
         latestDateEl.setAttribute('datetime', versionInfo.dateString);
         latestDateEl.setAttribute('title', getRelativeTime(versionInfo.date));
 
-        const localeDisplay = versionInfo.locale === 'multi' ? 'Multilingual' : versionInfo.locale;
+        const localeDisplay = versionInfo.locale === 'multi' ? 'Multilingual' : (LOCALE_NAMES[versionInfo.locale] || versionInfo.locale);
         document.getElementById('latest-locale').textContent = escapeHTML(localeDisplay);
 
         // Update download buttons
@@ -420,6 +420,15 @@ function displayVersions(versions) {
                 loadLatestVersion();
                 filterVersions();
                 cachedSearchInput.focus();
+            });
+            clearBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (cachedSearchInput) {
+                        cachedSearchInput.focus();
+                        cachedSearchInput.select();
+                    }
+                }
             });
         }
 
@@ -722,10 +731,12 @@ function buildVersionCardRows(versionGroup, localeFilter) {
             let buttons = '';
                 const versionNumber = escapeHTML(versionGroup.fullVersion);
             if (entry.windowsUrl) {
-                    buttons += `<a href="${entry.windowsUrl}" class="table-download-btn" title="Download Rhino ${versionNumber} for Windows" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.windows}<span class="label-full">Windows</span><span class="label-short">Win</span><span class="sr-only"> - Download Rhino ${versionNumber} (${escapeHTML(entry.locale)}) (opens in a new tab)</span></a>`;
+                    const localeStr = escapeHTML(LOCALE_NAMES[entry.locale] || entry.locale);
+                    buttons += `<a href="${entry.windowsUrl}" class="table-download-btn" title="Download Rhino ${versionNumber} for Windows" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.windows}<span class="label-full">Windows</span><span class="label-short">Win</span><span class="sr-only"> - Download Rhino ${versionNumber} (${localeStr}) (opens in a new tab)</span></a>`;
             }
             if (entry.macUrl || macFallback?.macUrl) {
-                    buttons += `<a href="${entry.macUrl || macFallback.macUrl}" class="table-download-btn" title="Download Rhino ${versionNumber} for Mac" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.mac}Mac<span class="sr-only"> - Download Rhino ${versionNumber} (${escapeHTML(entry.locale)}) (opens in a new tab)</span></a>`;
+                    const localeStr = escapeHTML(LOCALE_NAMES[entry.locale] || entry.locale);
+                    buttons += `<a href="${entry.macUrl || macFallback.macUrl}" class="table-download-btn" title="Download Rhino ${versionNumber} for Mac" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.mac}Mac<span class="sr-only"> - Download Rhino ${versionNumber} (${localeStr}) (opens in a new tab)</span></a>`;
             }
 
             const localeName = LOCALE_NAMES[entry.locale] || entry.locale;
@@ -1173,6 +1184,11 @@ if (typeof window !== 'undefined') {
                 const firstResult = document.querySelector('.version-card-header');
                 if (firstResult) {
                     firstResult.focus();
+                } else {
+                    const clearBtn = document.getElementById('clear-filters-btn');
+                    if (clearBtn) {
+                        clearBtn.focus();
+                    }
                 }
             }
         });
