@@ -7,3 +7,6 @@
 ## 2026-06-13 - [Improved Locale Readability & Empty State Navigation]
 **Learning:** Screen readers dictate raw language codes like "en-us" poorly (spelling them out). Using a mapping to human-readable text ("English (US)") inside `sr-only` elements drastically improves accessibility for download links. Also, when dynamic lists are empty, keyboard navigation (ArrowDown/Up) can trap users or feel broken if not explicitly routed to the next logical recovery action (like a "Clear Filters" button).
 **Action:** Always map raw machine codes (locales, statuses) to human-readable strings for `sr-only` text. For custom keyboard navigation (Arrow keys) on dynamic lists, explicitly handle empty states by transferring focus to recovery actions.
+## 2026-06-14 - [Discoverability of title attributes]
+**Learning:** Adding a subtle dotted underline (`text-decoration: underline dotted`) and `cursor: help` to non-interactive elements (like dates or locale badges) that provide extra context via the `title` attribute significantly improves their discoverability for sighted users, as `title` tooltips otherwise have zero visual affordance.
+**Action:** When adding informative `title` attributes to plain text elements, pair them with a subtle dotted underline and `cursor: help` in CSS to communicate that hovering will provide more information.
