@@ -1106,3 +1106,9 @@ time[title],
     text-underline-offset: 2px;
     cursor: help;
 }
+
+/* Placeholder styling */
+.search-input::placeholder {
+    color: var(--color-text-secondary);
+    opacity: 0.7;
+}
