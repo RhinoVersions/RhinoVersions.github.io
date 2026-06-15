@@ -10,3 +10,7 @@
 ## 2026-06-14 - [Discoverability of title attributes]
 **Learning:** Adding a subtle dotted underline (`text-decoration: underline dotted`) and `cursor: help` to non-interactive elements (like dates or locale badges) that provide extra context via the `title` attribute significantly improves their discoverability for sighted users, as `title` tooltips otherwise have zero visual affordance.
 **Action:** When adding informative `title` attributes to plain text elements, pair them with a subtle dotted underline and `cursor: help` in CSS to communicate that hovering will provide more information.
+## 2024-06-15 - Input Placeholder Styling
+
+**Learning:** Browsers do not inherit the color-scheme automatically for `::placeholder` pseudo-elements. The default placeholder text color is often difficult to read against dark mode input backgrounds and may not match the design system's intended text color hierarchy.
+**Action:** Always explicitly target the `::placeholder` pseudo-element on inputs (like `.search-input::placeholder`) to set `color` (using design system variables like `var(--color-text-secondary)`) and `opacity` to ensure WCAG AA contrast compliance and visual consistency across all themes.
