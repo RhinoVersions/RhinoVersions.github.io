@@ -14,3 +14,6 @@
 
 **Learning:** Browsers do not inherit the color-scheme automatically for `::placeholder` pseudo-elements. The default placeholder text color is often difficult to read against dark mode input backgrounds and may not match the design system's intended text color hierarchy.
 **Action:** Always explicitly target the `::placeholder` pseudo-element on inputs (like `.search-input::placeholder`) to set `color` (using design system variables like `var(--color-text-secondary)`) and `opacity` to ensure WCAG AA contrast compliance and visual consistency across all themes.
+## 2026-06-16 - WAI-ARIA Accordion/List Keyboard Navigation
+**Learning:** WAI-ARIA authoring practices for interactive lists or accordions recommend supporting the `Home` and `End` keys to allow users to quickly jump to the first and last items. Implementing this greatly reduces the navigational friction for keyboard users when dealing with long lists, which Arrow up/down alone makes tedious.
+**Action:** When creating custom keyboard navigation (Arrow keys) for lists or accordions, always remember to add handlers for `Home` and `End` keys to jump to the start/end of the interactive elements list.

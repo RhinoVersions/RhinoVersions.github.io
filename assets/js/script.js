@@ -1202,7 +1202,7 @@ if (typeof window !== 'undefined') {
 
         // Arrow key navigation for version list
         document.getElementById('versions-list').addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Home' || e.key === 'End') {
                 const target = e.target;
                 if (!target.classList.contains('version-card-header')) return;
 
@@ -1225,6 +1225,14 @@ if (typeof window !== 'undefined') {
                             // Also select text to align with fast UX of overwriting query
                             searchInput.select();
                         }
+                    }
+                } else if (e.key === 'Home') {
+                    if (headers.length > 0) {
+                        headers[0].focus();
+                    }
+                } else if (e.key === 'End') {
+                    if (headers.length > 0) {
+                        headers[headers.length - 1].focus();
                     }
                 }
             }
