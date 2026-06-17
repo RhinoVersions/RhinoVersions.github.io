@@ -161,6 +161,8 @@ header h1 {
     text-decoration: none;
     color: inherit;
     transition: transform 0.2s ease, opacity 0.2s ease;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .header-brand:hover,
@@ -198,6 +200,8 @@ header h1 {
     font-family: var(--font-body);
     color: var(--color-text-secondary);
     transition: all 0.2s ease;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .theme-toggle:hover,
@@ -269,6 +273,8 @@ header h1 {
     margin-bottom: var(--spacing-xs);
     cursor: pointer;
     transition: color 0.15s ease;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .filter-group:focus-within label {
@@ -340,6 +346,8 @@ input[type="search"]::-webkit-search-cancel-button {
     pointer-events: none;
     visibility: hidden;
     transition: opacity 0.2s ease, visibility 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .search-input:not(:placeholder-shown) ~ .clear-search-btn {
@@ -567,6 +575,8 @@ input[type="search"]::-webkit-search-cancel-button {
     border-radius: var(--radius-md);
     transition: all 0.2s ease;
     white-space: nowrap;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .cta-btn {
@@ -640,6 +650,8 @@ input[type="search"]::-webkit-search-cancel-button {
     justify-content: space-between;
     cursor: pointer;
     color: inherit;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .version-card-header:focus-visible {
@@ -796,6 +808,8 @@ input[type="search"]::-webkit-search-cancel-button {
     font-size: 0.75rem;
     font-weight: 500;
     transition: all 0.15s ease;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .table-download-btn:hover,

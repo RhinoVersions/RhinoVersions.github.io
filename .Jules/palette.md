@@ -17,3 +17,6 @@
 ## 2026-06-16 - WAI-ARIA Accordion/List Keyboard Navigation
 **Learning:** WAI-ARIA authoring practices for interactive lists or accordions recommend supporting the `Home` and `End` keys to allow users to quickly jump to the first and last items. Implementing this greatly reduces the navigational friction for keyboard users when dealing with long lists, which Arrow up/down alone makes tedious.
 **Action:** When creating custom keyboard navigation (Arrow keys) for lists or accordions, always remember to add handlers for `Home` and `End` keys to jump to the start/end of the interactive elements list.
+## 2026-06-17 - Prevent Unwanted Text Selection on Interactive UI
+**Learning:** Interactive UI components that visually act as buttons, toggles, or clickable cards (especially those using `role="button"` or pseudo-buttons like `<label>`, `.theme-toggle`, `.version-card-header`) often accidentally highlight text when users rapidly click or double-click. This drastically reduces the "app-like" feel of a site.
+**Action:** Always apply `user-select: none` (and `-webkit-user-select: none`) to interactive, non-text-entry elements that function as buttons or toggles to mimic native OS component behavior and prevent accidental text highlighting.
