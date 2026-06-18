@@ -280,7 +280,12 @@ async function loadLatestVersion() {
         latestDateEl.setAttribute('title', getRelativeTime(versionInfo.date));
 
         const localeDisplay = versionInfo.locale === 'multi' ? 'Multilingual' : (LOCALE_NAMES[versionInfo.locale] || versionInfo.locale);
-        document.getElementById('latest-locale').textContent = escapeHTML(localeDisplay);
+        const rawLocale = versionInfo.locale === 'multi' ? 'Multilingual' : versionInfo.locale.toUpperCase();
+
+        document.getElementById('latest-locale').innerHTML = `
+            <span aria-hidden="true">${escapeHTML(rawLocale)}</span>
+            <span class="sr-only">${escapeHTML(localeDisplay)}</span>
+        `;
 
         // Update download buttons
         const windowsBtn = document.getElementById('latest-download-windows');
@@ -742,7 +747,7 @@ function buildVersionCardRows(versionGroup, localeFilter) {
             const localeName = LOCALE_NAMES[entry.locale] || entry.locale;
             rows.push(`
                 <div class="version-card-row">
-                    <span class="locale-badge" title="Language: ${escapeHTML(localeName)}">${escapeHTML(entry.locale.toUpperCase())}</span>
+                    <span class="locale-badge" title="Language: ${escapeHTML(localeName)}"><span aria-hidden="true">${escapeHTML(entry.locale.toUpperCase())}</span><span class="sr-only">${escapeHTML(localeName)}</span></span>
                     <div class="download-buttons-cell">${buttons}</div>
                 </div>
             `);
@@ -761,10 +766,12 @@ function buildVersionCardRows(versionGroup, localeFilter) {
                 }
 
                 const localeLabel = entry.locale === 'multi' ? 'MULTILINGUAL' : entry.locale.toUpperCase();
-                const titleAttr = entry.locale === 'multi' ? '' : ` title="Language: ${escapeHTML(LOCALE_NAMES[entry.locale] || entry.locale)}"`;
+                const localeName = LOCALE_NAMES[entry.locale] || entry.locale;
+                const readableName = entry.locale === 'multi' ? 'Multilingual' : localeName;
+                const titleAttr = entry.locale === 'multi' ? '' : ` title="Language: ${escapeHTML(localeName)}"`;
                 rows.push(`
                     <div class="version-card-row">
-                        <span class="locale-badge"${titleAttr}>${escapeHTML(localeLabel)}</span>
+                        <span class="locale-badge"${titleAttr}><span aria-hidden="true">${escapeHTML(localeLabel)}</span><span class="sr-only">${escapeHTML(readableName)}</span></span>
                         <div class="download-buttons-cell">${buttons}</div>
                     </div>
                 `);
