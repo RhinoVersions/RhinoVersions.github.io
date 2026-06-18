@@ -20,3 +20,6 @@
 ## 2026-06-17 - Prevent Unwanted Text Selection on Interactive UI
 **Learning:** Interactive UI components that visually act as buttons, toggles, or clickable cards (especially those using `role="button"` or pseudo-buttons like `<label>`, `.theme-toggle`, `.version-card-header`) often accidentally highlight text when users rapidly click or double-click. This drastically reduces the "app-like" feel of a site.
 **Action:** Always apply `user-select: none` (and `-webkit-user-select: none`) to interactive, non-text-entry elements that function as buttons or toggles to mimic native OS component behavior and prevent accidental text highlighting.
+## 2026-06-18 - [Screen Reader Pronunciation for Raw Abbreviated Codes]
+**Learning:** Screen readers often struggle with raw, abbreviated string codes (like 'EN-US' or 'DE-DE'), reading them out letter-by-letter, which creates a poor dictation experience.
+**Action:** When rendering abbreviations or raw string codes in the UI, consider wrapping the visible text in `aria-hidden="true"` and injecting a human-readable equivalent (e.g. 'English (US)') adjacent to it inside a `<span class="sr-only">`. This preserves visual density for sighted users while significantly improving accessibility.
