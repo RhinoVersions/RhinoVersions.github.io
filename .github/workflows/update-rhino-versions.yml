@@ -22,7 +22,7 @@ jobs:
       changed: ${{ steps.commit.outputs.changed }}
 
     env:
-      RHINO_MAJORS: "7,8"
+      RHINO_MAJORS: "7,8,9"
       RHINO_LOCALES: "en-us,de-de,es-es,fr-fr,it-it,ja-jp,ko-kr,zh-cn,zh-tw"
       MD_PATH: "data/rhino-versions.md"
       MD_PATH_ALL: "data/rhino-versions-all.md"
