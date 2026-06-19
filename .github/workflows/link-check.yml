@@ -1,0 +1,41 @@
+name: Check download links
+
+on:
+  # Weekly, shortly after the daily NuGet update has had a chance to run.
+  schedule:
+    - cron: "30 9 * * 1"
+  # On any change to the data or the checker itself.
+  push:
+    paths:
+      - "data/**"
+      - "scripts/check_links.py"
+      - ".github/workflows/link-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: link-check
+  cancel-in-progress: true
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (shallow)
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: pip install requests
+
+      - name: Check all download links
+        run: python scripts/check_links.py data/rhino-versions.md data/rhino-versions-all.md
