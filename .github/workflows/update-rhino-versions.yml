@@ -22,13 +22,13 @@ jobs:
       changed: ${{ steps.commit.outputs.changed }}
 
     env:
-      RHINO_MAJORS: "7,8"
+      RHINO_MAJORS: "6,7,8,9"
+      # Majors served only as prereleases (WIP) on NuGet; Rhino 9 is Windows-only WIP.
+      RHINO_PRERELEASE_MAJORS: "9"
       RHINO_LOCALES: "en-us,de-de,es-es,fr-fr,it-it,ja-jp,ko-kr,zh-cn,zh-tw"
       MD_PATH: "data/rhino-versions.md"
       MD_PATH_ALL: "data/rhino-versions-all.md"
       HEAD_CHECK_LATEST: "true"
-      HEAD_CHECK_ALL: "false"
-      MAC_HEAD_LIMIT: "10"
       PUSH_TOKEN: ${{ secrets.WEBSITE_TOKEN || secrets.GITHUB_TOKEN || secrets.DEPLOY }}
 
     steps:

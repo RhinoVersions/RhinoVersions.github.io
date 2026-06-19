@@ -14,16 +14,19 @@ USER_AGENT = "nuget-rhino-actions/1.5"
 REG_INDEX = "https://api.nuget.org/v3/registration5-semver1/rhinocommon/index.json"
 MAC_RELEASE_URL_TEMPLATE = "https://files.mcneel.com/rhino/{major}/mac/releases/{filename}"
 STABLE_SUFFIX_RE = re.compile(r'^[0-9]+(\.[0-9]+){3}$')  # e.g., 8.24.25281.15001
+# Prerelease, e.g. 9.0.26097.12305-wip (Rhino 9 is WIP-only on NuGet).
+PRERELEASE_SUFFIX_RE = re.compile(r'^[0-9]+(\.[0-9]+){3}-[0-9A-Za-z.]+$')
 BULLET_RE = re.compile(r'^\s{4}- \[.*\]\(.*\)\s*$')
 
 # Environment variables with defaults
-MAJORS_RAW = os.getenv("RHINO_MAJORS", "7,8")
+MAJORS_RAW = os.getenv("RHINO_MAJORS", "6,7,8,9")
+# Majors for which we also accept prerelease (-wip/-beta/...) builds.
+# Rhino 9 currently ships only as WIP prereleases on NuGet.
+PRERELEASE_MAJORS_RAW = os.getenv("RHINO_PRERELEASE_MAJORS", "9")
 LOCALES_RAW = os.getenv("RHINO_LOCALES", "en-us,de-de,es-es,fr-fr,it-it,ja-jp,ko-kr,zh-cn,zh-tw")
 MD_LATEST = os.getenv("MD_PATH", "data/rhino-versions.md")
 MD_ALL = os.getenv("MD_PATH_ALL", "data/rhino-versions-all.md")
 HEAD_CHECK_LATEST = os.getenv("HEAD_CHECK_LATEST", "true").lower() == "true"
-HEAD_CHECK_ALL = os.getenv("HEAD_CHECK_ALL", "false").lower() == "true"
-MAC_HEAD_LIMIT = int(os.getenv("MAC_HEAD_LIMIT", "10"))  # Only HEAD-check Mac URLs for the N newest versions
 
 # Parse lists
 tokens = [t for t in re.split(r'[,\s]+', MAJORS_RAW.strip()) if t]
@@ -35,6 +38,13 @@ for t in tokens:
         MAJORS.append(t)
 
 LOCALES = [loc.strip() for loc in re.split(r'[,\s]+', LOCALES_RAW.strip()) if loc.strip()]
+
+PRERELEASE_MAJORS = {t for t in re.split(r'[,\s]+', PRERELEASE_MAJORS_RAW.strip()) if t}
+
+
+def is_prerelease(ver: str) -> bool:
+    """True if the version carries a prerelease suffix, e.g. 9.0.26097.12305-wip."""
+    return "-" in ver
 
 
 def fetch_registration_index() -> dict:
@@ -77,22 +87,32 @@ def versions_from_registration(reg_json: dict) -> List[str]:
 
 
 def parse_version_tuple(ver: str) -> Tuple[int, ...]:
-    """Parse version string into a tuple of integers."""
-    parts = ver.split(".")
+    """Parse version string into a tuple of integers (ignoring any -prerelease suffix)."""
+    core = ver.split("-", 1)[0]
+    parts = core.split(".")
     return tuple(int(p) for p in parts[:4])
 
 
 def list_stable_for_majors(all_versions: List[str], majors: Iterable[Union[int, str]]) -> List[str]:
-    """Filter for stable versions matching the requested major versions."""
+    """Filter for matching major versions.
+
+    Accepts stable 4-part versions for all requested majors, plus prerelease
+    builds (e.g. 9.0.26097.12305-wip) for majors listed in PRERELEASE_MAJORS.
+    """
     majors_set = {str(m) for m in majors}
     prefixes = tuple(f"{m}." for m in majors_set)
-    cands = [
-        v for v in all_versions
-        # Optimization: fast pre-filter. Safe because STABLE_SUFFIX_RE enforces dots.
-        if v.startswith(prefixes)
-        and STABLE_SUFFIX_RE.match(v)
-        and v.split(".", 1)[0] in majors_set
-    ]
+    cands = []
+    for v in all_versions:
+        # Optimization: fast pre-filter on the major prefix.
+        if not v.startswith(prefixes):
+            continue
+        major = v.split(".", 1)[0]
+        if major not in majors_set:
+            continue
+        if STABLE_SUFFIX_RE.match(v):
+            cands.append(v)
+        elif major in PRERELEASE_MAJORS and PRERELEASE_SUFFIX_RE.match(v):
+            cands.append(v)
     cands.sort(key=parse_version_tuple, reverse=True)
     return cands
 
@@ -112,8 +132,12 @@ def decode_version_date(ver: str) -> dt.date:
 
 
 def _version_for_filename(ver: str) -> str:
-    """Normalize version string for filenames (pad to 5 digits)."""
-    parts = ver.split(".")
+    """Normalize version string for filenames (pad to 5 digits).
+
+    Any prerelease suffix is dropped: the actual installer for 9.0.26097.12305-wip
+    is published as rhino_..._9.0.26097.12305.exe (no -wip).
+    """
+    parts = ver.split("-", 1)[0].split(".")
     if len(parts) < 4:
         raise ValueError(f"Unexpected version: {ver}")
     parts[2] = parts[2].zfill(5)  # yyddd
@@ -127,6 +151,22 @@ def build_windows_url(ver: str, date_obj: dt.date, locale: str) -> str:
     ymd = date_obj.strftime("%Y%m%d")
     filename = f"rhino_{locale}_{ver_name}.exe"
     return f"https://files.mcneel.com/dujour/exe/{ymd}/{filename}"
+
+
+def build_windows_url_candidates(ver: str, date_obj: dt.date, locale: str) -> List[str]:
+    """Windows installer URL candidates for a build.
+
+    WIP/prerelease installers are a single multilingual exe with no locale segment
+    (rhino_<ver>.exe). Older WIP builds used a locale segment (rhino_<locale>_<ver>.exe).
+    Returns both so the caller can HEAD-check and pick the one that exists.
+    """
+    ver_name = _version_for_filename(ver)
+    ymd = date_obj.strftime("%Y%m%d")
+    base = f"https://files.mcneel.com/dujour/exe/{ymd}"
+    return [
+        f"{base}/rhino_{ver_name}.exe",            # multilingual (current WIP convention)
+        f"{base}/rhino_{locale}_{ver_name}.exe",   # locale-specific (older WIP / stable)
+    ]
 
 
 def build_mac_url_candidates(ver: str) -> List[str]:
@@ -174,6 +214,84 @@ def url_exists(url: str) -> bool:
         return False
     except requests.RequestException:
         return False
+
+
+def resolve_mac_url(ver: str) -> Union[str, None]:
+    """Return the first reachable Mac DMG URL for a build, or None.
+
+    Mac filenames are not 1:1 with the Windows build number (often last digit +1),
+    and many builds have no Mac DMG at all (e.g. early Rhino 6, all WIP builds).
+    HEAD-check candidates so we only ever emit links that actually exist.
+    """
+    for cand in build_mac_url_candidates(ver):
+        if url_exists(cand):
+            return cand
+    return None
+
+
+def resolve_mac_urls(versions: List[str], max_workers: int = 16) -> dict:
+    """Resolve verified Mac URLs for many builds concurrently.
+
+    Returns {version: url} only for builds whose Mac DMG was found.
+    """
+    result = {}
+    if not versions:
+        return result
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        for ver, url in zip(versions, executor.map(resolve_mac_url, versions)):
+            if url:
+                result[ver] = url
+    return result
+
+
+def resolve_prerelease_windows_url(ver: str) -> Union[str, None]:
+    """Return the first reachable Windows installer URL for a prerelease build.
+
+    WIP installer filename conventions vary (multilingual rhino_<ver>.exe for newer
+    builds, locale-specific rhino_en-us_<ver>.exe for older), so HEAD-check candidates.
+    """
+    d = decode_version_date(ver)
+    for cand in build_windows_url_candidates(ver, d, "en-us"):
+        if url_exists(cand):
+            return cand
+    return None
+
+
+def resolve_prerelease_windows_urls(versions: List[str], max_workers: int = 16) -> dict:
+    """Resolve verified Windows URLs for prerelease builds concurrently.
+
+    Returns {version: url} only for builds whose installer was found.
+    """
+    result = {}
+    if not versions:
+        return result
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        for ver, url in zip(versions, executor.map(resolve_prerelease_windows_url, versions)):
+            if url:
+                result[ver] = url
+    return result
+
+
+def windows_installer_exists(ver: str) -> bool:
+    """True if the en-us Windows installer for a build is reachable.
+
+    Used as a cheap proxy for "this build has a published Windows installer":
+    a handful of NuGet entries (e.g. ancient 2016 Rhino 6 builds) have no exe
+    on the CDN, and McNeel publishes all locales of a build together.
+    """
+    return url_exists(build_windows_url(ver, decode_version_date(ver), "en-us"))
+
+
+def resolve_live_windows(versions: List[str], max_workers: int = 16) -> set:
+    """Return the subset of builds that have a reachable Windows installer."""
+    live = set()
+    if not versions:
+        return live
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        for ver, ok in zip(versions, executor.map(windows_installer_exists, versions)):
+            if ok:
+                live.add(ver)
+    return live
 
 
 def ensure_newline(s: str) -> str:
@@ -233,30 +351,47 @@ def get_stable_versions() -> List[str]:
 
 
 def check_only():
-    """Lightweight check: is the latest NuGet version already in our data?"""
+    """Lightweight check: is the newest NuGet build for each major already in our data?
+
+    Checks per-major (not just the single newest overall), so a fresh Rhino 9 WIP
+    build triggers a rebuild even though stable Rhino 8 remains the latest release.
+    """
     try:
         stable = get_stable_versions()
 
         if not stable:
-            print("No stable versions found on NuGet.")
+            print("No versions found on NuGet.")
             _write_output("new_versions", "false")
             return
 
-        latest = stable[0]
-        print(f"Latest NuGet version: {latest}")
+        # Newest build per major. `stable` is sorted descending, so the first
+        # occurrence of each major is its newest build.
+        latest_by_major = {}
+        for v in stable:
+            major = v.split(".", 1)[0]
+            latest_by_major.setdefault(major, v)
 
-        # Check if this version is already present in the latest MD file
-        if os.path.exists(MD_LATEST):
-            with open(MD_LATEST, "r", encoding="utf-8") as f:
+        # We only need MD_ALL (the full history) to know whether a build is known;
+        # MD_LATEST is a subset of it.
+        content = ""
+        if os.path.exists(MD_ALL):
+            with open(MD_ALL, "r", encoding="utf-8") as f:
                 content = f.read()
-            ver_fn = _version_for_filename(latest)
-            if ver_fn in content:
-                print(f"Version {latest} already listed in {MD_LATEST}. Nothing to do.")
-                _write_output("new_versions", "false")
-                return
 
-        print(f"New version {latest} detected! Full build required.")
-        _write_output("new_versions", "true")
+        new = False
+        for major, v in sorted(latest_by_major.items()):
+            ver_fn = _version_for_filename(v)
+            present = ver_fn in content
+            print(f"  Rhino {major}: latest {v} -> {'present' if present else 'MISSING'}")
+            if not present:
+                new = True
+
+        if new:
+            print("New version(s) detected! Full build required.")
+            _write_output("new_versions", "true")
+        else:
+            print(f"All majors up to date in {MD_ALL}. Nothing to do.")
+            _write_output("new_versions", "false")
 
     except Exception as e:
         print(f"::warning::NuGet check failed ({e}); skipping build to avoid cascading failure.")
@@ -296,53 +431,59 @@ def main():
             
             print(f"Found {len(stable)} stable versions. Processing...")
 
+            # Pre-resolve Mac DMG URLs for every non-prerelease build, in parallel.
+            # Mac filenames don't track the Windows build number exactly (usually +1)
+            # and older builds may have no Mac DMG, so each must be HEAD-checked.
+            # Verifying ALL builds (not just the newest N) avoids emitting broken
+            # links for older releases, which the previous top-N heuristic did.
+            mac_targets = [v for v in stable if not is_prerelease(v)]
+            print(f"Resolving Mac DMG URLs for {len(mac_targets)} builds...")
+            mac_map = resolve_mac_urls(mac_targets)
+            print(f"Found Mac DMGs for {len(mac_map)}/{len(mac_targets)} builds.")
+
+            # Verify which stable builds actually have a Windows installer (a few
+            # ancient NuGet entries do not), so we never emit dead exe links.
+            print(f"Verifying Windows installers for {len(mac_targets)} builds...")
+            win_live = resolve_live_windows(mac_targets)
+            print(f"Found Windows installers for {len(win_live)}/{len(mac_targets)} builds.")
+
+            # Pre-resolve prerelease (WIP) Windows installers concurrently too.
+            pre_targets = [v for v in stable if is_prerelease(v)]
+            pre_win_map = resolve_prerelease_windows_urls(pre_targets)
+            if pre_targets:
+                print(f"Found prerelease Windows installers for {len(pre_win_map)}/{len(pre_targets)} builds.")
+
             for v in stable:
                 d = decode_version_date(v)
-                
-                # --- Windows EXE ---
-                # Generate for all requested locales
-                for locale in LOCALES:
-                    u = build_windows_url(v, d, locale)
-                    fn = os.path.basename(urlparse(u).path)
-                    
-                    # Optional: Check if URL exists (usually skipped for 'all' list for performance)
-                    if HEAD_CHECK_ALL:
-                        if not url_exists(u):
-                            print(f"[skip] Windows URL not reachable: {u}")
-                            continue
-                    
-                    all_entries_map[fn] = u
-                
-                # --- Mac DMG ---
-                # Mac doesn't have locales in filename usually.
-                # We need to find the correct URL (exact match or +1)
-                
-                # We only need to check this ONCE per version 'v'
-                # But checking every single historical version might be slow if we do HEAD checks.
-                # However, for 'all' list, we might want to be sure.
-                # If HEAD_CHECK_ALL is false, we might just guess the exact match?
-                # BUT, we know Mac versions often differ. Guessing exact match might be wrong.
-                # Strategy: For the 'all' list, if HEAD_CHECK_ALL is false, we might skip Mac 
-                # OR we accept that we might list broken links if we don't check.
-                # Given the +1 ambiguity, we SHOULD probably check at least the top N or check all if feasible.
-                # Let's try to check. If it's too slow, we can optimize later.
-                # Actually, for the 'all' list, we can just try to find a valid Mac URL.
-                
-                mac_candidates = build_mac_url_candidates(v)
-                valid_mac_url = None
 
-                # Only HEAD-check Mac URLs for the newest N versions (per the loop order)
-                # For older versions, use exact-match URL without verification
-                version_index = stable.index(v)
-                if version_index < MAC_HEAD_LIMIT:
-                    for cand_url in mac_candidates:
-                        if url_exists(cand_url):
-                            valid_mac_url = cand_url
-                            break
+                # --- Prerelease (WIP): Windows-only, single multilingual installer ---
+                # WIP builds (e.g. Rhino 9) ship one multilingual exe and no Mac DMG.
+                # The exact filename convention changed over time, so HEAD-check
+                # candidates and emit a single entry for whichever resolves.
+                if is_prerelease(v):
+                    win_url = pre_win_map.get(v)
+                    if win_url:
+                        fn = os.path.basename(urlparse(win_url).path)
+                        all_entries_map[fn] = win_url
+                    else:
+                        print(f"[skip] No reachable Windows installer for prerelease {v}")
+                    continue
+
+                # --- Windows EXE (all locales) ---
+                # McNeel publishes every locale of a build together, so emit all
+                # locales for builds with a verified installer; skip dead builds.
+                if v in win_live:
+                    for locale in LOCALES:
+                        u = build_windows_url(v, d, locale)
+                        fn = os.path.basename(urlparse(u).path)
+                        all_entries_map[fn] = u
                 else:
-                    # For old versions, assume exact match (first candidate)
-                    valid_mac_url = mac_candidates[0] if mac_candidates else None
+                    print(f"[skip] No Windows installer published for {v}")
 
+                # --- Mac DMG ---
+                # Use the pre-resolved (HEAD-verified) Mac URL; absent for builds
+                # with no published DMG (e.g. early Rhino 6).
+                valid_mac_url = mac_map.get(v)
                 if valid_mac_url:
                     fn = os.path.basename(urlparse(valid_mac_url).path)
                     all_entries_map[fn] = valid_mac_url
@@ -375,9 +516,11 @@ def main():
             print(f"Wrote {all_count} entries to {MD_ALL}")
 
             # 4. Update Latest File (en-us only, both platforms)
-            # We take the absolute latest version from 'stable'
-            if stable:
-                v_latest = stable[0]
+            # The "Latest Release" hero shows the newest STABLE build only.
+            # Prerelease (WIP) builds, e.g. Rhino 9, live in the version history
+            # (MD_ALL) but never headline the latest card.
+            v_latest = next((v for v in stable if not is_prerelease(v)), None)
+            if v_latest:
                 d_latest = decode_version_date(v_latest)
                 
                 # Windows Latest
@@ -396,15 +539,8 @@ def main():
                 else:
                     print(f"::warning::Latest Windows URL not reachable: {u_win}")
 
-                # Mac Latest
-                # We need to find the Mac version corresponding to this Windows version
-                mac_candidates = build_mac_url_candidates(v_latest)
-                valid_mac_url = None
-                for cand_url in mac_candidates:
-                    if url_exists(cand_url):
-                        valid_mac_url = cand_url
-                        break
-                
+                # Mac Latest (already verified in the pre-resolved map)
+                valid_mac_url = mac_map.get(v_latest)
                 if valid_mac_url:
                     fn_mac = os.path.basename(urlparse(valid_mac_url).path)
                     if prepend_latest(MD_LATEST, fn_mac, valid_mac_url):

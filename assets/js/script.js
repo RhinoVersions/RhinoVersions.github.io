@@ -160,13 +160,19 @@ function parseVersionFromFilename(filename) {
     let platform = filename.endsWith('.exe') ? 'windows' : 'mac';
 
     if (platform === 'windows') {
-        // Expected: rhino_en-us_8.24.25281.15001
-        if (parts.length < 3) {
+        // Expected: rhino_en-us_8.24.25281.15001 (locale-specific)
+        // OR: rhino_9.0.26132.12305 (multilingual WIP installer, no locale)
+        if (parts.length === 3) {
+            locale = parts[1];
+            versionStr = parts[2];
+        } else if (parts.length === 2) {
+            // No locale: multilingual WIP installer
+            locale = 'multi';
+            versionStr = parts[1];
+        } else {
             console.warn(`Unexpected Windows filename format: ${filename}`);
             return null;
         }
-        locale = parts[1];
-        versionStr = parts[2];
     } else {
         // Expected: rhino_8.25.25328.11002 (no locale)
         // OR legacy/accidental: rhino_en-us_... (handle just in case)
@@ -605,9 +611,10 @@ function filterVersions() {
         filtered = filtered.filter(v => v.major === majorFilter);
     }
 
-    // Filter by locale
+    // Filter by locale. Multilingual builds (locale 'multi', e.g. Rhino 9 WIP
+    // installers) serve every language, so they match any locale filter.
     if (localeFilter !== 'all') {
-        filtered = filtered.filter(v => v.entries.some(entry => entry.locale === localeFilter));
+        filtered = filtered.filter(v => v.entries.some(entry => entry.locale === localeFilter || entry.locale === 'multi'));
     }
 
     // Filter by search term
@@ -795,8 +802,12 @@ function pickDeepLinkLocale(versionGroup, localeFilter) {
  * Group by major.minor so Windows/Mac rows stay together in one card
  */
 function getVersionBuildKey(fullVersion) {
+    // Group by major.minor.yyddd (the build's day). This unites a build's Windows
+    // exe with its Mac dmg (whose last digit is +1, same day) while keeping
+    // distinct builds apart — e.g. the two 6.11 service releases, or every
+    // Rhino 9 WIP build, which all share major.minor 9.0 but differ by day.
     const parts = fullVersion.split('.');
-    return parts.slice(0, 2).join('.');
+    return parts.slice(0, 3).join('.');
 }
 
 /**

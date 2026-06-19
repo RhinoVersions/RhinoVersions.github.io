@@ -130,10 +130,107 @@ class FetchVersionsTests(unittest.TestCase):
         self.assertEqual(fv._version_for_filename("8.24.25281.15001"), "8.24.25281.15001")
         # Valid 4-part version (needs padding)
         self.assertEqual(fv._version_for_filename("8.24.1.2"), "8.24.00001.00002")
+        # Prerelease suffix is dropped (installer filename has no -wip)
+        self.assertEqual(fv._version_for_filename("9.0.26097.12305-wip"), "9.0.26097.12305")
         # Invalid version (fewer than 4 parts)
         with self.assertRaises(ValueError) as cm:
             fv._version_for_filename("1.2.3")
         self.assertEqual(str(cm.exception), "Unexpected version: 1.2.3")
+
+    def test_is_prerelease(self):
+        self.assertTrue(fv.is_prerelease("9.0.26097.12305-wip"))
+        self.assertFalse(fv.is_prerelease("8.24.25281.15001"))
+
+    def test_parse_version_tuple_ignores_prerelease_suffix(self):
+        self.assertEqual(fv.parse_version_tuple("9.0.26097.12305-wip"), (9, 0, 26097, 12305))
+        self.assertEqual(fv.parse_version_tuple("8.24.25281.15001"), (8, 24, 25281, 15001))
+
+    def test_list_stable_includes_wip_only_for_prerelease_majors(self):
+        all_versions = [
+            "9.0.26097.12305-wip",
+            "9.0.26083.12305-wip",
+            "8.32.26160.13001",
+            "8.32.26160.13001-beta",  # stable major -> beta excluded
+            "7.31.25281.15001",
+        ]
+        result = fv.list_stable_for_majors(all_versions, [7, 8, 9])
+        # WIP builds kept for major 9, sorted with everything else (desc).
+        self.assertEqual(
+            result,
+            [
+                "9.0.26097.12305-wip",
+                "9.0.26083.12305-wip",
+                "8.32.26160.13001",
+                "7.31.25281.15001",
+            ],
+        )
+
+    def test_list_stable_excludes_rc_dujour_beta_for_v6(self):
+        all_versions = [
+            "6.35.21222.17001",       # stable -> keep
+            "6.32.20337.13001-rc",    # rc -> drop
+            "6.26.20119.290-dujour",  # dujour -> drop
+            "6.0.18016.23451",        # stable -> keep
+            "6.0.16257.3161-wip",     # wip (major 6 not a prerelease major) -> drop
+        ]
+        result = fv.list_stable_for_majors(all_versions, [6])
+        self.assertEqual(result, ["6.35.21222.17001", "6.0.18016.23451"])
+
+    def test_resolve_mac_url_picks_plus_one(self):
+        # Exact 404, +1 200 -> returns the +1 URL.
+        with patch("fetch_versions.url_exists", side_effect=lambda u: u.endswith("17002.dmg")):
+            url = fv.resolve_mac_url("6.35.21222.17001")
+        self.assertEqual(
+            url,
+            "https://files.mcneel.com/rhino/6/mac/releases/rhino_6.35.21222.17002.dmg",
+        )
+
+    def test_resolve_mac_url_returns_none_when_absent(self):
+        with patch("fetch_versions.url_exists", return_value=False):
+            self.assertIsNone(fv.resolve_mac_url("6.0.18016.23451"))
+
+    def test_resolve_mac_urls_only_includes_found(self):
+        # Found for 8.x (+1), absent for 6.0.
+        def fake_exists(u):
+            return "8.32.26160.13002.dmg" in u
+        with patch("fetch_versions.url_exists", side_effect=fake_exists):
+            result = fv.resolve_mac_urls(["8.32.26160.13001", "6.0.18016.23451"])
+        self.assertEqual(
+            result,
+            {"8.32.26160.13001": "https://files.mcneel.com/rhino/8/mac/releases/rhino_8.32.26160.13002.dmg"},
+        )
+
+    def test_resolve_prerelease_windows_prefers_multilingual(self):
+        # Multilingual candidate exists -> returned (no-locale form).
+        def fake_exists(u):
+            return u.endswith("rhino_9.0.26167.11545.exe")
+        with patch("fetch_versions.url_exists", side_effect=fake_exists):
+            url = fv.resolve_prerelease_windows_url("9.0.26167.11545-wip")
+        self.assertEqual(
+            url,
+            "https://files.mcneel.com/dujour/exe/20260616/rhino_9.0.26167.11545.exe",
+        )
+
+    def test_resolve_prerelease_windows_falls_back_to_locale(self):
+        # Only the locale-specific (older WIP) form exists.
+        def fake_exists(u):
+            return u.endswith("rhino_en-us_9.0.26097.12305.exe")
+        with patch("fetch_versions.url_exists", side_effect=fake_exists):
+            url = fv.resolve_prerelease_windows_url("9.0.26097.12305-wip")
+        self.assertTrue(url.endswith("rhino_en-us_9.0.26097.12305.exe"))
+
+    def test_resolve_prerelease_windows_none_when_absent(self):
+        with patch("fetch_versions.url_exists", return_value=False):
+            self.assertIsNone(fv.resolve_prerelease_windows_url("9.0.26167.11545-wip"))
+
+    def test_build_windows_url_strips_wip(self):
+        # Day 097 of 2026 -> 2026-04-07
+        date = fv.decode_version_date("9.0.26097.12305-wip")
+        url = fv.build_windows_url("9.0.26097.12305-wip", date, "en-us")
+        self.assertEqual(
+            url,
+            "https://files.mcneel.com/dujour/exe/20260407/rhino_en-us_9.0.26097.12305.exe",
+        )
 
 
 if __name__ == "__main__":

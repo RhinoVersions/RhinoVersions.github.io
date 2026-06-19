@@ -48,6 +48,16 @@ test('parseVersionFromFilename', async (t) => {
         assert.strictEqual(info.dateString, '2025-10-08');
     });
 
+    await t.test('should parse Windows WIP filename (no locale, multilingual)', () => {
+        const filename = 'rhino_9.0.26132.12305.exe';
+        const info = parseVersionFromFilename(filename);
+        assert.strictEqual(info.major, '9');
+        assert.strictEqual(info.minor, '0');
+        assert.strictEqual(info.locale, 'multi');
+        assert.strictEqual(info.platform, 'windows');
+        assert.strictEqual(info.fullVersion, '9.0.26132.12305');
+    });
+
     await t.test('should parse Mac filename (no locale)', () => {
         const filename = 'rhino_8.25.25328.11002.dmg';
         const info = parseVersionFromFilename(filename);
@@ -117,7 +127,11 @@ test('resolveTheme', async (t) => {
 
 test('getVersionBuildKey', async (t) => {
     await t.test('should return major.minor', () => {
-        assert.strictEqual(getVersionBuildKey('8.24.25281.15001'), '8.24');
-        assert.strictEqual(getVersionBuildKey('7.31.25281.15001'), '7.31');
+        assert.strictEqual(getVersionBuildKey('8.24.25281.15001'), '8.24.25281');
+        assert.strictEqual(getVersionBuildKey('7.31.25281.15001'), '7.31.25281');
+        // Windows exe and its Mac dmg (+1 last digit, same day) share a build key
+        assert.strictEqual(getVersionBuildKey('8.24.25281.15002'), '8.24.25281');
+        // Distinct Rhino 9 WIP builds (all 9.0) stay separate by day
+        assert.notStrictEqual(getVersionBuildKey('9.0.26167.11545'), getVersionBuildKey('9.0.26160.12305'));
     });
 });
