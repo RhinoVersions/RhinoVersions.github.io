@@ -288,14 +288,6 @@ async function loadLatestVersion() {
         latestDateEl.setAttribute('datetime', versionInfo.dateString);
         latestDateEl.setAttribute('title', getRelativeTime(versionInfo.date));
 
-        const localeDisplay = versionInfo.locale === 'multi' ? 'Multilingual' : (LOCALE_NAMES[versionInfo.locale] || versionInfo.locale);
-        const rawLocale = versionInfo.locale === 'multi' ? 'Multilingual' : versionInfo.locale.toUpperCase();
-
-        document.getElementById('latest-locale').innerHTML = `
-            <span aria-hidden="true">${escapeHTML(rawLocale)}</span>
-            <span class="sr-only">${escapeHTML(localeDisplay)}</span>
-        `;
-
         // Update download buttons
         const windowsBtn = document.getElementById('latest-download-windows');
         const macBtn = document.getElementById('latest-download-mac');
