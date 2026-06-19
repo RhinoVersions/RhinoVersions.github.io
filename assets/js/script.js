@@ -75,7 +75,9 @@ function isLocalEnvironment() {
 /**
  * Fetch with localStorage cache
  */
-const CACHE_KEY_PREFIX = 'rhino_versions_cache_';
+// Bump the version suffix to invalidate stale client caches when the data
+// format or contents change (e.g. removing broken WIP links).
+const CACHE_KEY_PREFIX = 'rhino_versions_cache_v2_';
 const CACHE_EXPIRY_MS = 6 * 60 * 60 * 1000; // 6 hours
 
 async function fetchWithCache(url) {
