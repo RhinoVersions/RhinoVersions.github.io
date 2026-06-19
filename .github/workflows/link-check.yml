@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: link-check
@@ -22,10 +22,13 @@ concurrency:
 jobs:
   link-check:
     runs-on: ubuntu-latest
+    env:
+      PUSH_TOKEN: ${{ secrets.WEBSITE_TOKEN || secrets.GITHUB_TOKEN || secrets.DEPLOY }}
     steps:
       - name: Checkout (shallow)
         uses: actions/checkout@v6
         with:
+          ref: main
           fetch-depth: 1
           persist-credentials: false
 
@@ -37,5 +40,25 @@ jobs:
       - name: Install deps
         run: pip install requests
 
+      # Writes link-status.json (online/total/checked_at) even when links are
+      # broken, then exits non-zero if any are broken so the run is flagged.
       - name: Check all download links
-        run: python scripts/check_links.py data/rhino-versions.md data/rhino-versions-all.md
+        id: check
+        run: python scripts/check_links.py --status-file link-status.json data/rhino-versions.md data/rhino-versions-all.md
+
+      # Always publish the latest status badge data, pass or fail.
+      - name: Commit link-status.json if changed
+        if: always()
+        run: |
+          set -e
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${PUSH_TOKEN}@github.com/${{ github.repository }}.git
+          git add link-status.json
+          if git diff --cached --quiet -- link-status.json; then
+            echo "link-status.json unchanged."
+          else
+            git commit -m "chore: update link-status.json (auto)"
+            git pull --rebase origin main || true
+            git push origin HEAD:main
+          fi

@@ -12,6 +12,8 @@ report 200 to HEAD but are actually gone.
 """
 import argparse
 import concurrent.futures
+import datetime as dt
+import json
 import re
 import sys
 import time
@@ -68,6 +70,7 @@ def main():
     parser.add_argument("--workers", type=int, default=24, help="Concurrent requests.")
     parser.add_argument("--timeout", type=int, default=20, help="Per-request timeout (s).")
     parser.add_argument("--retries", type=int, default=3, help="Attempts per URL.")
+    parser.add_argument("--status-file", help="Write a JSON status summary to this path (online/total/checked_at).")
     args = parser.parse_args()
 
     urls = extract_urls(args.paths)
@@ -81,8 +84,21 @@ def main():
             if not ok:
                 broken.append((status, url))
 
-    ok_count = len(urls) - len(broken)
-    print(f"\nResult: {ok_count}/{len(urls)} OK, {len(broken)} broken.")
+    total = len(urls)
+    ok_count = total - len(broken)
+    print(f"\nResult: {ok_count}/{total} OK, {len(broken)} broken.")
+
+    if args.status_file:
+        status = {
+            "online": ok_count,
+            "total": total,
+            "broken": len(broken),
+            "checked_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+        with open(args.status_file, "w", encoding="utf-8") as fh:
+            json.dump(status, fh, indent=2)
+            fh.write("\n")
+        print(f"Wrote status to {args.status_file}: {status}")
 
     if broken:
         print("\n::group::Broken links")

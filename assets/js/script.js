@@ -374,6 +374,9 @@ async function loadAllVersions() {
         allVersions = Array.from(versionMap.values());
         cachedGroupedVersions = groupVersions(allVersions);
 
+        // Feature the latest Rhino 9 (Early Preview) build alongside the stable hero.
+        renderPreviewCard(cachedGroupedVersions);
+
         // Display
         filterVersions();
 
@@ -385,6 +388,86 @@ async function loadAllVersions() {
         console.error('Error loading all versions:', error);
         loadingEl.style.display = 'none';
         errorEl.style.display = 'block';
+    }
+}
+
+/**
+ * Feature the newest Rhino 9 (Early Preview / WIP) build in its own hero card,
+ * next to the stable "Latest Release" card.
+ */
+function renderPreviewCard(groups) {
+    const card = document.getElementById('preview-card');
+    const wrap = document.getElementById('latest-cards');
+    if (!card) return;
+
+    const r9 = (groups || [])
+        .filter(g => g.major === '9')
+        .sort((a, b) => b.date - a.date)[0];
+
+    if (!r9) {
+        card.style.display = 'none';
+        if (wrap) wrap.classList.remove('has-preview');
+        return;
+    }
+
+    document.getElementById('preview-version').textContent = r9.fullVersion;
+    const dateEl = document.getElementById('preview-date');
+    dateEl.textContent = formatDate(r9.date);
+    dateEl.setAttribute('datetime', r9.dateString);
+    dateEl.setAttribute('title', getRelativeTime(r9.date));
+
+    const winEntry = r9.entries.find(e => e.windowsUrl);
+    const macEntry = r9.entries.find(e => e.macUrl);
+    const winBtn = document.getElementById('preview-download-windows');
+    const macBtn = document.getElementById('preview-download-mac');
+
+    if (winEntry) {
+        winBtn.href = winEntry.windowsUrl;
+        winBtn.innerHTML = `${PLATFORM_ICONS.windows} Windows<span class="sr-only"> - Download Rhino ${escapeHTML(r9.fullVersion)} Early Preview for Windows (opens in a new tab)</span>`;
+        winBtn.style.display = 'inline-flex';
+    } else {
+        winBtn.style.display = 'none';
+    }
+
+    if (macEntry) {
+        macBtn.href = macEntry.macUrl;
+        macBtn.innerHTML = `${PLATFORM_ICONS.mac} Mac<span class="sr-only"> - Download Rhino ${escapeHTML(r9.fullVersion)} Early Preview for Mac (opens in a new tab)</span>`;
+        macBtn.style.display = 'inline-flex';
+    } else {
+        macBtn.style.display = 'none';
+    }
+
+    card.style.display = 'flex';
+    if (wrap) wrap.classList.add('has-preview');
+}
+
+/**
+ * Load the automated link-check status and show a "links online" badge.
+ * Falls back to a plain count of the links currently loaded.
+ */
+async function loadLinkStatus() {
+    const el = document.getElementById('link-status');
+    if (!el) return;
+    try {
+        const status = JSON.parse(await fetchMarkdownFromGitHub('link-status.json'));
+        const online = status.online ?? 0;
+        const total = status.total ?? 0;
+        const broken = status.broken ?? 0;
+        const checked = status.checked_at ? new Date(status.checked_at) : null;
+        el.innerHTML = `<span class="dot" aria-hidden="true"></span><span>${online.toLocaleString()} / ${total.toLocaleString()} download links online</span>`;
+        el.classList.toggle('has-broken', broken > 0);
+        el.title = `${online.toLocaleString()} of ${total.toLocaleString()} download links verified reachable`
+            + (checked && !isNaN(checked) ? ` (last checked ${formatDate(checked)})` : '')
+            + '. Click to view the automated link check.';
+        el.hidden = false;
+    } catch (error) {
+        console.warn('Link status unavailable, falling back to a plain count:', error);
+        const total = (allVersions || []).reduce((n, v) => n + (v.windowsUrl ? 1 : 0) + (v.macUrl ? 1 : 0), 0);
+        if (total > 0) {
+            el.innerHTML = `<span class="dot" aria-hidden="true"></span><span>${total.toLocaleString()} download links</span>`;
+            el.title = `${total.toLocaleString()} download links`;
+            el.hidden = false;
+        }
     }
 }
 
@@ -1177,6 +1260,7 @@ if (typeof window !== 'undefined') {
         loadLatestVersion();
         loadAllVersions();
         loadContributors();
+        loadLinkStatus();
 
         // Set up event listeners
         document.getElementById('search-input').addEventListener('input', debounce(filterVersions, 300));

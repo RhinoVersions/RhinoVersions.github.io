@@ -46,7 +46,7 @@
     <link rel="dns-prefetch" href="https://raw.githubusercontent.com">
 
     <!-- Fonts -->
-    <link rel="stylesheet" href="assets/css/styles.css?v=20260618">
+    <link rel="stylesheet" href="assets/css/styles.css?v=20260619">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Google Fonts uses dynamic CSS based on User-Agent, making SRI hashes unstable.
@@ -197,31 +197,61 @@
                         </button>
                     </div>
                 </div>
-                <div class="latest-card glass-card" id="latest-card" style="display: none;">
-                    <div class="latest-badge">Latest Release</div>
-                    <h2>Rhino <span id="latest-version">-</span></h2>
-                    <div class="version-details">
-                        <div class="details-group">
-                            <div class="detail-item">
-                                <span class="detail-label">Build Date</span>
-                                <time class="detail-value" id="latest-date">-</time>
+                <div class="latest-cards" id="latest-cards">
+                    <div class="latest-card glass-card" id="latest-card" style="display: none;">
+                        <div class="latest-badge">Latest Release</div>
+                        <h2>Rhino <span id="latest-version">-</span></h2>
+                        <div class="version-details">
+                            <div class="details-group">
+                                <div class="detail-item">
+                                    <span class="detail-label">Build Date</span>
+                                    <time class="detail-value" id="latest-date">-</time>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Locale</span>
+                                    <span class="detail-value" id="latest-locale">en-us</span>
+                                </div>
                             </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Locale</span>
-                                <span class="detail-value" id="latest-locale">en-us</span>
+
+                        </div>
+                        <div class="download-buttons">
+                            <a href="#" id="latest-download-windows" class="download-btn cta-btn" target="_blank"
+                                rel="noopener noreferrer" style="display: none;">
+                                Windows
+                            </a>
+                            <a href="#" id="latest-download-mac" class="download-btn cta-btn" target="_blank"
+                                rel="noopener noreferrer" style="display: none;">
+                                Mac
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Latest Rhino 9 Early Preview (WIP) -->
+                    <div class="latest-card glass-card preview-card" id="preview-card" style="display: none;">
+                        <div class="latest-badge preview-badge">Rhino 9 · Early Preview</div>
+                        <h2>Rhino <span id="preview-version">-</span></h2>
+                        <div class="version-details">
+                            <div class="details-group">
+                                <div class="detail-item">
+                                    <span class="detail-label">Build Date</span>
+                                    <time class="detail-value" id="preview-date">-</time>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Channel</span>
+                                    <span class="detail-value">Work-in-progress</span>
+                                </div>
                             </div>
                         </div>
-
-                    </div>
-                    <div class="download-buttons">
-                        <a href="#" id="latest-download-windows" class="download-btn cta-btn" target="_blank"
-                            rel="noopener noreferrer" style="display: none;">
-                            Windows
-                        </a>
-                        <a href="#" id="latest-download-mac" class="download-btn cta-btn" target="_blank"
-                            rel="noopener noreferrer" style="display: none;">
-                            Mac
-                        </a>
+                        <div class="download-buttons">
+                            <a href="#" id="preview-download-windows" class="download-btn cta-btn" target="_blank"
+                                rel="noopener noreferrer" style="display: none;">
+                                Windows
+                            </a>
+                            <a href="#" id="preview-download-mac" class="download-btn cta-btn" target="_blank"
+                                rel="noopener noreferrer" style="display: none;">
+                                Mac
+                            </a>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -230,6 +260,9 @@
             <section class="versions-section" aria-label="Version History">
                 <div class="section-header">
                     <h2>Version History</h2>
+                    <a id="link-status" class="link-status-badge"
+                        href="https://github.com/RhinoVersions/rhinoversions.github.io/actions/workflows/link-check.yml"
+                        target="_blank" rel="noopener noreferrer" hidden></a>
                 </div>
 
                 <div class="loading-state" id="loading-all" role="status" aria-live="polite">
@@ -280,7 +313,7 @@
     </footer>
 
 
-    <script src="assets/js/script.js?v=20260618"></script>
+    <script src="assets/js/script.js?v=20260619"></script>
 </body>
 
 </html>
