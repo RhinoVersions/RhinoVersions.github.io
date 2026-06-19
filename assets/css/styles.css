@@ -1124,7 +1124,7 @@ time[title],
 /* Placeholder styling */
 .search-input::placeholder {
     color: var(--color-text-secondary);
-    opacity: 0.7;
+    opacity: 1;
 }
 
 /* ── Latest cards grid: stable "Latest Release" + Rhino 9 "Early Preview" ── */
@@ -1172,9 +1172,17 @@ time[title],
     border-radius: var(--radius-full);
     transition: border-color 0.2s ease, color 0.2s ease;
 }
-.link-status-badge:hover {
+.link-status-badge:hover,
+.link-status-badge:focus-visible {
     color: var(--color-text-primary);
     border-color: var(--color-text-secondary);
+}
+.link-status-badge:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+.link-status-badge:active {
+    transform: scale(0.98);
 }
 .link-status-badge .dot {
     width: 7px;

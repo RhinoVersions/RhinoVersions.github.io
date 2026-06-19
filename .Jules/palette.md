@@ -23,3 +23,7 @@
 ## 2026-06-18 - [Screen Reader Pronunciation for Raw Abbreviated Codes]
 **Learning:** Screen readers often struggle with raw, abbreviated string codes (like 'EN-US' or 'DE-DE'), reading them out letter-by-letter, which creates a poor dictation experience.
 **Action:** When rendering abbreviations or raw string codes in the UI, consider wrapping the visible text in `aria-hidden="true"` and injecting a human-readable equivalent (e.g. 'English (US)') adjacent to it inside a `<span class="sr-only">`. This preserves visual density for sighted users while significantly improving accessibility.
+
+## 2026-06-19 - [Added Focus and Active States to Status Badge]
+**Learning:** Found that non-traditional interactive elements (like the `.link-status-badge` anchor link) were missing standard `:focus-visible` and `:active` CSS states. Missing `:focus-visible` creates an accessibility barrier for keyboard users, and missing `:active` reduces interaction affordance for mouse/touch users. Also found that `opacity: 0.7` on placeholders using `--color-text-secondary` created a WCAG contrast violation, which is easily missed if only testing against primary text variables.
+**Action:** Always ensure that hover-styled elements have a corresponding `:focus-visible` state. Include `:active` styles (like a subtle scale transform) for interactive elements to mimic native controls. Check contrast ratios for placeholders, as native browser styling or inherited opacity often drops contrast below the required 4.5:1 ratio.
