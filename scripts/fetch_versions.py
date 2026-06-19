@@ -13,11 +13,11 @@ import requests
 USER_AGENT = "nuget-rhino-actions/1.5"
 REG_INDEX = "https://api.nuget.org/v3/registration5-semver1/rhinocommon/index.json"
 MAC_RELEASE_URL_TEMPLATE = "https://files.mcneel.com/rhino/{major}/mac/releases/{filename}"
-STABLE_SUFFIX_RE = re.compile(r'^[0-9]+(\.[0-9]+){3}$')  # e.g., 8.24.25281.15001
+STABLE_SUFFIX_RE = re.compile(r'^[0-9]+(\.[0-9]+){3}(?:-wip)?$')  # e.g., 8.24.25281.15001 or 9.0.26167.11545-wip
 BULLET_RE = re.compile(r'^\s{4}- \[.*\]\(.*\)\s*$')
 
 # Environment variables with defaults
-MAJORS_RAW = os.getenv("RHINO_MAJORS", "7,8")
+MAJORS_RAW = os.getenv("RHINO_MAJORS", "7,8,9")
 LOCALES_RAW = os.getenv("RHINO_LOCALES", "en-us,de-de,es-es,fr-fr,it-it,ja-jp,ko-kr,zh-cn,zh-tw")
 MD_LATEST = os.getenv("MD_PATH", "data/rhino-versions.md")
 MD_ALL = os.getenv("MD_PATH_ALL", "data/rhino-versions-all.md")
@@ -79,7 +79,12 @@ def versions_from_registration(reg_json: dict) -> List[str]:
 def parse_version_tuple(ver: str) -> Tuple[int, ...]:
     """Parse version string into a tuple of integers."""
     parts = ver.split(".")
-    return tuple(int(p) for p in parts[:4])
+    # Remove any non-numeric suffix from the 4th part (e.g. '11545-wip' -> '11545')
+    clean_parts = []
+    for p in parts[:4]:
+        clean_p = re.sub(r'[^0-9].*$', '', p)
+        clean_parts.append(int(clean_p) if clean_p else 0)
+    return tuple(clean_parts)
 
 
 def list_stable_for_majors(all_versions: List[str], majors: Iterable[Union[int, str]]) -> List[str]:
@@ -117,7 +122,14 @@ def _version_for_filename(ver: str) -> str:
     if len(parts) < 4:
         raise ValueError(f"Unexpected version: {ver}")
     parts[2] = parts[2].zfill(5)  # yyddd
-    parts[3] = parts[3].zfill(5)  # hhmmb
+
+    # Handle optional -wip suffix in the 4th part
+    suffix = ""
+    if "-" in parts[3]:
+        parts[3], suffix = parts[3].split("-", 1)
+        suffix = "-" + suffix
+
+    parts[3] = parts[3].zfill(5) + suffix
     return ".".join(parts[:4])
 
 
@@ -147,8 +159,15 @@ def build_mac_url_candidates(ver: str) -> List[str]:
     # Candidate 2: Last digit + 1
     try:
         parts = ver_name.split(".")
-        last_part = int(parts[3])
-        new_last_part = str(last_part + 1).zfill(5)
+        # Separate base number from suffix if present
+        last_part_base = parts[3]
+        suffix = ""
+        if "-" in last_part_base:
+            last_part_base, suffix = last_part_base.split("-", 1)
+            suffix = "-" + suffix
+
+        last_part = int(last_part_base)
+        new_last_part = str(last_part + 1).zfill(5) + suffix
         parts[3] = new_last_part
         ver_name_plus1 = ".".join(parts)
         filename2 = f"rhino_{ver_name_plus1}.dmg"

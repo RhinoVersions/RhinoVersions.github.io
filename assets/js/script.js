@@ -471,7 +471,7 @@ function displayVersions(versions) {
             <div id="${panelId}-heading" class="version-card-header" role="button" tabindex="0" aria-expanded="${isExpanded}" aria-controls="${panelId}" title="${isExpanded ? 'Collapse' : 'Expand'} details for version ${escapeHTML(versionGroup.fullVersion)}">
                 <div class="version-card-main">
                     <a href="${escapeHTML(deepLinkHref)}" class="version-link" title="Copy link to version ${escapeHTML(versionGroup.fullVersion)}"><span class="version-number">${escapeHTML(versionGroup.fullVersion)}</span><span class="sr-only"> - Copy link</span>${LINK_ICON}</a>
-                    <span class="major-badge">Rhino ${escapeHTML(versionGroup.major)}</span>
+                    <span class="major-badge">Rhino ${escapeHTML(versionGroup.major)}${versionGroup.major === '9' ? ' (Early preview)' : ''}</span>
                 </div>
                 <div class="version-card-meta">
                     <time class="version-date" datetime="${escapeHTML(versionGroup.dateString)}" title="${escapeHTML(getRelativeTime(versionGroup.date))}"><span class="date-full">${formatDate(versionGroup.date, 'long')}</span><span class="date-short">${formatDate(versionGroup.date, 'short')}</span></time>
