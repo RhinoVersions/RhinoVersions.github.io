@@ -61,6 +61,16 @@ class FetchVersionsTests(unittest.TestCase):
             ],
         )
 
+    def test_build_mac_url_candidates_prerelease_uses_wip_prefix(self):
+        urls = fv.build_mac_url_candidates("9.0.26167.11545-wip")
+        self.assertEqual(
+            urls,
+            [
+                "https://files.mcneel.com/rhino/9/mac/releases/rhino_wip_9.0.26167.11545.dmg",
+                "https://files.mcneel.com/rhino/9/mac/releases/rhino_wip_9.0.26167.11546.dmg",
+            ],
+        )
+
     @patch("fetch_versions.requests.get")
     def test_versions_from_registration_fetches_nested_pages(self, mock_get):
         page_response = Mock()

@@ -177,10 +177,11 @@ function parseVersionFromFilename(filename) {
         }
     } else {
         // Expected: rhino_8.25.25328.11002 (no locale)
+        // OR WIP: rhino_wip_9.0.26167.11546 (multilingual prerelease)
         // OR legacy/accidental: rhino_en-us_... (handle just in case)
         if (parts.length === 3) {
-            // Has locale
-            locale = parts[1];
+            // rhino_wip_<ver> is multilingual; otherwise parts[1] is a locale.
+            locale = parts[1] === 'wip' ? 'multi' : parts[1];
             versionStr = parts[2];
         } else if (parts.length === 2) {
             // No locale: rhino_8.25...
