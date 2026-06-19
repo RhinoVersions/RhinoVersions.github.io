@@ -10,3 +10,16 @@
 ## 2026-06-14 - [Discoverability of title attributes]
 **Learning:** Adding a subtle dotted underline (`text-decoration: underline dotted`) and `cursor: help` to non-interactive elements (like dates or locale badges) that provide extra context via the `title` attribute significantly improves their discoverability for sighted users, as `title` tooltips otherwise have zero visual affordance.
 **Action:** When adding informative `title` attributes to plain text elements, pair them with a subtle dotted underline and `cursor: help` in CSS to communicate that hovering will provide more information.
+## 2024-06-15 - Input Placeholder Styling
+
+**Learning:** Browsers do not inherit the color-scheme automatically for `::placeholder` pseudo-elements. The default placeholder text color is often difficult to read against dark mode input backgrounds and may not match the design system's intended text color hierarchy.
+**Action:** Always explicitly target the `::placeholder` pseudo-element on inputs (like `.search-input::placeholder`) to set `color` (using design system variables like `var(--color-text-secondary)`) and `opacity` to ensure WCAG AA contrast compliance and visual consistency across all themes.
+## 2026-06-16 - WAI-ARIA Accordion/List Keyboard Navigation
+**Learning:** WAI-ARIA authoring practices for interactive lists or accordions recommend supporting the `Home` and `End` keys to allow users to quickly jump to the first and last items. Implementing this greatly reduces the navigational friction for keyboard users when dealing with long lists, which Arrow up/down alone makes tedious.
+**Action:** When creating custom keyboard navigation (Arrow keys) for lists or accordions, always remember to add handlers for `Home` and `End` keys to jump to the start/end of the interactive elements list.
+## 2026-06-17 - Prevent Unwanted Text Selection on Interactive UI
+**Learning:** Interactive UI components that visually act as buttons, toggles, or clickable cards (especially those using `role="button"` or pseudo-buttons like `<label>`, `.theme-toggle`, `.version-card-header`) often accidentally highlight text when users rapidly click or double-click. This drastically reduces the "app-like" feel of a site.
+**Action:** Always apply `user-select: none` (and `-webkit-user-select: none`) to interactive, non-text-entry elements that function as buttons or toggles to mimic native OS component behavior and prevent accidental text highlighting.
+## 2026-06-18 - [Screen Reader Pronunciation for Raw Abbreviated Codes]
+**Learning:** Screen readers often struggle with raw, abbreviated string codes (like 'EN-US' or 'DE-DE'), reading them out letter-by-letter, which creates a poor dictation experience.
+**Action:** When rendering abbreviations or raw string codes in the UI, consider wrapping the visible text in `aria-hidden="true"` and injecting a human-readable equivalent (e.g. 'English (US)') adjacent to it inside a `<span class="sr-only">`. This preserves visual density for sighted users while significantly improving accessibility.

@@ -12,7 +12,7 @@ This repository uses **GitHub Actions** to automatically aggregate data from **N
 
 - **Daily Updates**: Build data reflects the latest NuGet releases.
 - **Direct Downloads**: Immediate access to Windows and Mac installer builds.
-- **Version History**: Comprehensive searchable history for Rhino 6, 7, 8, and 9 (WIP).
+- **Version History**: Comprehensive searchable history for Rhino 6, 7, 8, and 9 (Early preview).
 - **Clean UI**: Minimalist, list-based dashboard inspired by official Rhino tooling.
 - **Responsive**: Full mobile and touch-target support.
 

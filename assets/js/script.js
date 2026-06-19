@@ -286,7 +286,12 @@ async function loadLatestVersion() {
         latestDateEl.setAttribute('title', getRelativeTime(versionInfo.date));
 
         const localeDisplay = versionInfo.locale === 'multi' ? 'Multilingual' : (LOCALE_NAMES[versionInfo.locale] || versionInfo.locale);
-        document.getElementById('latest-locale').textContent = escapeHTML(localeDisplay);
+        const rawLocale = versionInfo.locale === 'multi' ? 'Multilingual' : versionInfo.locale.toUpperCase();
+
+        document.getElementById('latest-locale').innerHTML = `
+            <span aria-hidden="true">${escapeHTML(rawLocale)}</span>
+            <span class="sr-only">${escapeHTML(localeDisplay)}</span>
+        `;
 
         // Update download buttons
         const windowsBtn = document.getElementById('latest-download-windows');
@@ -472,7 +477,7 @@ function displayVersions(versions) {
             <div id="${panelId}-heading" class="version-card-header" role="button" tabindex="0" aria-expanded="${isExpanded}" aria-controls="${panelId}" title="${isExpanded ? 'Collapse' : 'Expand'} details for version ${escapeHTML(versionGroup.fullVersion)}">
                 <div class="version-card-main">
                     <a href="${escapeHTML(deepLinkHref)}" class="version-link" title="Copy link to version ${escapeHTML(versionGroup.fullVersion)}"><span class="version-number">${escapeHTML(versionGroup.fullVersion)}</span><span class="sr-only"> - Copy link</span>${LINK_ICON}</a>
-                    <span class="major-badge">Rhino ${escapeHTML(versionGroup.major)}</span>
+                    <span class="major-badge">Rhino ${escapeHTML(versionGroup.major)}${versionGroup.major === '9' ? ' (Early preview)' : ''}</span>
                 </div>
                 <div class="version-card-meta">
                     <time class="version-date" datetime="${escapeHTML(versionGroup.dateString)}" title="${escapeHTML(getRelativeTime(versionGroup.date))}"><span class="date-full">${formatDate(versionGroup.date, 'long')}</span><span class="date-short">${formatDate(versionGroup.date, 'short')}</span></time>
@@ -749,7 +754,7 @@ function buildVersionCardRows(versionGroup, localeFilter) {
             const localeName = LOCALE_NAMES[entry.locale] || entry.locale;
             rows.push(`
                 <div class="version-card-row">
-                    <span class="locale-badge" title="Language: ${escapeHTML(localeName)}">${escapeHTML(entry.locale.toUpperCase())}</span>
+                    <span class="locale-badge" title="Language: ${escapeHTML(localeName)}"><span aria-hidden="true">${escapeHTML(entry.locale.toUpperCase())}</span><span class="sr-only">${escapeHTML(localeName)}</span></span>
                     <div class="download-buttons-cell">${buttons}</div>
                 </div>
             `);
@@ -768,10 +773,12 @@ function buildVersionCardRows(versionGroup, localeFilter) {
                 }
 
                 const localeLabel = entry.locale === 'multi' ? 'MULTILINGUAL' : entry.locale.toUpperCase();
-                const titleAttr = entry.locale === 'multi' ? '' : ` title="Language: ${escapeHTML(LOCALE_NAMES[entry.locale] || entry.locale)}"`;
+                const localeName = LOCALE_NAMES[entry.locale] || entry.locale;
+                const readableName = entry.locale === 'multi' ? 'Multilingual' : localeName;
+                const titleAttr = entry.locale === 'multi' ? '' : ` title="Language: ${escapeHTML(localeName)}"`;
                 rows.push(`
                     <div class="version-card-row">
-                        <span class="locale-badge"${titleAttr}>${escapeHTML(localeLabel)}</span>
+                        <span class="locale-badge"${titleAttr}><span aria-hidden="true">${escapeHTML(localeLabel)}</span><span class="sr-only">${escapeHTML(readableName)}</span></span>
                         <div class="download-buttons-cell">${buttons}</div>
                     </div>
                 `);
@@ -1213,7 +1220,7 @@ if (typeof window !== 'undefined') {
 
         // Arrow key navigation for version list
         document.getElementById('versions-list').addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Home' || e.key === 'End') {
                 const target = e.target;
                 if (!target.classList.contains('version-card-header')) return;
 
@@ -1236,6 +1243,14 @@ if (typeof window !== 'undefined') {
                             // Also select text to align with fast UX of overwriting query
                             searchInput.select();
                         }
+                    }
+                } else if (e.key === 'Home') {
+                    if (headers.length > 0) {
+                        headers[0].focus();
+                    }
+                } else if (e.key === 'End') {
+                    if (headers.length > 0) {
+                        headers[headers.length - 1].focus();
                     }
                 }
             }
