@@ -277,6 +277,7 @@ header h1 {
     user-select: none;
 }
 
+.filter-group label:hover,
 .filter-group:focus-within label {
     color: var(--color-accent);
 }
