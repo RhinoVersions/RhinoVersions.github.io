@@ -30,3 +30,6 @@
 ## 2026-06-23 - [Form Label Hover Affordance]
 **Learning:** Found that `<label>` elements associated with form inputs visually lacked a hover state, despite having `cursor: pointer` set. A missing hover state makes it less clear to sighted mouse users that the label itself is an interactive element that will focus its associated input (e.g. `<select>`).
 **Action:** When a `<label>` is interactive and intended to focus an input, always pair the `cursor: pointer` property with an explicit `:hover` state (like changing text color) to enhance its affordance and match standard component behavior.
+## 2024-05-18 - Search Input Mobile UX Optimization
+**Learning:** For domain-specific technical search inputs (like version numbers, branches, or acronyms such as "wip" and "mac"), OS-level autocorrect and auto-capitalization can significantly frustrate users. Additionally, when search results update instantly without a submit action, showing a "Return/Go" button on the virtual keyboard is confusing.
+**Action:** Always add `autocapitalize="none"`, `autocorrect="off"`, and `enterkeyhint="done"` to instant search inputs, particularly those expecting technical terms.
