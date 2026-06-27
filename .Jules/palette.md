@@ -33,3 +33,7 @@
 ## 2024-05-18 - Search Input Mobile UX Optimization
 **Learning:** For domain-specific technical search inputs (like version numbers, branches, or acronyms such as "wip" and "mac"), OS-level autocorrect and auto-capitalization can significantly frustrate users. Additionally, when search results update instantly without a submit action, showing a "Return/Go" button on the virtual keyboard is confusing.
 **Action:** Always add `autocapitalize="none"`, `autocorrect="off"`, and `enterkeyhint="done"` to instant search inputs, particularly those expecting technical terms.
+
+## 2026-06-27 - [Back to Top Button with Programmatic Focus]
+**Learning:** For long lists (like 150+ version cards), a sticky sidebar loses utility on mobile once scrolled out of view, causing severe scroll fatigue. Adding a "Back to Top" button solves this visually, but for keyboard and screen reader users, simply scrolling to the top leaves focus trapped at the bottom of the DOM.
+**Action:** When implementing "Back to Top" or skip links, always pair `window.scrollTo` with programmatically shifting focus (e.g., `element.focus({ preventScroll: true })`) to the main content area or header. This ensures assistive technologies are correctly re-oriented at the top of the page context.
