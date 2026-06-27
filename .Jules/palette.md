@@ -37,3 +37,6 @@
 ## 2026-06-27 - [Back to Top Button with Programmatic Focus]
 **Learning:** For long lists (like 150+ version cards), a sticky sidebar loses utility on mobile once scrolled out of view, causing severe scroll fatigue. Adding a "Back to Top" button solves this visually, but for keyboard and screen reader users, simply scrolling to the top leaves focus trapped at the bottom of the DOM.
 **Action:** When implementing "Back to Top" or skip links, always pair `window.scrollTo` with programmatically shifting focus (e.g., `element.focus({ preventScroll: true })`) to the main content area or header. This ensures assistive technologies are correctly re-oriented at the top of the page context.
+## 2026-06-27 - [Prevent Flash of Loading State (FOLS)]
+**Learning:** When data is fetched quickly (e.g., from cache or on a fast network), showing a loading spinner immediately can result in a jarring "flash of loading state" (FOLS) that lasts for just a few milliseconds. This makes the UI feel janky and slower than it actually is.
+**Action:** Use CSS animation delays (e.g., `animation: fadeInDelay 0.3s ease-in 0.3s both;`) on loading states. This ensures the spinner only appears if the action takes longer than the delay (e.g., 300ms), keeping the UI clean during fast operations while still providing feedback for slow ones.
