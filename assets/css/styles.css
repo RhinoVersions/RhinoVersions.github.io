@@ -894,6 +894,19 @@ input[type="search"]::-webkit-search-cancel-button {
     color: var(--color-text-secondary);
 }
 
+.loading-state {
+    animation: fadeInDelay 0.3s ease-in 0.3s both;
+}
+
+@keyframes fadeInDelay {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 .loader {
     width: 24px;
     height: 24px;
