@@ -43,3 +43,6 @@
 ## 2026-06-28 - [Screen Reader Accessibility for Responsive Abbreviations]
 **Learning:** Elements that use CSS media queries to swap between a full label and a short abbreviation based on viewport size (e.g., swapping "Windows" for "Win" on mobile) can cause screen readers on mobile devices to read out the ambiguous abbreviation.
 **Action:** When implementing responsive text swapping via CSS classes (like `.label-full` and `.label-short`), always wrap the visible content in `<span aria-hidden="true">` and provide a consistent, full-length string in a `<span class="sr-only">`. This ensures a consistent and descriptive screen reader experience regardless of screen size.
+## 2026-06-29 - [Keyboard Accessibility & Nested Links]
+**Learning:** Avoid nesting interactive elements (like `<a>`) inside a container with `role="button"`, as screen readers flatten the contents of buttons, making the nested links inaccessible. Using a dedicated `<button>` for the keyboard focus target while keeping the surrounding container clickable for mouse users is a reusable pattern to preserve large touch targets without compromising accessibility.
+**Action:** Use a dedicated `<button>` to capture keyboard focus within clickable rows that also contain inline links.

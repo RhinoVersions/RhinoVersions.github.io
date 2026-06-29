@@ -552,14 +552,14 @@ function displayVersions(versions) {
         const panelId = `version-panel-${escapeHTML(versionGroup.fullVersion).replace(/\./g, '-')}`;
 
         card.innerHTML = `
-            <div id="${panelId}-heading" class="version-card-header" role="button" tabindex="0" aria-expanded="${isExpanded}" aria-controls="${panelId}" title="${isExpanded ? 'Collapse' : 'Expand'} details for version ${escapeHTML(versionGroup.fullVersion)}">
+            <div id="${panelId}-heading" class="version-card-header">
                 <div class="version-card-main">
                     <a href="${escapeHTML(deepLinkHref)}" class="version-link" title="Copy link to version ${escapeHTML(versionGroup.fullVersion)}"><span class="version-number">${escapeHTML(versionGroup.fullVersion)}</span><span class="sr-only"> - Copy link</span>${LINK_ICON}</a>
                     <span class="major-badge">Rhino ${escapeHTML(versionGroup.major)}${versionGroup.major === '9' ? ' (Early preview)' : ''}</span>
                 </div>
                 <div class="version-card-meta">
                     <time class="version-date" datetime="${escapeHTML(versionGroup.dateString)}" title="${escapeHTML(getRelativeTime(versionGroup.date))}"><span aria-hidden="true"><span class="date-full">${formatDate(versionGroup.date, 'long')}</span><span class="date-short">${formatDate(versionGroup.date, 'short')}</span></span><span class="sr-only">${formatDate(versionGroup.date, 'long')}</span></time>
-                    <span class="version-accordion-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+                    <span class="version-accordion-icon"><button type="button" class="version-card-toggle" aria-expanded="${isExpanded}" aria-controls="${panelId}" title="${isExpanded ? 'Collapse' : 'Expand'} details for version ${escapeHTML(versionGroup.fullVersion)}" aria-label="Toggle details for version ${escapeHTML(versionGroup.fullVersion)}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg></button></span>
                 </div>
             </div>
             <div id="${panelId}" class="version-card-body" style="display: ${isExpanded ? 'block' : 'none'};" role="region" aria-labelledby="${panelId}-heading">
@@ -568,6 +568,7 @@ function displayVersions(versions) {
         `;
 
         const headerButton = card.querySelector('.version-card-header');
+        const toggleButton = card.querySelector('.version-card-toggle');
         const body = card.querySelector('.version-card-body');
         const icon = card.querySelector('.version-accordion-icon');
         const versionLink = card.querySelector('.version-link');
@@ -630,8 +631,8 @@ function displayVersions(versions) {
 
         const toggleExpanded = () => {
             const expanded = card.classList.toggle('expanded');
-            headerButton.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-            headerButton.setAttribute('title', expanded ? `Collapse details for version ${versionGroup.fullVersion}` : `Expand details for version ${versionGroup.fullVersion}`);
+            toggleButton.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            toggleButton.setAttribute('title', expanded ? `Collapse details for version ${versionGroup.fullVersion}` : `Expand details for version ${versionGroup.fullVersion}`);
             body.style.display = expanded ? 'block' : 'none';
 
             if (expanded) {
@@ -642,12 +643,10 @@ function displayVersions(versions) {
             updateLatestSectionVisibility();
         };
 
-        headerButton.addEventListener('click', toggleExpanded);
-        headerButton.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                toggleExpanded();
-            }
+        headerButton.addEventListener('click', (event) => {
+            // Prevent click when clicking the link, otherwise it toggles accordion unexpectedly
+            if (event.target.closest('.version-link')) return;
+            toggleExpanded();
         });
 
         card.addEventListener('keydown', (event) => {
@@ -655,7 +654,7 @@ function displayVersions(versions) {
                 event.preventDefault();
                 event.stopPropagation();
                 toggleExpanded();
-                headerButton.focus();
+                toggleButton.focus();
             }
         });
 
@@ -1099,12 +1098,12 @@ function scrollToDeepLinkedRowIfNeeded() {
     if (targetRow) {
         targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        // Shift focus to the header so keyboard users start navigation at the linked item
-        const headerButton = targetRow.querySelector('.version-card-header');
-        if (headerButton) {
+        // Shift focus to the toggle button so keyboard users start navigation at the linked item
+        const toggleBtn = targetRow.querySelector('.version-card-toggle');
+        if (toggleBtn) {
             // Focus needs a slight delay to allow smooth scrolling to start so it doesn't get interrupted or reset
             setTimeout(() => {
-                headerButton.focus({ preventScroll: true });
+                toggleBtn.focus({ preventScroll: true });
             }, 50);
         }
 
@@ -1301,20 +1300,20 @@ if (typeof window !== 'undefined') {
         document.getElementById('versions-list').addEventListener('keydown', (e) => {
             if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Home' || e.key === 'End') {
                 const target = e.target;
-                if (!target.classList.contains('version-card-header')) return;
+                if (!target.classList.contains('version-card-toggle')) return;
 
                 e.preventDefault();
 
-                const headers = Array.from(document.querySelectorAll('.version-card-header'));
-                const currentIndex = headers.indexOf(target);
+                const toggleBtns = Array.from(document.querySelectorAll('.version-card-toggle'));
+                const currentIndex = toggleBtns.indexOf(target);
 
                 if (e.key === 'ArrowDown') {
-                    if (currentIndex < headers.length - 1) {
-                        headers[currentIndex + 1].focus();
+                    if (currentIndex < toggleBtns.length - 1) {
+                        toggleBtns[currentIndex + 1].focus();
                     }
                 } else if (e.key === 'ArrowUp') {
                     if (currentIndex > 0) {
-                        headers[currentIndex - 1].focus();
+                        toggleBtns[currentIndex - 1].focus();
                     } else {
                         const searchInput = document.getElementById('search-input');
                         if (searchInput) {
@@ -1324,12 +1323,12 @@ if (typeof window !== 'undefined') {
                         }
                     }
                 } else if (e.key === 'Home') {
-                    if (headers.length > 0) {
-                        headers[0].focus();
+                    if (toggleBtns.length > 0) {
+                        toggleBtns[0].focus();
                     }
                 } else if (e.key === 'End') {
-                    if (headers.length > 0) {
-                        headers[headers.length - 1].focus();
+                    if (toggleBtns.length > 0) {
+                        toggleBtns[toggleBtns.length - 1].focus();
                     }
                 }
             }
