@@ -40,3 +40,6 @@
 ## 2026-06-27 - [Prevent Flash of Loading State (FOLS)]
 **Learning:** When data is fetched quickly (e.g., from cache or on a fast network), showing a loading spinner immediately can result in a jarring "flash of loading state" (FOLS) that lasts for just a few milliseconds. This makes the UI feel janky and slower than it actually is.
 **Action:** Use CSS animation delays (e.g., `animation: fadeInDelay 0.3s ease-in 0.3s both;`) on loading states. This ensures the spinner only appears if the action takes longer than the delay (e.g., 300ms), keeping the UI clean during fast operations while still providing feedback for slow ones.
+## 2026-06-28 - [Screen Reader Accessibility for Responsive Abbreviations]
+**Learning:** Elements that use CSS media queries to swap between a full label and a short abbreviation based on viewport size (e.g., swapping "Windows" for "Win" on mobile) can cause screen readers on mobile devices to read out the ambiguous abbreviation.
+**Action:** When implementing responsive text swapping via CSS classes (like `.label-full` and `.label-short`), always wrap the visible content in `<span aria-hidden="true">` and provide a consistent, full-length string in a `<span class="sr-only">`. This ensures a consistent and descriptive screen reader experience regardless of screen size.

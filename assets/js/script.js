@@ -558,7 +558,7 @@ function displayVersions(versions) {
                     <span class="major-badge">Rhino ${escapeHTML(versionGroup.major)}${versionGroup.major === '9' ? ' (Early preview)' : ''}</span>
                 </div>
                 <div class="version-card-meta">
-                    <time class="version-date" datetime="${escapeHTML(versionGroup.dateString)}" title="${escapeHTML(getRelativeTime(versionGroup.date))}"><span class="date-full">${formatDate(versionGroup.date, 'long')}</span><span class="date-short">${formatDate(versionGroup.date, 'short')}</span></time>
+                    <time class="version-date" datetime="${escapeHTML(versionGroup.dateString)}" title="${escapeHTML(getRelativeTime(versionGroup.date))}"><span aria-hidden="true"><span class="date-full">${formatDate(versionGroup.date, 'long')}</span><span class="date-short">${formatDate(versionGroup.date, 'short')}</span></span><span class="sr-only">${formatDate(versionGroup.date, 'long')}</span></time>
                     <span class="version-accordion-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
                 </div>
             </div>
@@ -822,7 +822,7 @@ function buildVersionCardRows(versionGroup, localeFilter) {
                 const versionNumber = escapeHTML(versionGroup.fullVersion);
             if (entry.windowsUrl) {
                     const localeStr = escapeHTML(LOCALE_NAMES[entry.locale] || entry.locale);
-                    buttons += `<a href="${entry.windowsUrl}" class="table-download-btn" title="Download Rhino ${versionNumber} for Windows" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.windows}<span class="label-full">Windows</span><span class="label-short">Win</span><span class="sr-only"> - Download Rhino ${versionNumber} (${localeStr}) (opens in a new tab)</span></a>`;
+                    buttons += `<a href="${entry.windowsUrl}" class="table-download-btn" title="Download Rhino ${versionNumber} for Windows" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.windows}<span aria-hidden="true"><span class="label-full">Windows</span><span class="label-short">Win</span></span><span class="sr-only">Windows - Download Rhino ${versionNumber} (${localeStr}) (opens in a new tab)</span></a>`;
             }
             if (entry.macUrl || macFallback?.macUrl) {
                     const localeStr = escapeHTML(LOCALE_NAMES[entry.locale] || entry.locale);
@@ -844,7 +844,7 @@ function buildVersionCardRows(versionGroup, localeFilter) {
                 let buttons = '';
                     const versionNumber = escapeHTML(versionGroup.fullVersion);
                 if (entry.windowsUrl) {
-                        buttons += `<a href="${entry.windowsUrl}" class="table-download-btn" title="Download Rhino ${versionNumber} for Windows" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.windows}<span class="label-full">Windows</span><span class="label-short">Win</span><span class="sr-only"> - Download Rhino ${versionNumber} (opens in a new tab)</span></a>`;
+                        buttons += `<a href="${entry.windowsUrl}" class="table-download-btn" title="Download Rhino ${versionNumber} for Windows" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.windows}<span aria-hidden="true"><span class="label-full">Windows</span><span class="label-short">Win</span></span><span class="sr-only">Windows - Download Rhino ${versionNumber} (opens in a new tab)</span></a>`;
                 }
                 if (entry.macUrl) {
                         buttons += `<a href="${entry.macUrl}" class="table-download-btn" title="Download Rhino ${versionNumber} for Mac" target="_blank" rel="noopener noreferrer">${PLATFORM_ICONS.mac}Mac<span class="sr-only"> - Download Rhino ${versionNumber} (opens in a new tab)</span></a>`;
