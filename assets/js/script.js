@@ -1277,7 +1277,7 @@ if (typeof window !== 'undefined') {
                 }
             } else if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                const firstResult = document.querySelector('.version-card-header');
+                const firstResult = document.querySelector('.version-card-toggle');
                 if (firstResult) {
                     firstResult.focus();
                 } else {

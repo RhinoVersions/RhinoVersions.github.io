@@ -46,3 +46,6 @@
 ## 2026-06-29 - [Keyboard Accessibility & Nested Links]
 **Learning:** Avoid nesting interactive elements (like `<a>`) inside a container with `role="button"`, as screen readers flatten the contents of buttons, making the nested links inaccessible. Using a dedicated `<button>` for the keyboard focus target while keeping the surrounding container clickable for mouse users is a reusable pattern to preserve large touch targets without compromising accessibility.
 **Action:** Use a dedicated `<button>` to capture keyboard focus within clickable rows that also contain inline links.
+## 2026-06-30 - [Search Input UX Polish]
+**Learning:** Keyboard shortcuts like `/` are highly visible in search inputs, but they clutter the UI and cause confusion on touch devices where physical keyboards aren't present. Additionally, when implementing custom Arrow key navigation from an input to a list, targeting a non-focusable container (like a header `div` without `tabindex`) silently breaks the focus transfer.
+**Action:** Use `@media (pointer: coarse)` to hide keyboard shortcuts on touch devices. Always ensure programmatic `.focus()` targets natively focusable elements (like `<button>`) to maintain smooth keyboard navigation loops.

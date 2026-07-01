@@ -323,6 +323,13 @@ header h1 {
     transform: scale(0.8);
 }
 
+/* Hide shortcut hint on touch devices where keyboards are typically absent */
+@media (pointer: coarse) {
+    .shortcut-hint {
+        display: none;
+    }
+}
+
 /* Hide native search cancel button */
 input[type="search"]::-webkit-search-cancel-button {
     -webkit-appearance: none;
