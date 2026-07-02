@@ -463,6 +463,34 @@ async function loadLinkStatus() {
     }
 }
 
+/**
+ * Load the last updated date from GitHub commits API
+ */
+async function loadLastUpdated() {
+    const container = document.getElementById('last-updated-container');
+    const timeEl = document.getElementById('last-updated');
+    if (!container || !timeEl) return;
+
+    try {
+        const url = `https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}/commits?path=${CONFIG.ALL_MD_PATH}&page=1&per_page=1`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to fetch last updated date');
+
+        const commits = await response.json();
+        if (commits && commits.length > 0 && commits[0].commit && commits[0].commit.committer) {
+            const dateStr = commits[0].commit.committer.date;
+            const date = new Date(dateStr);
+
+            timeEl.textContent = formatDate(date, 'long');
+            timeEl.setAttribute('datetime', dateStr);
+            timeEl.setAttribute('title', getRelativeTime(date));
+            container.style.display = 'block';
+        }
+    } catch (error) {
+        console.warn('Failed to load last updated date:', error);
+    }
+}
+
 // ============================================
 // Display & Filtering
 // ============================================
@@ -1252,6 +1280,7 @@ if (typeof window !== 'undefined') {
         loadAllVersions();
         loadContributors();
         loadLinkStatus();
+        loadLastUpdated();
 
         // Set up event listeners
         document.getElementById('search-input').addEventListener('input', debounce(filterVersions, 300));
