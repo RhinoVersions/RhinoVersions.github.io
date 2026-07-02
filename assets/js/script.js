@@ -314,7 +314,7 @@ async function loadLatestVersion() {
 
         // Show card, hide loading
         loadingEl.style.display = 'none';
-        cardEl.style.display = 'block';
+        cardEl.style.display = 'flex';
 
     } catch (error) {
         console.error('Error loading latest version:', error);
@@ -464,7 +464,7 @@ async function loadLinkStatus() {
 }
 
 /**
- * Load the last checked date from GitHub commits API
+ * Load the last checked date from GitHub Actions runs API
  */
 async function loadLastChecked() {
     const container = document.getElementById('last-checked-container');
@@ -472,16 +472,27 @@ async function loadLastChecked() {
     if (!container || !timeEl) return;
 
     try {
-        const url = `https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}/commits?path=${CONFIG.ALL_MD_PATH}&page=1&per_page=1`;
+        const url = `https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}/actions/workflows/update-rhino-versions.yml/runs?per_page=1&status=success`;
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch last checked date');
 
-        const commits = await response.json();
-        if (commits && commits.length > 0 && commits[0].commit && commits[0].commit.committer) {
-            const dateStr = commits[0].commit.committer.date;
+        const data = await response.json();
+        if (data && data.workflow_runs && data.workflow_runs.length > 0) {
+            const run = data.workflow_runs[0];
+            const dateStr = run.updated_at || run.created_at;
             const date = new Date(dateStr);
 
-            timeEl.textContent = formatDate(date, 'long');
+            const estFormatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'America/New_York',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                timeZoneName: 'short'
+            });
+
+            timeEl.textContent = estFormatter.format(date);
             timeEl.setAttribute('datetime', dateStr);
             timeEl.setAttribute('title', getRelativeTime(date));
             container.style.display = 'block';
