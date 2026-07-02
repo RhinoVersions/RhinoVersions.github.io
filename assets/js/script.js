@@ -1345,9 +1345,17 @@ if (typeof window !== 'undefined') {
             }
         });
 
+        // Skip link focus management
+        const skipLink = document.querySelector('.skip-link');
+        const mainContent = document.getElementById('main-content');
+        if (skipLink && mainContent) {
+            skipLink.addEventListener('click', () => {
+                setTimeout(() => mainContent.focus({ preventScroll: true }), 50);
+            });
+        }
+
         // Back to Top functionality
         const backToTopBtn = document.getElementById('back-to-top');
-        const mainContent = document.getElementById('main-content');
         if (backToTopBtn) {
             window.addEventListener('scroll', debounce(() => {
                 if (window.scrollY > 400) {
