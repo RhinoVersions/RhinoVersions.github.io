@@ -464,17 +464,17 @@ async function loadLinkStatus() {
 }
 
 /**
- * Load the last updated date from GitHub commits API
+ * Load the last checked date from GitHub commits API
  */
-async function loadLastUpdated() {
-    const container = document.getElementById('last-updated-container');
-    const timeEl = document.getElementById('last-updated');
+async function loadLastChecked() {
+    const container = document.getElementById('last-checked-container');
+    const timeEl = document.getElementById('last-checked');
     if (!container || !timeEl) return;
 
     try {
         const url = `https://api.github.com/repos/${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}/commits?path=${CONFIG.ALL_MD_PATH}&page=1&per_page=1`;
         const response = await fetch(url);
-        if (!response.ok) throw new Error('Failed to fetch last updated date');
+        if (!response.ok) throw new Error('Failed to fetch last checked date');
 
         const commits = await response.json();
         if (commits && commits.length > 0 && commits[0].commit && commits[0].commit.committer) {
@@ -487,7 +487,7 @@ async function loadLastUpdated() {
             container.style.display = 'block';
         }
     } catch (error) {
-        console.warn('Failed to load last updated date:', error);
+        console.warn('Failed to load last checked date:', error);
     }
 }
 
@@ -1280,7 +1280,7 @@ if (typeof window !== 'undefined') {
         loadAllVersions();
         loadContributors();
         loadLinkStatus();
-        loadLastUpdated();
+        loadLastChecked();
 
         // Set up event listeners
         document.getElementById('search-input').addEventListener('input', debounce(filterVersions, 300));
