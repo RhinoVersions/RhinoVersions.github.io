@@ -735,6 +735,11 @@ input[type="search"]::-webkit-search-cancel-button {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
+    transition: transform 0.15s ease;
+}
+
+.version-link:active {
+    transform: scale(0.98);
 }
 
 .version-link:hover .version-number,
