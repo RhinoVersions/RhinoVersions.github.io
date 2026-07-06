@@ -446,7 +446,7 @@ async function loadLinkStatus() {
         const total = status.total ?? 0;
         const broken = status.broken ?? 0;
         const checked = status.checked_at ? new Date(status.checked_at) : null;
-        el.innerHTML = `<span class="dot" aria-hidden="true"></span><span>${online.toLocaleString()} / ${total.toLocaleString()} download links online</span>`;
+        el.innerHTML = `<span class="dot" aria-hidden="true"></span><span>${online.toLocaleString()} / ${total.toLocaleString()} download links online</span><span class="sr-only"> (opens in a new tab)</span>`;
         el.classList.toggle('has-broken', broken > 0);
         el.title = `${online.toLocaleString()} of ${total.toLocaleString()} download links verified reachable`
             + (checked && !isNaN(checked) ? ` (last checked ${formatDate(checked)})` : '')
@@ -456,7 +456,7 @@ async function loadLinkStatus() {
         console.warn('Link status unavailable, falling back to a plain count:', error);
         const total = (allVersions || []).reduce((n, v) => n + (v.windowsUrl ? 1 : 0) + (v.macUrl ? 1 : 0), 0);
         if (total > 0) {
-            el.innerHTML = `<span class="dot" aria-hidden="true"></span><span>${total.toLocaleString()} download links</span>`;
+            el.innerHTML = `<span class="dot" aria-hidden="true"></span><span>${total.toLocaleString()} download links</span><span class="sr-only"> (opens in a new tab)</span>`;
             el.title = `${total.toLocaleString()} download links`;
             el.hidden = false;
         }
