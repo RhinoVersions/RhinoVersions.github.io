@@ -67,8 +67,8 @@ def check_url(url, timeout, retries):
 def main():
     parser = argparse.ArgumentParser(description="Check download links in markdown data files.")
     parser.add_argument("paths", nargs="+", help="Markdown files to scan for links.")
-    parser.add_argument("--workers", type=int, default=24, help="Concurrent requests.")
-    parser.add_argument("--timeout", type=int, default=20, help="Per-request timeout (s).")
+    parser.add_argument("--workers", type=int, default=48, help="Concurrent requests.")
+    parser.add_argument("--timeout", type=int, default=60, help="Per-request timeout (s).")
     parser.add_argument("--retries", type=int, default=3, help="Attempts per URL.")
     parser.add_argument("--status-file", help="Write a JSON status summary to this path (online/total/checked_at).")
     args = parser.parse_args()
