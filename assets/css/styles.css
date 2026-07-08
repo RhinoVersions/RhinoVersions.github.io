@@ -695,6 +695,10 @@ input[type="search"]::-webkit-search-cancel-button {
     border-radius: 4px;
 }
 
+.version-card-toggle:active {
+    transform: scale(0.95);
+}
+
 .version-accordion-icon svg {
     transition: transform 0.2s ease, color 0.2s ease;
 }
