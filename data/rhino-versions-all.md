@@ -1,3 +1,5 @@
+    - [rhino_9.0.26216.12303.exe](https://files.mcneel.com/dujour/exe/20260804/rhino_9.0.26216.12303.exe)
+    - [rhino_9.0.26209.18303.exe](https://files.mcneel.com/dujour/exe/20260728/rhino_9.0.26209.18303.exe)
     - [rhino_wip_9.0.26167.11546.dmg](https://files.mcneel.com/rhino/9/mac/releases/rhino_wip_9.0.26167.11546.dmg)
     - [rhino_9.0.26167.11545.exe](https://files.mcneel.com/dujour/exe/20260616/rhino_9.0.26167.11545.exe)
     - [rhino_wip_9.0.26160.12306.dmg](https://files.mcneel.com/rhino/9/mac/releases/rhino_wip_9.0.26160.12306.dmg)
