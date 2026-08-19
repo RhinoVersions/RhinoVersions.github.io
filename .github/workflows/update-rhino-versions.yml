@@ -142,6 +142,8 @@ jobs:
           name: Release ${{ env.TAG_NAME }}
           body: "Automatic deployment release with latest Rhino version data."
           token: ${{ secrets.GITHUB_TOKEN }}
+          allowUpdates: true
+          replacesArtifacts: true
 
   deploy:
     environment:
