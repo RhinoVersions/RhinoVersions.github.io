@@ -1,0 +1,4 @@
+# Runtime deps for the version/link scripts (CI only — not shipped with the site).
+# Pinned loosely: the pip cache key is the hash of this file, so it only rotates
+# when the constraints change, not on every upstream release.
+requests>=2.32,<3

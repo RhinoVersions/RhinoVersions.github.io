@@ -1,0 +1,2 @@
+# Browser-test deps, kept separate so the fast jobs never install Playwright.
+playwright>=1.49,<2
