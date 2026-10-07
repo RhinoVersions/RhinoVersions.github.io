@@ -34,3 +34,12 @@ jobs:
 
       - name: Run frontend unit tests
         run: node --test tests/script.test.js
+
+      - name: Check generated version pages are up to date
+        run: |
+          python scripts/generate_pages.py
+          if ! git diff --quiet -- rhino sitemap.xml || [ -n "$(git ls-files --others --exclude-standard -- rhino)" ]; then
+            echo "::error::rhino/ or sitemap.xml is stale. Run 'python scripts/generate_pages.py' and commit the result."
+            git status --short -- rhino sitemap.xml
+            exit 1
+          fi

@@ -7,7 +7,8 @@ const {
     formatDate,
     getRelativeTime,
     resolveTheme,
-    getVersionBuildKey
+    getVersionBuildKey,
+    getBuildPagePath
 } = require('../assets/js/script.js');
 
 // Mock window for resolveTheme
@@ -143,5 +144,14 @@ test('getVersionBuildKey', async (t) => {
         assert.strictEqual(getVersionBuildKey('8.24.25281.15002'), '8.24.25281');
         // Distinct Rhino 9 WIP builds (all 9.0) stay separate by day
         assert.notStrictEqual(getVersionBuildKey('9.0.26167.11545'), getVersionBuildKey('9.0.26160.12305'));
+    });
+});
+
+test('getBuildPagePath', async (t) => {
+    await t.test('should point at the static page generated for the build', () => {
+        assert.strictEqual(
+            getBuildPagePath({ major: '8', buildKey: getVersionBuildKey('8.17.25066.07002') }),
+            'rhino/8/8.17.25066/'
+        );
     });
 });

@@ -63,6 +63,12 @@ jobs:
         if: steps.check.outputs.new_versions == 'true'
         run: python scripts/fetch_versions.py
 
+      # Static, crawlable page per build + sitemap.xml, so search engines can
+      # index every version number (the dashboard renders them client-side).
+      - name: Generate static version pages
+        if: steps.check.outputs.new_versions == 'true'
+        run: python scripts/generate_pages.py
+
       - name: Job summary
         if: steps.check.outputs.new_versions == 'true'
         run: |
@@ -118,9 +124,9 @@ jobs:
         if: steps.check.outputs.new_versions == 'true'
         run: |
           set -e
-          git add "$MD_PATH" "$MD_PATH_ALL"
+          git add "$MD_PATH" "$MD_PATH_ALL" rhino sitemap.xml
 
-          if git diff --cached --quiet -- "$MD_PATH" "$MD_PATH_ALL"; then
+          if git diff --cached --quiet -- "$MD_PATH" "$MD_PATH_ALL" rhino sitemap.xml; then
             echo "No changes to commit."
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
