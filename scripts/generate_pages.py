@@ -49,12 +49,16 @@ VERSION_RE = re.compile(r"^\d+\.\d+\.\d+\.\d+$")
 LOCALE_NAMES = {
     "multi": "Multilingual",
     "en-us": "English (US)",
+    "cs-cz": "Czech (Čeština)",
     "de-de": "German (Deutsch)",
     "es-es": "Spanish (Español)",
     "fr-fr": "French (Français)",
     "it-it": "Italian (Italiano)",
     "ja-jp": "Japanese (日本語)",
     "ko-kr": "Korean (한국어)",
+    "pl-pl": "Polish (Polski)",
+    "pt-pt": "Portuguese (Português)",
+    "ru-ru": "Russian (Русский)",
     "zh-cn": "Chinese, Simplified (简体中文)",
     "zh-tw": "Chinese, Traditional (繁體中文)",
 }
