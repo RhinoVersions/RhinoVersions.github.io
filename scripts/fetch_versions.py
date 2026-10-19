@@ -332,6 +332,21 @@ def prepend_latest(md_path: str, filename: str, url: str) -> bool:
     return True
 
 
+def prepend_latest_windows(md_path: str, ver: str, date_obj: dt.date) -> bool:
+    """Prepend a build's Windows installer for every locale to the latest file.
+
+    The dashboard's Latest card links the installer in the selected language, so
+    en-us alone leaves it without a Windows button for every other language.
+    Prepending bottom-up leaves en-us first, then the other locales in order.
+    """
+    changed = False
+    for locale in reversed(["en-us"] + [loc for loc in LOCALES if loc != "en-us"]):
+        url = build_windows_url(ver, date_obj, locale)
+        if prepend_latest(md_path, os.path.basename(urlparse(url).path), url):
+            changed = True
+    return changed
+
+
 def write_all(md_path_all: str, entries: List[Tuple[str, str]]) -> int:
     """Write all versions to the all-versions file."""
     os.makedirs(os.path.dirname(md_path_all) or ".", exist_ok=True)
@@ -518,7 +533,7 @@ def main():
             all_count = write_all(MD_ALL, all_entries)
             print(f"Wrote {all_count} entries to {MD_ALL}")
 
-            # 4. Update Latest File (en-us only, both platforms)
+            # 4. Update Latest File (every locale + Mac of the newest stable build)
             # The "Latest Release" hero shows the newest STABLE build only.
             # Prerelease (WIP) builds, e.g. Rhino 9, live in the version history
             # (MD_ALL) but never headline the latest card.
@@ -531,7 +546,7 @@ def main():
                 fn_win = os.path.basename(urlparse(u_win).path)
                 
                 if (not HEAD_CHECK_LATEST) or url_exists(u_win):
-                    if prepend_latest(MD_LATEST, fn_win, u_win):
+                    if prepend_latest_windows(MD_LATEST, v_latest, d_latest):
                         changed_latest = True
                     
                     # Set outputs for GitHub Actions (using Windows info)

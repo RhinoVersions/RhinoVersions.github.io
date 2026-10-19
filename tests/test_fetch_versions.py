@@ -1,6 +1,7 @@
 import datetime as dt
 import sys
 import os
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -119,6 +120,25 @@ class FetchVersionsTests(unittest.TestCase):
             )
             self.assertEqual(count, 2)
             self.assertTrue(md_all.read_text(encoding="utf-8").strip().startswith("- [rhino_en-us_8.24.25281.15001.exe]"))
+
+    def test_prepend_latest_windows_lists_every_locale_en_us_first(self):
+        date = dt.date(2025, 10, 8)
+        with tempfile.TemporaryDirectory() as tmp:
+            md_latest = Path(tmp) / "latest.md"
+            # en-us is always listed first, even when LOCALES omits it.
+            with patch.object(fv, "LOCALES", ["de-de", "ru-ru"]):
+                self.assertTrue(fv.prepend_latest_windows(str(md_latest), "8.24.25281.15001", date))
+                self.assertFalse(fv.prepend_latest_windows(str(md_latest), "8.24.25281.15001", date))
+
+            filenames = re.findall(r"- \[([^\]]+)\]", md_latest.read_text(encoding="utf-8"))
+            self.assertEqual(
+                filenames,
+                [
+                    "rhino_en-us_8.24.25281.15001.exe",
+                    "rhino_de-de_8.24.25281.15001.exe",
+                    "rhino_ru-ru_8.24.25281.15001.exe",
+                ],
+            )
 
     @patch("fetch_versions.fetch_registration_index")
     @patch("fetch_versions.versions_from_registration")
