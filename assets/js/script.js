@@ -16,12 +16,16 @@ const CHECK_ICON = '<svg class="copy-link-icon copy-success-icon" width="14" hei
 
 const LOCALE_NAMES = {
     'en-us': 'English (US)',
+    'cs-cz': 'Čeština',
     'de-de': 'Deutsch',
     'es-es': 'Español',
     'fr-fr': 'Français',
     'it-it': 'Italiano',
     'ja-jp': '日本語',
     'ko-kr': '한국어',
+    'pl-pl': 'Polski',
+    'pt-pt': 'Português',
+    'ru-ru': 'Русский',
     'zh-cn': '中文 (简体)',
     'zh-tw': '中文 (繁體)'
 };

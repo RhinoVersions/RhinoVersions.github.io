@@ -25,7 +25,7 @@ jobs:
       RHINO_MAJORS: "6,7,8,9"
       # Majors served only as prereleases (WIP) on NuGet; Rhino 9 is Windows-only WIP.
       RHINO_PRERELEASE_MAJORS: "9"
-      RHINO_LOCALES: "en-us,de-de,es-es,fr-fr,it-it,ja-jp,ko-kr,zh-cn,zh-tw"
+      RHINO_LOCALES: "en-us,cs-cz,de-de,es-es,fr-fr,it-it,ja-jp,ko-kr,pl-pl,pt-pt,ru-ru,zh-cn,zh-tw"
       MD_PATH: "data/rhino-versions.md"
       MD_PATH_ALL: "data/rhino-versions-all.md"
       HEAD_CHECK_LATEST: "true"

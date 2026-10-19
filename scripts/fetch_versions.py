@@ -23,7 +23,7 @@ MAJORS_RAW = os.getenv("RHINO_MAJORS", "6,7,8,9")
 # Majors for which we also accept prerelease (-wip/-beta/...) builds.
 # Rhino 9 currently ships only as WIP prereleases on NuGet.
 PRERELEASE_MAJORS_RAW = os.getenv("RHINO_PRERELEASE_MAJORS", "9")
-LOCALES_RAW = os.getenv("RHINO_LOCALES", "en-us,de-de,es-es,fr-fr,it-it,ja-jp,ko-kr,zh-cn,zh-tw")
+LOCALES_RAW = os.getenv("RHINO_LOCALES", "en-us,cs-cz,de-de,es-es,fr-fr,it-it,ja-jp,ko-kr,pl-pl,pt-pt,ru-ru,zh-cn,zh-tw")
 MD_LATEST = os.getenv("MD_PATH", "data/rhino-versions.md")
 MD_ALL = os.getenv("MD_PATH_ALL", "data/rhino-versions-all.md")
 HEAD_CHECK_LATEST = os.getenv("HEAD_CHECK_LATEST", "true").lower() == "true"
