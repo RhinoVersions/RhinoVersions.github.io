@@ -2,19 +2,19 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://rhinoversions.github.io/</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-20</lastmod>
   </url>
   <url>
     <loc>https://rhinoversions.github.io/rhino/</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-20</lastmod>
   </url>
   <url>
     <loc>https://rhinoversions.github.io/rhino/9/</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-20</lastmod>
   </url>
   <url>
     <loc>https://rhinoversions.github.io/rhino/8/</loc>
-    <lastmod>2026-09-08</lastmod>
+    <lastmod>2026-10-20</lastmod>
   </url>
   <url>
     <loc>https://rhinoversions.github.io/rhino/7/</loc>
@@ -23,6 +23,10 @@
   <url>
     <loc>https://rhinoversions.github.io/rhino/6/</loc>
     <lastmod>2021-08-10</lastmod>
+  </url>
+  <url>
+    <loc>https://rhinoversions.github.io/rhino/9/9.0.26293/</loc>
+    <lastmod>2026-10-20</lastmod>
   </url>
   <url>
     <loc>https://rhinoversions.github.io/rhino/9/9.0.26286/</loc>
@@ -295,6 +299,10 @@
   <url>
     <loc>https://rhinoversions.github.io/rhino/9/9.0.25051/</loc>
     <lastmod>2025-02-20</lastmod>
+  </url>
+  <url>
+    <loc>https://rhinoversions.github.io/rhino/8/8.36.26293/</loc>
+    <lastmod>2026-10-20</lastmod>
   </url>
   <url>
     <loc>https://rhinoversions.github.io/rhino/8/8.35.26251/</loc>
