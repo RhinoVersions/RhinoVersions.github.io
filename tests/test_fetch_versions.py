@@ -61,15 +61,22 @@ class FetchVersionsTests(unittest.TestCase):
             ],
         )
 
-    def test_build_mac_url_candidates_prerelease_uses_wip_prefix(self):
-        urls = fv.build_mac_url_candidates("9.0.26167.11545-wip")
+    def test_build_mac_url_candidates_prerelease_tries_channel_prefix_then_plain(self):
+        base = "https://files.mcneel.com/rhino/9/mac/releases/"
         self.assertEqual(
-            urls,
+            fv.build_mac_url_candidates("9.0.26167.11545-wip"),
             [
-                "https://files.mcneel.com/rhino/9/mac/releases/rhino_wip_9.0.26167.11545.dmg",
-                "https://files.mcneel.com/rhino/9/mac/releases/rhino_wip_9.0.26167.11546.dmg",
+                base + "rhino_wip_9.0.26167.11545.dmg",
+                base + "rhino_wip_9.0.26167.11546.dmg",
+                base + "rhino_9.0.26167.11545.dmg",
+                base + "rhino_9.0.26167.11546.dmg",
             ],
         )
+        # NuGet drops leading zeros (9.0.26300.9401); filenames are zero-padded.
+        beta = fv.build_mac_url_candidates("9.0.26293.12303-beta")
+        self.assertIn(base + "rhino_beta_9.0.26293.12304.dmg", beta)
+        rc = fv.build_mac_url_candidates("9.0.26300.9401-rc")
+        self.assertIn(base + "rhino_9.0.26300.09402.dmg", rc)
 
     @patch("fetch_versions.requests.get")
     def test_versions_from_registration_fetches_nested_pages(self, mock_get):

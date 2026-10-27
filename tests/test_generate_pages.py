@@ -45,6 +45,9 @@ class GeneratePagesTests(unittest.TestCase):
         wip_mac = gp.parse_installer("rhino_wip_9.0.26167.11546.dmg", "https://example.test/d.dmg")
         self.assertEqual((wip_mac.platform, wip_mac.locale, wip_mac.version), ("mac", "multi", "9.0.26167.11546"))
 
+        beta_mac = gp.parse_installer("rhino_beta_9.0.26293.12304.dmg", "https://example.test/e.dmg")
+        self.assertEqual((beta_mac.platform, beta_mac.locale, beta_mac.version), ("mac", "multi", "9.0.26293.12304"))
+
     def test_parse_installer_rejects_unexpected_input(self):
         self.assertIsNone(gp.parse_installer("rhino_8.17.dmg", "https://example.test/x.dmg"))
         self.assertIsNone(gp.parse_installer("notes.txt", "https://example.test/notes.txt"))
@@ -71,6 +74,15 @@ class GeneratePagesTests(unittest.TestCase):
         build = {b.key: b for b in gp.load_builds(md)}["8.17.25066"]
         self.assertEqual(build.windows[0].version, "8.17.25066.09001")
         self.assertEqual(len([i for i in build.windows if i.locale == "en-us"]), 1)
+
+    def test_beta_mac_installer_joins_its_windows_build(self):
+        md = SAMPLE_MD + (
+            "    - [rhino_beta_9.0.26272.12304.dmg](https://files.mcneel.com/rhino/9/mac/releases/"
+            "rhino_beta_9.0.26272.12304.dmg)\n"
+        )
+        build = {b.key: b for b in gp.load_builds(md)}["9.0.26272"]
+        self.assertEqual((build.windows_version, build.mac_version), ("9.0.26272.12303", "9.0.26272.12304"))
+        self.assertEqual([i.locale for i in build.mac], ["multi"])
 
     def test_decode_build_date_and_nuget_version(self):
         self.assertEqual(gp.decode_build_date("25066"), dt.date(2025, 3, 7))

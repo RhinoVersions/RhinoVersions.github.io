@@ -175,27 +175,33 @@ def build_mac_url_candidates(ver: str) -> List[str]:
     Mac versions often match the Windows version exactly, OR have the last digit incremented by 1.
     e.g. Windows ...15001 -> Mac ...15002
 
-    Prerelease (WIP) Mac builds use a 'rhino_wip_' filename prefix
-    (e.g. rhino_wip_9.0.26167.11546.dmg); stable builds use 'rhino_'.
+    Prerelease Mac builds are named after their NuGet channel, e.g.
+    rhino_wip_9.0.26167.11546.dmg or rhino_beta_9.0.26293.12304.dmg, but the
+    release candidate drops the tag (rhino_9.0.26300.09402.dmg), so the plain
+    'rhino_' prefix is tried after the channel prefix.
     """
     ver_name = _version_for_filename(ver)
     major = ver.split(".")[0]
-    prefix = "rhino_wip_" if is_prerelease(ver) else "rhino_"
-
-    candidates = []
+    prefixes = ["rhino_"]
+    if is_prerelease(ver):
+        prefixes.insert(0, f"rhino_{ver.split('-', 1)[1]}_")
 
     # Candidate 1: Exact match
-    candidates.append(MAC_RELEASE_URL_TEMPLATE.format(major=major, filename=f"{prefix}{ver_name}.dmg"))
+    names = [ver_name]
 
     # Candidate 2: Last digit + 1
     try:
         parts = ver_name.split(".")
         parts[3] = str(int(parts[3]) + 1).zfill(5)
-        candidates.append(MAC_RELEASE_URL_TEMPLATE.format(major=major, filename=f"{prefix}{'.'.join(parts)}.dmg"))
+        names.append(".".join(parts))
     except ValueError:
         pass
 
-    return candidates
+    return [
+        MAC_RELEASE_URL_TEMPLATE.format(major=major, filename=f"{prefix}{name}.dmg")
+        for prefix in prefixes
+        for name in names
+    ]
 
 
 def url_exists(url: str) -> bool:
@@ -434,9 +440,10 @@ def main():
 
             # Pre-resolve Mac DMG URLs for EVERY build (stable + WIP), in parallel.
             # Mac filenames don't track the Windows build number exactly (usually +1),
-            # older builds may have no Mac DMG, and WIP builds use a 'rhino_wip_'
-            # prefix — so each is HEAD-checked. Verifying all builds (not just the
-            # newest N) avoids emitting broken links for older releases.
+            # older builds may have no Mac DMG, and prerelease builds use a
+            # 'rhino_wip_'/'rhino_beta_' prefix — so each is HEAD-checked. Verifying
+            # all builds (not just the newest N) avoids emitting broken links for
+            # older releases.
             print(f"Resolving Mac DMG URLs for {len(stable)} builds...")
             mac_map = resolve_mac_urls(stable)
             print(f"Found Mac DMGs for {len(mac_map)}/{len(stable)} builds.")

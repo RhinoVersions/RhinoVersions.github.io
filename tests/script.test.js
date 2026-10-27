@@ -69,6 +69,15 @@ test('parseVersionFromFilename', async (t) => {
         assert.strictEqual(info.fullVersion, '9.0.26167.11546');
     });
 
+    await t.test('should parse beta Mac filename (rhino_beta_ prefix, multilingual)', () => {
+        const filename = 'rhino_beta_9.0.26293.12304.dmg';
+        const info = parseVersionFromFilename(filename);
+        assert.strictEqual(info.major, '9');
+        assert.strictEqual(info.locale, 'multi');
+        assert.strictEqual(info.platform, 'mac');
+        assert.strictEqual(info.fullVersion, '9.0.26293.12304');
+    });
+
     await t.test('should parse Mac filename (no locale)', () => {
         const filename = 'rhino_8.25.25328.11002.dmg';
         const info = parseVersionFromFilename(filename);
