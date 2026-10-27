@@ -43,6 +43,7 @@ PRERELEASE_MAJORS = {
 
 LINK_RE = re.compile(r"- \[([^\]]+)\]\(([^)]+)\)")
 INSTALLER_RE = re.compile(r"^(.+)\.(exe|dmg)$")
+LOCALE_RE = re.compile(r"^[a-z]{2}-[a-z]{2}$")
 VERSION_RE = re.compile(r"^\d+\.\d+\.\d+\.\d+$")
 
 # Installer languages in display order; "multi" marks multilingual installers.
@@ -164,13 +165,15 @@ def parse_installer(filename: str, url: str) -> Optional[Installer]:
     rhino_9.0.26272.12303.exe        -> Windows, multilingual (prerelease)
     rhino_8.17.25066.07002.dmg       -> Mac, multilingual
     rhino_wip_9.0.26167.11546.dmg    -> Mac, multilingual (prerelease)
+    rhino_beta_9.0.26293.12304.dmg   -> Mac, multilingual (prerelease)
     """
     match = INSTALLER_RE.match(filename)
     if not match or not url.startswith(("https://", "http://")):
         return None
     parts = match.group(1).split("_")
     if len(parts) == 3:
-        locale = "multi" if parts[1] == "wip" else parts[1]
+        # A middle tag that is not a language (wip, beta, ...) is a prerelease channel.
+        locale = parts[1] if LOCALE_RE.match(parts[1]) else "multi"
     elif len(parts) == 2:
         locale = "multi"
     else:

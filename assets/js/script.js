@@ -45,6 +45,7 @@ const CONFIG = {
 const REGEX = {
     MARKDOWN_LINK: /- \[([^\]]+)\]\(([^)]+)\)/g,
     FILENAME_EXTENSION: /\.(exe|dmg)$/,
+    LOCALE: /^[a-z]{2}-[a-z]{2}$/,
     VERSION_SANITIZE: /[^\d.]/g,
     VERSION_PATTERN: /^\d+(\.\d+){1,3}$/
 };
@@ -181,11 +182,11 @@ function parseVersionFromFilename(filename) {
         }
     } else {
         // Expected: rhino_8.25.25328.11002 (no locale)
-        // OR WIP: rhino_wip_9.0.26167.11546 (multilingual prerelease)
+        // OR prerelease: rhino_wip_9.0.26167.11546 / rhino_beta_9.0.26293.12304 (multilingual)
         // OR legacy/accidental: rhino_en-us_... (handle just in case)
         if (parts.length === 3) {
-            // rhino_wip_<ver> is multilingual; otherwise parts[1] is a locale.
-            locale = parts[1] === 'wip' ? 'multi' : parts[1];
+            // A middle tag that is not a language (wip, beta, ...) is a prerelease channel.
+            locale = REGEX.LOCALE.test(parts[1]) ? parts[1] : 'multi';
             versionStr = parts[2];
         } else if (parts.length === 2) {
             // No locale: rhino_8.25...
