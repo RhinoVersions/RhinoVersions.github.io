@@ -1,3 +1,4 @@
+    - [rhino_9.0.26300.09402.dmg](https://files.mcneel.com/rhino/9/mac/releases/rhino_9.0.26300.09402.dmg)
     - [rhino_beta_9.0.26293.12304.dmg](https://files.mcneel.com/rhino/9/mac/releases/rhino_beta_9.0.26293.12304.dmg)
     - [rhino_9.0.26293.12303.exe](https://files.mcneel.com/dujour/exe/20261020/rhino_9.0.26293.12303.exe)
     - [rhino_beta_9.0.26286.06304.dmg](https://files.mcneel.com/rhino/9/mac/releases/rhino_beta_9.0.26286.06304.dmg)
