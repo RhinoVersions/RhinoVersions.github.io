@@ -82,7 +82,7 @@ function isLocalEnvironment() {
  */
 // Bump the version suffix to invalidate stale client caches when the data
 // format or contents change (e.g. removing broken WIP links).
-const CACHE_KEY_PREFIX = 'rhino_versions_cache_v3_';
+const CACHE_KEY_PREFIX = 'rhino_versions_cache_v4_';
 const CACHE_EXPIRY_MS = 6 * 60 * 60 * 1000; // 6 hours
 
 async function fetchWithCache(url) {
@@ -262,9 +262,9 @@ async function loadLatestVersion() {
             const parsed = parseVersionFromFilename(link.filename);
             if (!parsed) return;
 
-            // For Windows, match the target locale
+            // For Windows, match the target locale (or the multilingual installer, e.g. Rhino 9 RC)
             if (link.filename.endsWith('.exe')) {
-                if (!windowsLink && parsed.locale === targetLocale) {
+                if (!windowsLink && (parsed.locale === targetLocale || parsed.locale === 'multi')) {
                     windowsLink = link;
                     if (!versionInfo) versionInfo = parsed;
                 }
