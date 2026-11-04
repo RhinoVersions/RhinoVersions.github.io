@@ -32,7 +32,7 @@ SITE_NAME = "Rhino Versions"
 # Every index.html below this directory is generated (and pruned) by this script.
 OUTPUT_DIR = "rhino"
 # Keep in sync with the ?v= cache-busting query strings in index.html.
-ASSET_VERSION = "20261006"
+ASSET_VERSION = "20261104"
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MD_ALL = os.getenv("MD_PATH_ALL", "data/rhino-versions-all.md")
