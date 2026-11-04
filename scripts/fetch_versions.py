@@ -354,6 +354,21 @@ def get_stable_versions() -> List[str]:
     return list_stable_for_majors(versions, MAJORS)
 
 
+def _late_installer_available(v: str, content: str) -> bool:
+    """True if a reachable installer for build `v` is not yet listed in `content`.
+
+    McNeel publishes the Windows exe and the Mac dmg at different times, so a build
+    can be 'present' with one platform while the other has since appeared on the CDN.
+    """
+    d = decode_version_date(v)
+    urls = [
+        resolve_mac_url(v),
+        resolve_prerelease_windows_url(v)
+        or (build_windows_url(v, d, "en-us") if windows_installer_exists(v) else None),
+    ]
+    return any(u and os.path.basename(urlparse(u).path) not in content for u in urls)
+
+
 def check_only():
     """Lightweight check: is the newest NuGet build for each major already in our data?
 
@@ -385,7 +400,7 @@ def check_only():
         new = False
         for major, v in sorted(latest_by_major.items()):
             ver_fn = _version_for_filename(v)
-            present = ver_fn in content
+            present = ver_fn in content and not _late_installer_available(v, content)
             print(f"  Rhino {major}: latest {v} -> {'present' if present else 'MISSING'}")
             if not present:
                 new = True
@@ -455,7 +470,11 @@ def main():
             print(f"Found Windows installers for {len(win_live)}/{len(non_pre)} builds.")
 
             # Pre-resolve prerelease (WIP) Windows installers concurrently too.
-            pre_win_map = resolve_prerelease_windows_urls(pre_targets)
+            # Release candidates carry no -beta/-wip suffix on NuGet (e.g. 9.0.26300)
+            # but ship the multilingual exe, so unmatched non-prerelease builds are
+            # resolved the same way.
+            pre_win_map = resolve_prerelease_windows_urls(
+                pre_targets + [v for v in non_pre if v not in win_live])
             if pre_targets:
                 print(f"Found prerelease Windows installers for {len(pre_win_map)}/{len(pre_targets)} builds.")
 
@@ -479,6 +498,10 @@ def main():
                         all_entries_map[fn] = mac_url
                     continue
 
+                # --- Windows multilingual EXE (release candidate) ---
+                if v not in win_live and v in pre_win_map:
+                    fn = os.path.basename(urlparse(pre_win_map[v]).path)
+                    all_entries_map[fn] = pre_win_map[v]
                 # --- Windows EXE (all locales) ---
                 # McNeel publishes every locale of a build together, so emit all
                 # locales for builds with a verified installer; skip dead builds.
@@ -487,7 +510,7 @@ def main():
                         u = build_windows_url(v, d, locale)
                         fn = os.path.basename(urlparse(u).path)
                         all_entries_map[fn] = u
-                else:
+                elif v not in pre_win_map:
                     print(f"[skip] No Windows installer published for {v}")
 
                 # --- Mac DMG ---
@@ -534,7 +557,7 @@ def main():
                 d_latest = decode_version_date(v_latest)
                 
                 # Windows Latest
-                u_win = build_windows_url(v_latest, d_latest, "en-us")
+                u_win = pre_win_map.get(v_latest) or build_windows_url(v_latest, d_latest, "en-us")
                 fn_win = os.path.basename(urlparse(u_win).path)
                 
                 if (not HEAD_CHECK_LATEST) or url_exists(u_win):
