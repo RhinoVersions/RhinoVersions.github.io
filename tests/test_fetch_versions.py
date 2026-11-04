@@ -22,6 +22,22 @@ import fetch_versions as fv
 
 
 class FetchVersionsTests(unittest.TestCase):
+    def test_late_installer_detected_when_other_platform_appears(self):
+        v = "9.0.26300.9401"
+        content = "    - [rhino_9.0.26300.09401.exe](https://x/rhino_9.0.26300.09401.exe)\n"
+        mac = "https://files.mcneel.com/rhino/9/mac/releases/rhino_9.0.26300.09402.dmg"
+        win = "https://files.mcneel.com/dujour/exe/20261027/rhino_9.0.26300.09401.exe"
+        with patch.object(fv, "resolve_mac_url", return_value=mac), \
+             patch.object(fv, "resolve_prerelease_windows_url", return_value=win):
+            self.assertTrue(fv._late_installer_available(v, content))
+            self.assertFalse(fv._late_installer_available(v, content + mac))
+
+    def test_late_installer_false_when_nothing_resolves(self):
+        with patch.object(fv, "resolve_mac_url", return_value=None), \
+             patch.object(fv, "resolve_prerelease_windows_url", return_value=None), \
+             patch.object(fv, "windows_installer_exists", return_value=False):
+            self.assertFalse(fv._late_installer_available("9.0.26300.9401", ""))
+
     def test_list_stable_for_majors_filters_and_sorts(self):
         all_versions = [
             "8.24.25281.15001",
