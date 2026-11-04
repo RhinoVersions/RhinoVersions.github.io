@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   link-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       PUSH_TOKEN: ${{ secrets.WEBSITE_TOKEN || secrets.GITHUB_TOKEN || secrets.DEPLOY }}
     steps:
