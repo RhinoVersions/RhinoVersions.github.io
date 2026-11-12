@@ -1227,8 +1227,22 @@ time[title],
 /* ── Latest cards grid: Rhino 7, 8, 9 and WIP ── */
 .latest-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    grid-template-columns: 1fr;
     gap: var(--spacing-lg);
+}
+/* Always 4, 2x2 or 1 column: never 3 + 1 */
+.latest-section {
+    container-type: inline-size;
+}
+@container (min-width: 34rem) {
+    .latest-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@container (min-width: 64rem) {
+    .latest-cards {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
 .latest-cards .latest-card h2 {
     font-size: 1.5rem;
