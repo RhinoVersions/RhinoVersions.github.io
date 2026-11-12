@@ -1,5 +1,6 @@
 import argparse
 import datetime as dt
+import json
 import os
 import re
 import sys
@@ -26,6 +27,7 @@ PRERELEASE_MAJORS_RAW = os.getenv("RHINO_PRERELEASE_MAJORS", "9")
 LOCALES_RAW = os.getenv("RHINO_LOCALES", "en-us,cs-cz,de-de,es-es,fr-fr,it-it,ja-jp,ko-kr,pl-pl,pt-pt,ru-ru,zh-cn,zh-tw")
 MD_LATEST = os.getenv("MD_PATH", "data/rhino-versions.md")
 MD_ALL = os.getenv("MD_PATH_ALL", "data/rhino-versions-all.md")
+CHANNELS_PATH = os.getenv("CHANNELS_PATH", "data/prerelease-builds.json")
 HEAD_CHECK_LATEST = os.getenv("HEAD_CHECK_LATEST", "true").lower() == "true"
 
 # Parse lists
@@ -369,6 +371,21 @@ def get_stable_versions() -> List[str]:
     return list_stable_for_majors(versions, MAJORS)
 
 
+def write_channels(path: str, versions: Iterable[str]) -> None:
+    """Record which builds NuGet publishes as prereleases, e.g. {"9.0.26293": "beta"}.
+
+    The site reads this to tell WIP/beta builds from releases, so a build leaves the
+    WIP card on its own once NuGet lists it without a -wip/-beta suffix.
+    """
+    channels = {
+        ".".join(v.split("-", 1)[0].split(".")[:3]): v.split("-", 1)[1]
+        for v in versions if is_prerelease(v)
+    }
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(dict(sorted(channels.items())), f, indent=2)
+        f.write("\n")
+
+
 def _late_installer_available(v: str, content: str) -> bool:
     """True if a reachable installer for build `v` is not yet listed in `content`.
 
@@ -452,6 +469,8 @@ def main():
     try:
         # 1. Fetch available versions from NuGet
         stable = get_stable_versions()
+
+        write_channels(CHANNELS_PATH, stable)
 
         if not stable:
             print(f"::notice::No stable Rhino versions for majors: {', '.join(map(str, MAJORS))}.")

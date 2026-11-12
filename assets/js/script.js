@@ -38,6 +38,7 @@ const CONFIG = {
     BRANCH: 'main',
     LATEST_MD_PATH: 'data/rhino-versions.md',
     ALL_MD_PATH: 'data/rhino-versions-all.md',
+    PRERELEASE_PATH: 'data/prerelease-builds.json',
     DEFAULT_SORT: { column: 'date', ascending: false }
 };
 
@@ -52,6 +53,8 @@ const REGEX = {
 
 // State
 let allVersions = [];
+// {"9.0.26293": "beta"}: builds NuGet lists as prereleases (written by fetch_versions.py)
+let prereleaseBuilds = {};
 let expandedVersionCards = new Set();
 let deepLinkState = {
     version: null,
@@ -235,100 +238,6 @@ function parseVersionFromFilename(filename) {
 }
 
 /**
- * Load and display latest version
- */
-async function loadLatestVersion() {
-    const loadingEl = document.getElementById('loading-latest');
-    const errorEl = document.getElementById('error-latest');
-    const cardEl = document.getElementById('latest-card');
-
-    try {
-        const markdown = await fetchMarkdownFromGitHub(CONFIG.LATEST_MD_PATH);
-        const links = parseMarkdownLinks(markdown);
-
-        if (links.length === 0) {
-            throw new Error('No versions found in latest file');
-        }
-
-        // Find Windows (.exe) and Mac (.dmg) links for selected locale
-        const localeFilter = document.getElementById('locale-filter').value;
-        const targetLocale = localeFilter === 'all' ? 'en-us' : localeFilter; // Default to en-us when "all" is selected
-
-        let windowsLink = null;
-        let macLink = null;
-        let versionInfo = null;
-
-        links.forEach(link => {
-            const parsed = parseVersionFromFilename(link.filename);
-            if (!parsed) return;
-
-            // For Windows, match the target locale (or the multilingual installer, e.g. Rhino 9 RC)
-            if (link.filename.endsWith('.exe')) {
-                if (!windowsLink && (parsed.locale === targetLocale || parsed.locale === 'multi')) {
-                    windowsLink = link;
-                    if (!versionInfo) versionInfo = parsed;
-                }
-            }
-            // For Mac, accept 'multi' locale (or if we ever have specific locales)
-            else if (link.filename.endsWith('.dmg')) {
-                // Mac is usually multi, so we accept it regardless of targetLocale
-                // unless we want to be strict, but for now 'multi' is what we have.
-                if (!macLink && (parsed.locale === 'multi' || parsed.locale === targetLocale)) {
-                    macLink = link;
-                    // Only set versionInfo from Mac if we haven't found Windows yet
-                    // (Windows usually has the locale-specific info we might want, though Mac is fine too)
-                    if (!versionInfo) versionInfo = parsed;
-                }
-            }
-        });
-
-        if (!versionInfo) {
-            throw new Error('Could not parse version information');
-        }
-
-        // Update UI
-        document.getElementById('latest-version').textContent = versionInfo.fullVersion;
-        const latestDateEl = document.getElementById('latest-date');
-        latestDateEl.textContent = formatDate(versionInfo.date);
-        latestDateEl.setAttribute('datetime', versionInfo.dateString);
-        latestDateEl.setAttribute('title', getRelativeTime(versionInfo.date));
-
-        // Update download buttons
-        const windowsBtn = document.getElementById('latest-download-windows');
-        const macBtn = document.getElementById('latest-download-mac');
-
-        if (windowsLink) {
-            windowsBtn.href = windowsLink.url;
-            windowsBtn.removeAttribute('aria-label');
-            windowsBtn.setAttribute('title', `Download Rhino ${versionInfo.fullVersion} for Windows`);
-            windowsBtn.innerHTML = `${PLATFORM_ICONS.windows} Windows<span class="sr-only"> - Download Rhino ${versionInfo.fullVersion} (opens in a new tab)</span>`;
-            windowsBtn.style.display = 'inline-flex';
-        } else {
-            windowsBtn.style.display = 'none';
-        }
-
-        if (macLink) {
-            macBtn.href = macLink.url;
-            macBtn.removeAttribute('aria-label');
-            macBtn.setAttribute('title', `Download Rhino ${versionInfo.fullVersion} for Mac`);
-            macBtn.innerHTML = `${PLATFORM_ICONS.mac} Mac<span class="sr-only"> - Download Rhino ${versionInfo.fullVersion} (opens in a new tab)</span>`;
-            macBtn.style.display = 'inline-flex';
-        } else {
-            macBtn.style.display = 'none';
-        }
-
-        // Show card, hide loading
-        loadingEl.style.display = 'none';
-        cardEl.style.display = 'flex';
-
-    } catch (error) {
-        console.error('Error loading latest version:', error);
-        loadingEl.style.display = 'none';
-        errorEl.style.display = 'block';
-    }
-}
-
-/**
  * Load and display all versions
  */
 async function loadAllVersions() {
@@ -339,6 +248,11 @@ async function loadAllVersions() {
     try {
         const markdown = await fetchMarkdownFromGitHub(CONFIG.ALL_MD_PATH);
         const links = parseMarkdownLinks(markdown);
+        try {
+            prereleaseBuilds = JSON.parse(await fetchMarkdownFromGitHub(CONFIG.PRERELEASE_PATH));
+        } catch (e) {
+            console.warn('Prerelease list unavailable, falling back to Mac filename tags:', e);
+        }
 
         // Parse all versions and group by version+locale
         const versionMap = new Map();
@@ -371,8 +285,8 @@ async function loadAllVersions() {
         allVersions = Array.from(versionMap.values());
         cachedGroupedVersions = groupVersions(allVersions);
 
-        // Feature the latest Rhino 9 (Early Preview) build alongside the stable hero.
-        renderPreviewCard(cachedGroupedVersions);
+        renderLatestCards(cachedGroupedVersions);
+        document.getElementById('loading-latest').style.display = 'none';
 
         // Display
         filterVersions();
@@ -383,59 +297,69 @@ async function loadAllVersions() {
 
     } catch (error) {
         console.error('Error loading all versions:', error);
+        document.getElementById('loading-latest').style.display = 'none';
+        document.getElementById('error-latest').style.display = 'block';
         loadingEl.style.display = 'none';
         errorEl.style.display = 'block';
     }
 }
 
 /**
- * Feature the newest Rhino 9 (Early Preview / WIP) build in its own hero card,
- * next to the stable "Latest Release" card.
+ * Four hero cards, each the newest build of its branch: Rhino 7, 8, 9 and the
+ * newest WIP/beta build of any major. Which builds are WIP comes from NuGet
+ * (prereleaseBuilds); if that list is missing, Mac WIP/beta DMGs carry a channel
+ * tag in the filename (rhino_wip_*.dmg / rhino_beta_*.dmg) as a fallback.
  */
-function renderPreviewCard(groups) {
-    const card = document.getElementById('preview-card');
+const LATEST_CARDS = [
+    { title: 'Rhino 7', channel: 'Stable', pick: g => g.major === '7' && !isWipGroup(g) },
+    { title: 'Rhino 8', channel: 'Stable', pick: g => g.major === '8' && !isWipGroup(g) },
+    { title: 'Rhino 9', channel: 'Stable', pick: g => g.major === '9' && !isWipGroup(g) },
+    { title: 'Rhino WIP', badge: 'WIP Build', pick: isWipGroup, preview: true }
+];
+
+function isWipGroup(group) {
+    return group.buildKey in prereleaseBuilds
+        || group.entries.some(e => /^rhino_(wip|beta)_/.test(e.macFilename || ''));
+}
+
+function renderLatestCards(groups) {
     const wrap = document.getElementById('latest-cards');
-    if (!card) return;
+    if (!wrap) return;
 
-    const r9 = (groups || [])
-        .filter(g => g.major === '9')
-        .sort((a, b) => b.date - a.date)[0];
+    const localeFilter = document.getElementById('locale-filter').value;
+    const targetLocale = localeFilter === 'all' ? 'en-us' : localeFilter;
 
-    if (!r9) {
-        card.style.display = 'none';
-        if (wrap) wrap.classList.remove('has-preview');
-        return;
-    }
+    wrap.innerHTML = LATEST_CARDS.map(def => {
+        const group = (groups || [])
+            .filter(def.pick)
+            .sort((a, b) => compareFullVersions(b.fullVersion, a.fullVersion))[0];
+        if (!group) return '';
+        const wipChannel = prereleaseBuilds[group.buildKey];
+        const channel = def.preview
+            ? (wipChannel ? wipChannel.toUpperCase() : 'Work-in-progress')
+            : def.channel;
 
-    document.getElementById('preview-version').textContent = r9.fullVersion;
-    const dateEl = document.getElementById('preview-date');
-    dateEl.textContent = formatDate(r9.date);
-    dateEl.setAttribute('datetime', r9.dateString);
-    dateEl.setAttribute('title', getRelativeTime(r9.date));
+        const win = group.entries.find(e => e.windowsUrl && (e.locale === targetLocale || e.locale === 'multi'));
+        const mac = group.entries.find(e => e.macUrl);
+        const v = escapeHTML(group.fullVersion);
+        const label = escapeHTML(def.title);
+        const btn = (url, platform, name) => url
+            ? `<a href="${escapeHTML(url)}" class="download-btn cta-btn" target="_blank" rel="noopener noreferrer" title="Download ${label} ${v} for ${name}">${PLATFORM_ICONS[platform]} ${name}<span class="sr-only"> - Download ${label} ${v} (opens in a new tab)</span></a>`
+            : '';
 
-    const winEntry = r9.entries.find(e => e.windowsUrl);
-    const macEntry = r9.entries.find(e => e.macUrl);
-    const winBtn = document.getElementById('preview-download-windows');
-    const macBtn = document.getElementById('preview-download-mac');
-
-    if (winEntry) {
-        winBtn.href = winEntry.windowsUrl;
-        winBtn.innerHTML = `${PLATFORM_ICONS.windows} Windows<span class="sr-only"> - Download Rhino ${escapeHTML(r9.fullVersion)} Early Preview for Windows (opens in a new tab)</span>`;
-        winBtn.style.display = 'inline-flex';
-    } else {
-        winBtn.style.display = 'none';
-    }
-
-    if (macEntry) {
-        macBtn.href = macEntry.macUrl;
-        macBtn.innerHTML = `${PLATFORM_ICONS.mac} Mac<span class="sr-only"> - Download Rhino ${escapeHTML(r9.fullVersion)} Early Preview for Mac (opens in a new tab)</span>`;
-        macBtn.style.display = 'inline-flex';
-    } else {
-        macBtn.style.display = 'none';
-    }
-
-    card.style.display = 'flex';
-    if (wrap) wrap.classList.add('has-preview');
+        return `<div class="latest-card glass-card">
+            <div class="latest-badge${def.preview ? ' preview-badge' : ''}">${def.badge || 'Latest Release'}</div>
+            <h2>${label}</h2>
+            <div class="version-details">
+                <div class="details-group">
+                    <div class="detail-item"><span class="detail-label">Build</span><span class="detail-value">${v}</span></div>
+                    <div class="detail-item"><span class="detail-label">Build Date</span><time class="detail-value" datetime="${escapeHTML(group.dateString)}" title="${escapeHTML(getRelativeTime(group.date))}">${escapeHTML(formatDate(group.date))}</time></div>
+                    <div class="detail-item"><span class="detail-label">Channel</span><span class="detail-value">${escapeHTML(channel)}</span></div>
+                </div>
+                <div class="download-buttons">${btn(win && win.windowsUrl, 'windows', 'Windows')}${btn(mac && mac.macUrl, 'mac', 'Mac')}</div>
+            </div>
+        </div>`;
+    }).join('');
 }
 
 /**
@@ -550,7 +474,6 @@ function displayVersions(versions) {
                 cachedSearchInput.value = '';
                 cachedMajorFilter.value = 'all';
                 cachedLocaleFilter.value = 'all';
-                loadLatestVersion();
                 filterVersions();
                 cachedSearchInput.focus();
             });
@@ -599,7 +522,7 @@ function displayVersions(versions) {
             <div id="${panelId}-heading" class="version-card-header">
                 <div class="version-card-main">
                     <a href="${escapeHTML(deepLinkHref)}" class="version-link" title="Copy link to version ${escapeHTML(versionGroup.fullVersion)}"><span class="version-number">${escapeHTML(versionGroup.fullVersion)}</span><span class="sr-only"> - Copy link</span>${LINK_ICON}</a>
-                    <span class="major-badge">Rhino ${escapeHTML(versionGroup.major)}${versionGroup.major === '9' ? ' (Early preview)' : ''}</span>
+                    <span class="major-badge">Rhino ${escapeHTML(versionGroup.major)}</span>
                 </div>
                 <div class="version-card-meta">
                     <time class="version-date" datetime="${escapeHTML(versionGroup.dateString)}" title="${escapeHTML(getRelativeTime(versionGroup.date))}"><span aria-hidden="true"><span class="date-full">${formatDate(versionGroup.date, 'long')}</span><span class="date-short">${formatDate(versionGroup.date, 'short')}</span></span><span class="sr-only">${formatDate(versionGroup.date, 'long')}</span></time>
@@ -1301,7 +1224,6 @@ if (typeof window !== 'undefined') {
         });
 
         // Load data
-        loadLatestVersion();
         loadAllVersions();
         loadContributors();
         loadLinkStatus();
@@ -1346,8 +1268,7 @@ if (typeof window !== 'undefined') {
         document.getElementById('major-filter').addEventListener('change', filterVersions);
         document.getElementById('locale-filter').addEventListener('change', () => {
             // Reload latest version when locale changes
-            loadLatestVersion();
-            filterVersions();
+                filterVersions();
         });
 
         // Arrow key navigation for version list

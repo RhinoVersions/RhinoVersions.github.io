@@ -29,6 +29,7 @@ SAMPLE_MD = """\
 
 class GeneratePagesTests(unittest.TestCase):
     def setUp(self):
+        gp.PRERELEASE_BUILDS = {"9.0.26272": "wip", "9.0.26167": "wip"}
         self.builds = gp.load_builds(SAMPLE_MD)
         self.by_key = {b.key: b for b in self.builds}
 
@@ -92,7 +93,7 @@ class GeneratePagesTests(unittest.TestCase):
     def test_release_labels(self):
         self.assertEqual(gp.release_label(self.by_key["8.17.25066"]), "Rhino 8 SR17")
         self.assertEqual(gp.release_label(self.by_key["8.0.23304"]), "Rhino 8 initial release")
-        self.assertEqual(gp.release_label(self.by_key["9.0.26272"]), "Rhino 9 Early Preview")
+        self.assertEqual(gp.release_label(self.by_key["9.0.26272"]), "Rhino 9 WIP")
 
     def test_build_title_names_exact_versions(self):
         self.assertEqual(
@@ -101,7 +102,7 @@ class GeneratePagesTests(unittest.TestCase):
         )
         self.assertEqual(
             gp.build_title(self.by_key["9.0.26272"]),
-            "Rhino 9.0.26272.12303 Download for Windows – Rhino 9 Early Preview",
+            "Rhino 9.0.26272.12303 Download for Windows – Rhino 9 WIP",
         )
 
     def test_build_page_is_crawlable_without_javascript(self):
@@ -123,7 +124,7 @@ class GeneratePagesTests(unittest.TestCase):
     def test_prerelease_page_has_no_nuget_link(self):
         page = gp.render_site(self.builds)["rhino/9/9.0.26167/index.html"]
         self.assertNotIn("nuget.org/packages/RhinoCommon/9.", page)
-        self.assertIn("Latest Rhino 9 Early Preview build", gp.render_site(self.builds)["rhino/9/9.0.26272/index.html"])
+        self.assertIn("Latest Rhino 9 build", gp.render_site(self.builds)["rhino/9/9.0.26272/index.html"])
 
     def test_major_and_archive_pages_link_every_build(self):
         files = gp.render_site(self.builds)

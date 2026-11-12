@@ -1,4 +1,5 @@
 import datetime as dt
+import json
 import sys
 import os
 import re
@@ -284,6 +285,15 @@ class FetchVersionsTests(unittest.TestCase):
             url,
             "https://files.mcneel.com/dujour/exe/20260407/rhino_en-us_9.0.26097.12305.exe",
         )
+
+    def test_write_channels_records_only_prerelease_builds(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "channels.json")
+            fv.write_channels(path, ["9.0.26300.9401", "9.0.26293.12303-beta", "9.0.26272.12303-wip"])
+            self.assertEqual(
+                json.loads(Path(path).read_text()),
+                {"9.0.26272": "wip", "9.0.26293": "beta"},
+            )
 
 
 if __name__ == "__main__":

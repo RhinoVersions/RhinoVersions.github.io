@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Download the latest Rhino 3D builds for Windows and Mac. Aggregated version history and direct download links for Rhinoceros 6, 7, 8, and 9 (Early preview), updated daily from NuGet.">
+        content="Download the latest Rhino 3D builds for Windows and Mac. Aggregated version history and direct download links for Rhinoceros 6, 7, 8, and 9, updated daily from NuGet.">
     <meta name="keywords"
         content="rhino, rhino3d, rhinoceros, download rhino, rhino versions, rhino 9 download, rhino 9 wip, rhino 8 download, rhino 7 download, rhino 6 download, cad, nuget, rhino build history, rhino 3d, computational design, parametric design">
 
@@ -21,7 +21,7 @@
     <meta property="og:site_name" content="Rhino Versions">
     <meta property="og:title" content="Rhino Versions — Latest Rhinoceros 3D Build Downloads & History">
     <meta property="og:description"
-        content="Download the latest Rhino 3D builds for Windows and Mac. Aggregated version history and direct download links for Rhinoceros 6, 7, 8, and 9 (Early preview).">
+        content="Download the latest Rhino 3D builds for Windows and Mac. Aggregated version history and direct download links for Rhinoceros 6, 7, 8, and 9.">
     <meta property="og:image" content="https://rhinoversions.github.io/assets/img/logo.png">
     <meta property="og:image:width" content="640">
     <meta property="og:image:height" content="640">
@@ -47,7 +47,7 @@
     <link rel="dns-prefetch" href="https://raw.githubusercontent.com">
 
     <!-- Fonts -->
-    <link rel="stylesheet" href="assets/css/styles.css?v=20261104">
+    <link rel="stylesheet" href="assets/css/styles.css?v=20261111">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Google Fonts uses dynamic CSS based on User-Agent, making SRI hashes unstable.
@@ -63,7 +63,7 @@
         "@type": "WebSite",
         "name": "Rhino Versions",
         "url": "https://rhinoversions.github.io/",
-        "description": "Download the latest Rhino 3D builds for Windows and Mac. Aggregated version history and direct download links for Rhinoceros 6, 7, 8, and 9 (Early preview), updated daily from NuGet.",
+        "description": "Download the latest Rhino 3D builds for Windows and Mac. Aggregated version history and direct download links for Rhinoceros 6, 7, 8, and 9, updated daily from NuGet.",
         "publisher": {
             "@type": "Organization",
             "name": "RhinoVersions"
@@ -127,7 +127,7 @@
                         <label for="major-filter">Major Version</label>
                         <select id="major-filter" class="filter-select" aria-controls="versions-list">
                             <option value="all">All Majors</option>
-                            <option value="9">Rhino 9 (Early preview)</option>
+                            <option value="9">Rhino 9</option>
                             <option value="8">Rhino 8</option>
                             <option value="7">Rhino 7</option>
                             <option value="6">Rhino 6</option>
@@ -202,63 +202,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="latest-cards" id="latest-cards">
-                    <div class="latest-card glass-card" id="latest-card" style="display: none;">
-                        <div class="latest-badge">Latest Release</div>
-                        <h2>Rhino <span id="latest-version">-</span></h2>
-                        <div class="version-details">
-                            <div class="details-group">
-                                <div class="detail-item">
-                                    <span class="detail-label">Build Date</span>
-                                    <time class="detail-value" id="latest-date">-</time>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Channel</span>
-                                    <span class="detail-value">Stable</span>
-                                </div>
-                            </div>
-
-                            <div class="download-buttons">
-                                <a href="#" id="latest-download-windows" class="download-btn cta-btn" target="_blank"
-                                    rel="noopener noreferrer" style="display: none;">
-                                    Windows
-                                </a>
-                                <a href="#" id="latest-download-mac" class="download-btn cta-btn" target="_blank"
-                                    rel="noopener noreferrer" style="display: none;">
-                                    Mac
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Latest Rhino 9 Early Preview (WIP) -->
-                    <div class="latest-card glass-card preview-card" id="preview-card" style="display: none;">
-                        <div class="latest-badge preview-badge">Rhino 9 · Early Preview</div>
-                        <h2>Rhino <span id="preview-version">-</span></h2>
-                        <div class="version-details">
-                            <div class="details-group">
-                                <div class="detail-item">
-                                    <span class="detail-label">Build Date</span>
-                                    <time class="detail-value" id="preview-date">-</time>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Channel</span>
-                                    <span class="detail-value">Work-in-progress</span>
-                                </div>
-                            </div>
-                            <div class="download-buttons">
-                                <a href="#" id="preview-download-windows" class="download-btn cta-btn" target="_blank"
-                                    rel="noopener noreferrer" style="display: none;">
-                                    Windows
-                                </a>
-                                <a href="#" id="preview-download-mac" class="download-btn cta-btn" target="_blank"
-                                    rel="noopener noreferrer" style="display: none;">
-                                    Mac
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div class="latest-cards" id="latest-cards"><!-- Populated by JavaScript --></div>
             </section>
 
             <!-- All Versions Section -->
@@ -311,7 +255,7 @@
         <div class="container">
             <div id="contributors" class="contributors-list"></div>
             <nav aria-label="Version archive">
-                <p class="footer-archive">Version archive: <a href="rhino/9/">Rhino 9 Early Preview</a> · <a href="rhino/8/">Rhino 8</a> · <a href="rhino/7/">Rhino 7</a> · <a href="rhino/6/">Rhino 6</a> · <a href="rhino/">All versions</a></p>
+                <p class="footer-archive">Version archive: <a href="rhino/9/">Rhino 9</a> · <a href="rhino/8/">Rhino 8</a> · <a href="rhino/7/">Rhino 7</a> · <a href="rhino/6/">Rhino 6</a> · <a href="rhino/">All versions</a></p>
             </nav>
             <p class="footer-note" id="last-checked-container" style="display: none;">Last checked: <time id="last-checked">-</time></p>
             <p>Updated daily via <a href="https://github.com/rhinoversions/rhinoversions.github.io" target="_blank"
@@ -327,7 +271,7 @@
     </footer>
 
 
-    <script src="assets/js/script.js?v=20261104"></script>
+    <script src="assets/js/script.js?v=20261111"></script>
 </body>
 
 </html>

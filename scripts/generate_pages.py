@@ -32,14 +32,23 @@ SITE_NAME = "Rhino Versions"
 # Every index.html below this directory is generated (and pruned) by this script.
 OUTPUT_DIR = "rhino"
 # Keep in sync with the ?v= cache-busting query strings in index.html.
-ASSET_VERSION = "20261104"
+ASSET_VERSION = "20261111"
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MD_ALL = os.getenv("MD_PATH_ALL", "data/rhino-versions-all.md")
-# Majors that ship only as prerelease (WIP/Beta) builds, as in fetch_versions.py.
-PRERELEASE_MAJORS = {
-    t for t in re.split(r"[,\s]+", os.getenv("RHINO_PRERELEASE_MAJORS", "9").strip()) if t
-}
+# Builds NuGet lists as prereleases (WIP/Beta), e.g. {"9.0.26293": "beta"}; written by fetch_versions.py.
+PRERELEASE_PATH = os.getenv("CHANNELS_PATH", "data/prerelease-builds.json")
+
+
+def load_prerelease_builds() -> dict:
+    try:
+        with open(os.path.join(REPO_ROOT, PRERELEASE_PATH), encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
+
+
+PRERELEASE_BUILDS = load_prerelease_builds()
 
 LINK_RE = re.compile(r"- \[([^\]]+)\]\(([^)]+)\)")
 INSTALLER_RE = re.compile(r"^(.+)\.(exe|dmg)$")
@@ -129,7 +138,7 @@ class Build:
 
     @property
     def is_prerelease(self) -> bool:
-        return self.major in PRERELEASE_MAJORS
+        return self.key in PRERELEASE_BUILDS
 
     @property
     def path(self) -> str:
@@ -234,23 +243,22 @@ def short_date(d: dt.date) -> str:
 
 
 def major_name(major: str) -> str:
-    """Rhino 8, or Rhino 9 Early Preview for prerelease-only majors."""
-    return f"Rhino {major} Early Preview" if major in PRERELEASE_MAJORS else f"Rhino {major}"
+    return f"Rhino {major}"
 
 
 def release_name(build: Build) -> str:
-    """Short release name: SR17, Initial release or Early Preview."""
+    """Short release name: SR17, Initial release or WIP."""
     if build.is_prerelease:
-        return "Early Preview"
+        return "WIP"
     if build.minor == "0":
         return "Initial release"
     return f"SR{build.minor}"
 
 
 def release_label(build: Build) -> str:
-    """Rhino 8 SR17, Rhino 8 initial release or Rhino 9 Early Preview."""
+    """Rhino 8 SR17, Rhino 8 initial release or Rhino 9 WIP."""
     if build.is_prerelease:
-        return major_name(build.major)
+        return f"{major_name(build.major)} WIP"
     if build.minor == "0":
         return f"Rhino {build.major} initial release"
     return f"Rhino {build.major} SR{build.minor}"
@@ -593,7 +601,7 @@ def render_major_page(major: str, builds: Sequence[Build], majors: Sequence[str]
     newest, oldest = builds[0], builds[-1]
     platforms = "Windows and Mac" if any(b.mac for b in builds) else "Windows"
     count = f"{len(builds)} build{'s' if len(builds) != 1 else ''}"
-    if major in PRERELEASE_MAJORS:
+    if all(b.is_prerelease for b in builds):
         title = f"All Rhino {major} WIP & Beta Builds – {name} Downloads for {platforms.replace(' and ', ' & ')}"
         h1 = f"{name} builds"
     else:

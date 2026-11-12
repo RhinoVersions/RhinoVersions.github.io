@@ -1224,19 +1224,25 @@ time[title],
     opacity: 1;
 }
 
-/* ── Latest cards grid: stable "Latest Release" + Rhino 9 "Early Preview" ── */
+/* ── Latest cards grid: Rhino 7, 8, 9 and WIP ── */
 .latest-cards {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
     gap: var(--spacing-lg);
 }
-@media (min-width: 760px) {
-    .latest-cards.has-preview {
-        grid-template-columns: 1fr 1fr;
-    }
+.latest-cards .latest-card h2 {
+    font-size: 1.5rem;
+}
+.latest-cards .details-group {
+    flex-wrap: wrap;
+    gap: var(--spacing-md) var(--spacing-lg);
+}
+.latest-cards .version-details {
+    flex-direction: column;
+    align-items: stretch;
 }
 
-/* Rhino 9 Early Preview card accent (blue, distinct from the gold latest badge) */
+/* WIP card accent (blue, distinct from the gold latest badge) */
 .preview-badge {
     background: rgba(29, 78, 216, 0.08);
     border-color: var(--color-accent);
