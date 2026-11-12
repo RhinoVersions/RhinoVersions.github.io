@@ -43,12 +43,17 @@ class FrontendTests(unittest.TestCase):
                 # check title
                 self.assertIn("Rhino Versions", page.title())
 
-                # wait for latest version to be populated
-                page.wait_for_selector("#latest-version:not(:text('-'))", timeout=10000)
+                # wait for the latest-release cards to be populated
+                page.wait_for_selector("#latest-cards .latest-card", timeout=10000)
+                latest_cards = page.query_selector_all("#latest-cards .latest-card")
+                self.assertGreater(len(latest_cards), 0)
 
-                latest_version = page.inner_text("#latest-version")
-                self.assertNotEqual(latest_version, "-")
-                print(f"Latest version found: {latest_version}")
+                builds = [
+                    el.inner_text().strip()
+                    for el in page.query_selector_all("#latest-cards .latest-card .detail-value")
+                ]
+                self.assertTrue(any(b and b != "-" for b in builds))
+                print(f"Latest cards found: {len(latest_cards)}")
 
                 # Check if version list is populated
                 page.wait_for_selector(".version-card", timeout=10000)
