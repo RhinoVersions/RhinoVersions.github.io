@@ -353,7 +353,7 @@ function renderLatestCards(groups) {
             <div class="version-details">
                 <div class="details-group">
                     <div class="detail-item"><span class="detail-label">Build</span><span class="detail-value">${v}</span></div>
-                    <div class="detail-item"><span class="detail-label">Build Date</span><time class="detail-value" datetime="${escapeHTML(group.dateString)}" title="${escapeHTML(getRelativeTime(group.date))}">${escapeHTML(formatDate(group.date))}</time></div>
+                    <div class="detail-item"><span class="detail-label">Build date</span><time class="detail-value" datetime="${escapeHTML(group.dateString)}" title="${escapeHTML(getRelativeTime(group.date))}">${escapeHTML(formatDate(group.date))}</time></div>
                     <div class="detail-item"><span class="detail-label">Channel</span><span class="detail-value">${escapeHTML(channel)}</span></div>
                 </div>
                 <div class="download-buttons">${btn(win && win.windowsUrl, 'windows', 'Windows')}${btn(mac && mac.macUrl, 'mac', 'Mac')}</div>
@@ -1065,6 +1065,14 @@ function versionMatchesQuery(value, query) {
 }
 
 /**
+ * Smooth scrolling unless the visitor asked for less motion. An explicit
+ * behavior in scrollTo/scrollIntoView overrides the CSS scroll-behavior rule.
+ */
+function scrollBehavior() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+}
+
+/**
  * Auto-scroll once to the deep-linked card after render
  */
 function scrollToDeepLinkedRowIfNeeded() {
@@ -1072,7 +1080,7 @@ function scrollToDeepLinkedRowIfNeeded() {
 
     const targetRow = document.querySelector('.deep-linked-card');
     if (targetRow) {
-        targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        targetRow.scrollIntoView({ behavior: scrollBehavior(), block: 'center' });
 
         // Shift focus to the toggle button so keyboard users start navigation at the linked item
         const toggleBtn = targetRow.querySelector('.version-card-toggle');
@@ -1341,7 +1349,7 @@ if (typeof window !== 'undefined') {
             }, 100));
 
             backToTopBtn.addEventListener('click', () => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo({ top: 0, behavior: scrollBehavior() });
                 // Programmatically shift focus for keyboard users
                 if (mainContent) {
                     // Small delay to allow scroll to begin

@@ -200,7 +200,7 @@ header h1,
     font-size: 0.75rem;
     font-family: var(--font-body);
     color: var(--color-text-secondary);
-    transition: all 0.2s ease;
+    transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
     -webkit-user-select: none;
     user-select: none;
 }
@@ -256,9 +256,7 @@ header h1,
 }
 
 .sidebar-section h2 {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 0.8125rem;
     color: var(--color-text-secondary);
     margin-bottom: var(--spacing-md);
 }
@@ -477,12 +475,11 @@ input[type="search"]::-webkit-search-cancel-button {
     border-radius: var(--radius-lg);
     background: var(--color-bg);
     box-shadow: var(--shadow-md);
-    transition: all 0.3s ease;
+    transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .latest-card:hover,
 .latest-card:has(:focus-visible) {
-    transform: translateY(-2px);
     box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.08), 0 4px 8px -2px rgba(0, 0, 0, 0.04);
     border-color: var(--color-accent);
 }
@@ -493,7 +490,6 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 .latest-card:active {
-    transform: translateY(0);
     box-shadow: var(--shadow-sm);
 }
 
@@ -553,10 +549,8 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 .detail-label {
-    font-size: 0.7rem;
-    text-transform: uppercase;
+    font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: 0.05em;
     color: var(--color-text-secondary);
 }
 
@@ -581,7 +575,7 @@ input[type="search"]::-webkit-search-cancel-button {
     font-weight: 600;
     padding: 0.625rem 1.25rem;
     border-radius: var(--radius-md);
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
     white-space: nowrap;
     -webkit-user-select: none;
     user-select: none;
@@ -613,8 +607,6 @@ input[type="search"]::-webkit-search-cancel-button {
     font-weight: 600;
     margin-bottom: var(--spacing-md);
     color: var(--color-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
 }
 
 .versions-list {
@@ -628,20 +620,11 @@ input[type="search"]::-webkit-search-cancel-button {
 .version-card {
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    transition: border-color 0.2s ease, transform 0.15s ease;
+    transition: border-color 0.2s ease;
 }
 
 .version-card.expanded {
     border-color: rgba(59, 130, 246, 0.35);
-}
-
-.version-card:hover,
-.version-card:has(:focus-visible) {
-    transform: translateY(-1px);
-}
-
-.version-card:active {
-    transform: translateY(0);
 }
 
 .version-card.deep-linked-card {
@@ -835,7 +818,7 @@ input[type="search"]::-webkit-search-cancel-button {
     border-radius: 4px;
     font-size: 0.75rem;
     font-weight: 500;
-    transition: all 0.15s ease;
+    transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
     -webkit-user-select: none;
     user-select: none;
 }
@@ -882,7 +865,7 @@ input[type="search"]::-webkit-search-cancel-button {
     opacity: 0;
     visibility: hidden;
     transform: translateY(10px);
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .back-to-top.visible {
@@ -1432,10 +1415,8 @@ time[title],
 
 .build-facts dt,
 .data-table th {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     color: var(--color-text-secondary);
 }
 
@@ -1551,10 +1532,8 @@ time[title],
 }
 
 .pager-label {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     color: var(--color-text-secondary);
 }
 
