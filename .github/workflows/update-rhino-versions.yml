@@ -61,6 +61,9 @@ jobs:
       - name: Build latest + all versions files from NuGet
         id: build
         if: steps.check.outputs.new_versions == 'true'
+        env:
+          # Builds the check step's day probe found (today/yesterday on McNeel's CDN).
+          DAY_PROBE_RESULT: ${{ steps.check.outputs.day_builds }}
         run: python scripts/fetch_versions.py
 
       # Static, crawlable page per build + sitemap.xml, so search engines can

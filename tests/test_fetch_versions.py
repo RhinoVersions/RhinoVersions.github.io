@@ -164,12 +164,14 @@ class FetchVersionsTests(unittest.TestCase):
                 ],
             )
 
+    @patch("fetch_versions.day_builds", return_value=["9.2.26321.19001-daily"])
+    @patch("fetch_versions.known_windows_builds", return_value={})
     @patch("fetch_versions.fetch_mcneel_release")
     @patch("fetch_versions.fetch_registration_index")
     @patch("fetch_versions.versions_from_registration")
     @patch("fetch_versions.list_stable_for_majors")
     def test_get_stable_versions_orchestration(self, mock_list_stable, mock_versions_from_reg,
-                                               mock_fetch_reg, mock_mcneel):
+                                               mock_fetch_reg, mock_mcneel, *_):
         mock_fetch_reg.return_value = {"some": "data"}
         mock_versions_from_reg.return_value = ["8.36.26296.17001", "x"]
         mock_list_stable.return_value = ["8.36.26296.17001"]
@@ -180,7 +182,7 @@ class FetchVersionsTests(unittest.TestCase):
         mock_fetch_reg.assert_called_once()
         mock_versions_from_reg.assert_called_once_with({"some": "data"})
         mock_list_stable.assert_called_once_with(["8.36.26296.17001", "x"], fv.MAJORS)
-        self.assertEqual(stable, ["9.1.26315.13001", "8.36.26296.17001"])
+        self.assertEqual(stable, ["9.2.26321.19001-daily", "9.1.26315.13001", "8.36.26296.17001"])
 
     def test_merge_mcneel_releases_adds_only_builds_nuget_lacks(self):
         nuget = ["9.0.26300.9401", "9.0.26293.12303-beta", "8.37.26294.11001-rc", "8.36.26296.17001"]
@@ -193,6 +195,77 @@ class FetchVersionsTests(unittest.TestCase):
         # A build NuGet already lists under a channel tag is not duplicated.
         self.assertEqual(fv.merge_mcneel_releases(["9.0.26293.12303-beta"], ["9.0.26293.12303"]),
                          ["9.0.26293.12303-beta"])
+
+    def test_day_probe_candidates_follow_version_formula(self):
+        known = {
+            "9.1.26315.13001": "rhino_9.1.26315.13001.exe",
+            "9.0.26293.12303": "rhino_9.0.26293.12303.exe",
+            "8.37.26307.15001": "rhino_en-us_8.37.26307.15001.exe",
+            "7.38.24338.17001": "rhino_en-us_7.38.24338.17001.exe",  # inactive major
+        }
+        now = dt.datetime(2026, 11, 18, 1, 10, tzinfo=fv.DAY_PROBE_TZ)
+        cands = dict(fv.day_probe_candidates(known, now))
+        # Yesterday (2026-11-17 = day 321) is probed for every minute, today up to 01:10.
+        self.assertEqual(cands["9.1.26321.13001"],
+                         "https://files.mcneel.com/dujour/exe/20261117/rhino_9.1.26321.13001.exe")
+        self.assertIn("9.2.26321.23593", cands)            # next minor, digit 3 seen in 9.x
+        self.assertIn("9.3.26321.18001", cands)            # two minors ahead (dev branch)
+        self.assertNotIn("9.4.26321.18001", cands)
+        self.assertIn("9.1.26321.1", cands)                # 00:00, digit 1
+        self.assertIn("9.1.26322.1101", cands)             # today 01:10
+        self.assertNotIn("9.1.26322.1111", cands)          # today, still in the future
+        self.assertEqual(cands["8.38.26321.9401"],
+                         "https://files.mcneel.com/dujour/exe/20261117/rhino_en-us_8.38.26321.09401.exe")
+        self.assertNotIn("8.37.26321.9403", cands)         # 8.x only ever used digit 1
+        self.assertFalse(any(v.startswith("7.") for v in cands))
+
+    def test_newest_per_day_keeps_last_build_of_each_day(self):
+        self.assertEqual(
+            fv.newest_per_day(["9.2.26321.1001", "9.2.26321.19001", "9.2.26320.15001",
+                               "9.2.26320.3001", "8.38.26320.13001"]),
+            ["9.2.26321.19001", "9.2.26320.15001", "8.38.26320.13001"])
+
+    @patch("fetch_versions._probe_head")
+    def test_probe_day_builds_tags_hits_daily(self, mock_head):
+        mock_head.side_effect = lambda url: url.endswith(("rhino_9.1.26321.13001.exe",
+                                                          "rhino_9.1.26321.09001.exe"))
+        known = {"9.1.26315.13001": "rhino_9.1.26315.13001.exe"}
+        now = dt.datetime(2026, 11, 18, 1, 10, tzinfo=fv.DAY_PROBE_TZ)
+        self.assertEqual(fv.probe_day_builds(known, now), ["9.1.26321.13001-daily"])
+        # Already listed at a later time that day: nothing new.
+        known["9.1.26321.15001"] = "rhino_9.1.26321.15001.exe"
+        self.assertEqual(fv.probe_day_builds(known, now, channels={"9.1.26321": "daily"}), [])
+
+    def test_day_probe_range_starts_at_newest_release_not_newest_daily(self):
+        known = {"9.1.26315.13001": "rhino_9.1.26315.13001.exe",
+                 "9.3.26321.18001": "rhino_9.3.26321.18001.exe"}
+        now = dt.datetime(2026, 11, 18, 1, 10, tzinfo=fv.DAY_PROBE_TZ)
+        minors = {v.split(".")[1] for v, _ in
+                  fv.day_probe_candidates(known, now, channels={"9.3.26321": "daily"})}
+        self.assertEqual(minors, {"1", "2", "3"})
+
+    def test_known_builds_are_remembered_with_their_channel(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            md = Path(tmp) / "all.md"
+            md.write_text(
+                "    - [rhino_9.2.26321.19001.exe](https://x/rhino_9.2.26321.19001.exe)\n"
+                "    - [rhino_9.0.26300.09402.dmg](https://x/rhino_9.0.26300.09402.dmg)\n"
+                "    - [rhino_de-de_8.37.26307.15001.exe](https://x/a.exe)\n"
+                "    - [rhino_en-us_8.37.26307.15001.exe](https://x/b.exe)\n",
+                encoding="utf-8")
+            known = fv.known_windows_builds(str(md))
+        self.assertEqual(known, {"9.2.26321.19001": "rhino_9.2.26321.19001.exe",
+                                 "8.37.26307.15001": "rhino_en-us_8.37.26307.15001.exe"})
+        self.assertEqual(sorted(fv.remembered_versions(known, {"9.2.26321": "daily"})),
+                         ["8.37.26307.15001", "9.2.26321.19001-daily"])
+
+    @patch.dict(os.environ, {"DAY_PROBE_RESULT": "9.2.26321.19001-daily,"})
+    def test_day_builds_reuses_check_step_result(self):
+        fv._day_builds_cache = None
+        try:
+            self.assertEqual(fv.day_builds(), ["9.2.26321.19001-daily"])
+        finally:
+            fv._day_builds_cache = None
 
     @patch("fetch_versions.requests.get")
     def test_fetch_mcneel_release_reads_version_number(self, mock_get):
