@@ -6,7 +6,7 @@ A professional, automatically-updated dashboard for the latest Rhino 3D build do
 
 ## How It Works
 
-This repository uses **GitHub Actions** to automatically aggregate data from **NuGet RhinoCommon** packages daily. It validates download URLs and updates the static frontend hosted on **GitHub Pages**.
+This repository uses **GitHub Actions** to automatically aggregate data from **NuGet RhinoCommon** packages daily, plus the newest release of each major straight from McNeel's download API (NuGet often lags real releases by weeks). Every run also probes McNeel's CDN for today's and yesterday's builds: Rhino build numbers are `major.minor.yyddd.hhmmb`, so the script tries every minute of those days for the active branches and lists the newest build per branch and day as a **daily** build (shown as WIP until NuGet or McNeel confirm it). It validates download URLs and updates the static frontend hosted on **GitHub Pages**.
 
 The dashboard renders its version list with JavaScript, so `scripts/generate_pages.py` also writes a plain-HTML page for every build (e.g. [`/rhino/8/8.17.25066/`](https://rhinoversions.github.io/rhino/8/8.17.25066/)), an index page per major version, and `sitemap.xml`. These pages carry the exact version numbers in their titles so search engines can index them; the daily workflow regenerates them whenever the data changes.
 

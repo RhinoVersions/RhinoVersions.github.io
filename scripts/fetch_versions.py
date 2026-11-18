@@ -4,15 +4,22 @@ import json
 import os
 import re
 import sys
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from typing import List, Iterable, Tuple, Union
 from urllib.parse import urlparse
+from zoneinfo import ZoneInfo
 import requests
 
 # Configuration
 USER_AGENT = "nuget-rhino-actions/1.5"
 REG_INDEX = "https://api.nuget.org/v3/registration5-semver1/rhinocommon/index.json"
+# McNeel's own download API (what rhino3d.com/download pages call). NuGet's
+# RhinoCommon package regularly lags behind real releases (e.g. Rhino 9.1.26315
+# and 8.37.26307 shipped weeks before NuGet listed them), so the newest release
+# of every major is also read from here and merged in.
+MCNEEL_DOWNLOAD_API = "https://www.rhino3d.com/www-api/download/details"
 MAC_RELEASE_URL_TEMPLATE = "https://files.mcneel.com/rhino/{major}/mac/releases/{filename}"
 STABLE_SUFFIX_RE = re.compile(r'^[0-9]+(\.[0-9]+){3}$')  # e.g., 8.24.25281.15001
 # Prerelease, e.g. 9.0.26097.12305-wip (Rhino 9 is WIP-only on NuGet).
@@ -29,6 +36,20 @@ MD_LATEST = os.getenv("MD_PATH", "data/rhino-versions.md")
 MD_ALL = os.getenv("MD_PATH_ALL", "data/rhino-versions-all.md")
 CHANNELS_PATH = os.getenv("CHANNELS_PATH", "data/prerelease-builds.json")
 HEAD_CHECK_LATEST = os.getenv("HEAD_CHECK_LATEST", "true").lower() == "true"
+
+# Day probe: every run also HEAD-checks the installers today's (and yesterday's)
+# builds would have, derived from the version formula major.minor.yyddd.hhmmb, so
+# a build is listed the day McNeel uploads it, before NuGet or the download page.
+DAY_PROBE = os.getenv("DAY_PROBE", "true").lower() == "true"
+# McNeel stamps builds with Seattle time; the 09:10 UTC run is 01:10 there, so
+# yesterday is the day that matters and today is probed up to the current minute.
+DAY_PROBE_TZ = ZoneInfo(os.getenv("DAY_PROBE_TZ", "America/Los_Angeles"))
+DAY_PROBE_ACTIVE_DAYS = 60   # only majors with a build this recent are probed
+DAY_PROBE_CHANNEL = "daily"  # channel tag for probed builds no other source confirms
+# McNeel builds several branches each day (e.g. 9.2 = next service release, 9.3 =
+# development), so the newest released minor and the next ones are all probed.
+DAY_PROBE_MINORS = 3
+EXE_NAME_RE = re.compile(r'^rhino_(?:([a-z]{2}-[a-z]{2})_)?([0-9]+\.[0-9]+\.[0-9]{5}\.[0-9]{5})\.exe$')
 
 # Parse lists
 tokens = [t for t in re.split(r'[,\s]+', MAJORS_RAW.strip()) if t]
@@ -364,11 +385,231 @@ def write_all(md_path_all: str, entries: List[Tuple[str, str]]) -> int:
     return len(entries)
 
 
+def _normalize_version(ver: str) -> str:
+    """Drop leading zeros the way NuGet does: 9.0.26300.09401 -> 9.0.26300.9401."""
+    return ".".join(str(int(p)) for p in ver.split("."))
+
+
+def fetch_mcneel_release(major: Union[int, str]) -> Union[str, None]:
+    """Newest released Windows build of a major, straight from McNeel, or None.
+
+    Reads the same endpoint as rhino3d.com/download/rhino-for-windows/<major>/latest.
+    The Mac build of a release is the Windows build +1, which resolve_mac_url finds.
+    """
+    try:
+        r = requests.get(
+            MCNEEL_DOWNLOAD_API,
+            params={"slug": f"rhino-for-windows/{major}/latest", "platform": "windows"},
+            timeout=30, headers={"User-Agent": USER_AGENT},
+        )
+        r.raise_for_status()
+        ver = (r.json() or {}).get("VersionNumber") or ""
+    except (requests.RequestException, ValueError) as e:
+        print(f"::warning::McNeel download API failed for Rhino {major}: {e}")
+        return None
+    if not STABLE_SUFFIX_RE.match(ver) or ver.split(".", 1)[0] != str(major):
+        return None
+    return _normalize_version(ver)
+
+
+def merge_builds(versions: List[str], extra: Iterable[Union[str, None]], source: str = "") -> List[str]:
+    """Add builds from another source that `versions` lacks, keeping newest-first order.
+
+    Builds are matched by number only, so a build already listed (in any channel,
+    e.g. -rc/-beta) keeps the listing it has; earlier sources win.
+    """
+    known = {parse_version_tuple(v) for v in versions}
+    added = []
+    for v in extra:
+        if v and parse_version_tuple(v) not in known:
+            known.add(parse_version_tuple(v))
+            added.append(v)
+            if source:
+                print(f"  [{source}] {v} is not on NuGet; adding it.")
+    return sorted(set(versions) | set(added), key=parse_version_tuple, reverse=True)
+
+
+def merge_mcneel_releases(versions: List[str], releases: Iterable[Union[str, None]]) -> List[str]:
+    """Add McNeel releases that NuGet does not list yet."""
+    return merge_builds(versions, releases, "mcneel")
+
+
+def load_channels(path: str = None) -> dict:
+    """The channel map written by write_channels, e.g. {"9.0.26293": "beta"}."""
+    try:
+        with open(path or CHANNELS_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
+
+
+def known_windows_builds(md_path: str = None) -> dict:
+    """{version: exe filename} for every Windows build already on the site.
+
+    Builds McNeel stops advertising (and NuGet never listed) would otherwise drop
+    off the site on the next rebuild, so they are carried forward.
+    """
+    try:
+        with open(md_path or MD_ALL, "r", encoding="utf-8") as f:
+            content = f.read()
+    except OSError:
+        return {}
+    builds = {}
+    for fn in re.findall(r'\[(rhino_[^\]]+\.exe)\]', content):
+        m = EXE_NAME_RE.match(fn)
+        if not m:
+            continue
+        ver = _normalize_version(m.group(2))
+        # Keep the multilingual / en-us name as the build's naming convention.
+        if ver not in builds or m.group(1) in (None, "en-us"):
+            builds[ver] = fn
+    return builds
+
+
+def remembered_versions(known: dict, channels: dict) -> List[str]:
+    """Known builds as version strings, with their channel tag where one was recorded."""
+    out = []
+    for ver in known:
+        key = ".".join(ver.split(".")[:3])
+        out.append(f"{ver}-{channels[key]}" if key in channels else ver)
+    return out
+
+
+def day_probe_candidates(known: dict, now: dt.datetime = None,
+                         channels: dict = None) -> List[Tuple[str, str]]:
+    """(version, Windows URL) for every build today's and yesterday's date could carry.
+
+    Rhino build numbers are major.minor.yyddd.hhmmb: the day is known, the time
+    (hh:mm) and trailing digit b are not. For each major with a recent build this
+    tries every minute of the day, for the newest released minor and the
+    DAY_PROBE_MINORS - 1 after it, with each trailing digit that major's recent
+    builds used, in the newest build's filename convention (multilingual
+    rhino_<ver>.exe or rhino_en-us_<ver>.exe). Builds in `channels` (WIP, beta,
+    daily) do not count as released, so the probed range does not creep upward.
+    """
+    channels = channels or {}
+    now = (now or dt.datetime.now(DAY_PROBE_TZ)).astimezone(DAY_PROBE_TZ)
+    today = now.date()
+    known_tuples = {parse_version_tuple(v) for v in known}
+    majors = {str(m) for m in MAJORS}
+
+    by_major = {}
+    for ver in known:
+        by_major.setdefault(ver.split(".", 1)[0], []).append(ver)
+
+    cands = []
+    for major, vers in sorted(by_major.items()):
+        if major not in majors:
+            continue
+        recent = [v for v in vers
+                  if (today - decode_version_date(v)).days <= DAY_PROBE_ACTIVE_DAYS]
+        if not recent:
+            continue
+        newest = max(vers, key=parse_version_tuple)
+        released = [v for v in vers if ".".join(v.split(".")[:3]) not in channels] or vers
+        minor = int(max(released, key=parse_version_tuple).split(".")[1])
+        digits = sorted({v.split(".")[3][-1] for v in recent})
+        multilingual = EXE_NAME_RE.match(known[newest]).group(1) is None
+        for day in (today - dt.timedelta(days=1), today):
+            yyddd = f"{day.year % 100}{day.timetuple().tm_yday:03d}"
+            last_minute = now.hour * 60 + now.minute if day == today else 24 * 60 - 1
+            for mi in range(minor, minor + DAY_PROBE_MINORS):
+                for minute in range(last_minute + 1):
+                    for b in digits:
+                        ver = f"{major}.{mi}.{yyddd}.{minute // 60}{minute % 60:02d}{b}"
+                        ver = _normalize_version(ver)
+                        if parse_version_tuple(ver) in known_tuples:
+                            continue
+                        name = _version_for_filename(ver)
+                        fn = f"rhino_{name}.exe" if multilingual else f"rhino_en-us_{name}.exe"
+                        cands.append((ver, f"https://files.mcneel.com/dujour/exe/{day:%Y%m%d}/{fn}"))
+    return cands
+
+
+_probe_local = threading.local()
+
+
+def _probe_head(url: str) -> bool:
+    """Plain HEAD over a per-thread keep-alive session; the CDN answers 404 for absent files."""
+    sess = getattr(_probe_local, "session", None)
+    if sess is None:
+        sess = _probe_local.session = requests.Session()
+        sess.headers["User-Agent"] = USER_AGENT
+    try:
+        return sess.head(url, timeout=10, allow_redirects=False).status_code == 200
+    except requests.RequestException:
+        return False
+
+
+def newest_per_day(versions: Iterable[str]) -> List[str]:
+    """Keep the newest build per major.minor.yyddd, newest first.
+
+    McNeel's daily (dujour) builds land every couple of hours; the site groups
+    builds by day anyway, so the rest would only bloat the history.
+    """
+    best = {}
+    for v in versions:
+        key = parse_version_tuple(v)[:3]
+        if key not in best or parse_version_tuple(v) > parse_version_tuple(best[key]):
+            best[key] = v
+    return sorted(best.values(), key=parse_version_tuple, reverse=True)
+
+
+def probe_day_builds(known: dict, now: dt.datetime = None, max_workers: int = 32,
+                     channels: dict = None) -> List[str]:
+    """Builds from today/yesterday found on McNeel's CDN, tagged with the daily channel.
+
+    Only the newest build per branch and day is kept, and only if the site does not
+    already list that day's build of the branch at the same or a later time.
+    """
+    cands = day_probe_candidates(known, now, channels)
+    print(f"Day probe: checking {len(cands)} candidate builds for today and yesterday...")
+    start = time.time()
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        oks = list(executor.map(_probe_head, [u for _, u in cands]))
+    listed = {}
+    for v in known:
+        key = parse_version_tuple(v)[:3]
+        listed[key] = max(listed.get(key, v), v, key=parse_version_tuple)
+    hits = [v for v in newest_per_day(ver for (ver, _), ok in zip(cands, oks) if ok)
+            if parse_version_tuple(v) > parse_version_tuple(listed.get(parse_version_tuple(v)[:3], "0.0.0.0"))]
+    print(f"Day probe: {len(hits)} found in {time.time() - start:.0f}s: {', '.join(hits) or 'none'}")
+    return [f"{v}-{DAY_PROBE_CHANNEL}" for v in hits]
+
+
+_day_builds_cache: Union[List[str], None] = None
+
+
+def day_builds() -> List[str]:
+    """Probed builds; reuses the check step's result (DAY_PROBE_RESULT) so a run probes once."""
+    global _day_builds_cache
+    if _day_builds_cache is None:
+        if "DAY_PROBE_RESULT" in os.environ:
+            _day_builds_cache = [v for v in os.environ["DAY_PROBE_RESULT"].split(",") if v]
+        elif DAY_PROBE:
+            _day_builds_cache = probe_day_builds(known_windows_builds(), channels=load_channels())
+        else:
+            _day_builds_cache = []
+    return _day_builds_cache
+
+
 def get_stable_versions() -> List[str]:
-    """Fetch all stable versions for configured majors from NuGet."""
+    """All builds for the configured majors from every source, newest first.
+
+    NuGet RhinoCommon, then McNeel's newest release per major, then builds already
+    on the site, then today's/yesterday's builds found by the day probe.
+    """
     reg = fetch_registration_index()
     versions = versions_from_registration(reg)
-    return list_stable_for_majors(versions, MAJORS)
+    stable = list_stable_for_majors(versions, MAJORS)
+    with ThreadPoolExecutor(max_workers=len(MAJORS) or 1) as executor:
+        releases = list(executor.map(fetch_mcneel_release, MAJORS))
+    merged = merge_mcneel_releases(stable, releases)
+    majors = {str(m) for m in MAJORS}
+    remembered = [v for v in remembered_versions(known_windows_builds(), load_channels())
+                  if v.split(".", 1)[0] in majors]
+    merged = merge_builds(merged, remembered)
+    return merge_builds(merged, day_builds(), "day probe")
 
 
 def write_channels(path: str, versions: Iterable[str]) -> None:
@@ -436,6 +677,9 @@ def check_only():
             print(f"  Rhino {major}: latest {v} -> {'present' if present else 'MISSING'}")
             if not present:
                 new = True
+
+        # Hand the probe's finds to the build step so it does not probe again.
+        _write_output("day_builds", ",".join(day_builds()))
 
         if new:
             print("New version(s) detected! Full build required.")
@@ -595,7 +839,11 @@ def main():
                 fn_win = os.path.basename(urlparse(u_win).path)
                 
                 if (not HEAD_CHECK_LATEST) or url_exists(u_win):
-                    if prepend_latest_windows(MD_LATEST, v_latest, d_latest):
+                    if v_latest in win_live:
+                        if prepend_latest_windows(MD_LATEST, v_latest, d_latest):
+                            changed_latest = True
+                    # Multilingual exe (Rhino 9): one installer, no per-locale files.
+                    elif prepend_latest(MD_LATEST, fn_win, u_win):
                         changed_latest = True
                     
                     # Set outputs for GitHub Actions (using Windows info)
