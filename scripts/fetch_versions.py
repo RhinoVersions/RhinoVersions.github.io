@@ -13,6 +13,11 @@ import requests
 # Configuration
 USER_AGENT = "nuget-rhino-actions/1.5"
 REG_INDEX = "https://api.nuget.org/v3/registration5-semver1/rhinocommon/index.json"
+# McNeel's own download API (what rhino3d.com/download pages call). NuGet's
+# RhinoCommon package regularly lags behind real releases (e.g. Rhino 9.1.26315
+# and 8.37.26307 shipped weeks before NuGet listed them), so the newest release
+# of every major is also read from here and merged in.
+MCNEEL_DOWNLOAD_API = "https://www.rhino3d.com/www-api/download/details"
 MAC_RELEASE_URL_TEMPLATE = "https://files.mcneel.com/rhino/{major}/mac/releases/{filename}"
 STABLE_SUFFIX_RE = re.compile(r'^[0-9]+(\.[0-9]+){3}$')  # e.g., 8.24.25281.15001
 # Prerelease, e.g. 9.0.26097.12305-wip (Rhino 9 is WIP-only on NuGet).
@@ -364,11 +369,53 @@ def write_all(md_path_all: str, entries: List[Tuple[str, str]]) -> int:
     return len(entries)
 
 
+def _normalize_version(ver: str) -> str:
+    """Drop leading zeros the way NuGet does: 9.0.26300.09401 -> 9.0.26300.9401."""
+    return ".".join(str(int(p)) for p in ver.split("."))
+
+
+def fetch_mcneel_release(major: Union[int, str]) -> Union[str, None]:
+    """Newest released Windows build of a major, straight from McNeel, or None.
+
+    Reads the same endpoint as rhino3d.com/download/rhino-for-windows/<major>/latest.
+    The Mac build of a release is the Windows build +1, which resolve_mac_url finds.
+    """
+    try:
+        r = requests.get(
+            MCNEEL_DOWNLOAD_API,
+            params={"slug": f"rhino-for-windows/{major}/latest", "platform": "windows"},
+            timeout=30, headers={"User-Agent": USER_AGENT},
+        )
+        r.raise_for_status()
+        ver = (r.json() or {}).get("VersionNumber") or ""
+    except (requests.RequestException, ValueError) as e:
+        print(f"::warning::McNeel download API failed for Rhino {major}: {e}")
+        return None
+    if not STABLE_SUFFIX_RE.match(ver) or ver.split(".", 1)[0] != str(major):
+        return None
+    return _normalize_version(ver)
+
+
+def merge_mcneel_releases(versions: List[str], releases: Iterable[Union[str, None]]) -> List[str]:
+    """Add McNeel releases that NuGet does not list yet, keeping newest-first order.
+
+    A build NuGet already has (in any channel, e.g. -rc/-beta) is left as NuGet lists it.
+    """
+    known = {parse_version_tuple(v) for v in versions}
+    extra = [v for v in releases if v and parse_version_tuple(v) not in known]
+    for v in extra:
+        print(f"  [mcneel] {v} is released but not on NuGet yet; adding it.")
+    return sorted(set(versions) | set(extra), key=parse_version_tuple, reverse=True)
+
+
 def get_stable_versions() -> List[str]:
-    """Fetch all stable versions for configured majors from NuGet."""
+    """All builds for the configured majors: NuGet RhinoCommon plus McNeel's latest releases."""
     reg = fetch_registration_index()
     versions = versions_from_registration(reg)
-    return list_stable_for_majors(versions, MAJORS)
+    stable = list_stable_for_majors(versions, MAJORS)
+    with ThreadPoolExecutor(max_workers=len(MAJORS) or 1) as executor:
+        releases = list(executor.map(fetch_mcneel_release, MAJORS))
+    return merge_mcneel_releases(stable, releases)
 
 
 def write_channels(path: str, versions: Iterable[str]) -> None:
@@ -595,7 +642,11 @@ def main():
                 fn_win = os.path.basename(urlparse(u_win).path)
                 
                 if (not HEAD_CHECK_LATEST) or url_exists(u_win):
-                    if prepend_latest_windows(MD_LATEST, v_latest, d_latest):
+                    if v_latest in win_live:
+                        if prepend_latest_windows(MD_LATEST, v_latest, d_latest):
+                            changed_latest = True
+                    # Multilingual exe (Rhino 9): one installer, no per-locale files.
+                    elif prepend_latest(MD_LATEST, fn_win, u_win):
                         changed_latest = True
                     
                     # Set outputs for GitHub Actions (using Windows info)

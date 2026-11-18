@@ -164,20 +164,52 @@ class FetchVersionsTests(unittest.TestCase):
                 ],
             )
 
+    @patch("fetch_versions.fetch_mcneel_release")
     @patch("fetch_versions.fetch_registration_index")
     @patch("fetch_versions.versions_from_registration")
     @patch("fetch_versions.list_stable_for_majors")
-    def test_get_stable_versions_orchestration(self, mock_list_stable, mock_versions_from_reg, mock_fetch_reg):
+    def test_get_stable_versions_orchestration(self, mock_list_stable, mock_versions_from_reg,
+                                               mock_fetch_reg, mock_mcneel):
         mock_fetch_reg.return_value = {"some": "data"}
-        mock_versions_from_reg.return_value = ["v1", "v2"]
-        mock_list_stable.return_value = ["v1"]
+        mock_versions_from_reg.return_value = ["8.36.26296.17001", "x"]
+        mock_list_stable.return_value = ["8.36.26296.17001"]
+        mock_mcneel.side_effect = lambda m: {9: "9.1.26315.13001"}.get(m)
 
         stable = fv.get_stable_versions()
 
         mock_fetch_reg.assert_called_once()
         mock_versions_from_reg.assert_called_once_with({"some": "data"})
-        mock_list_stable.assert_called_once_with(["v1", "v2"], fv.MAJORS)
-        self.assertEqual(stable, ["v1"])
+        mock_list_stable.assert_called_once_with(["8.36.26296.17001", "x"], fv.MAJORS)
+        self.assertEqual(stable, ["9.1.26315.13001", "8.36.26296.17001"])
+
+    def test_merge_mcneel_releases_adds_only_builds_nuget_lacks(self):
+        nuget = ["9.0.26300.9401", "9.0.26293.12303-beta", "8.37.26294.11001-rc", "8.36.26296.17001"]
+        merged = fv.merge_mcneel_releases(
+            nuget, ["9.1.26315.13001", "8.37.26307.15001", "8.36.26296.17001", None])
+        self.assertEqual(merged, [
+            "9.1.26315.13001", "9.0.26300.9401", "9.0.26293.12303-beta",
+            "8.37.26307.15001", "8.37.26294.11001-rc", "8.36.26296.17001",
+        ])
+        # A build NuGet already lists under a channel tag is not duplicated.
+        self.assertEqual(fv.merge_mcneel_releases(["9.0.26293.12303-beta"], ["9.0.26293.12303"]),
+                         ["9.0.26293.12303-beta"])
+
+    @patch("fetch_versions.requests.get")
+    def test_fetch_mcneel_release_reads_version_number(self, mock_get):
+        mock_get.return_value = Mock(json=Mock(return_value={"VersionNumber": "9.0.26300.09401"}),
+                                     raise_for_status=Mock())
+        self.assertEqual(fv.fetch_mcneel_release(9), "9.0.26300.9401")
+        self.assertEqual(mock_get.call_args.kwargs["params"]["slug"], "rhino-for-windows/9/latest")
+
+    @patch("fetch_versions.requests.get")
+    def test_fetch_mcneel_release_ignores_bad_or_foreign_answers(self, mock_get):
+        mock_get.return_value = Mock(json=Mock(return_value={"VersionNumber": "8.37.26307.15001"}),
+                                     raise_for_status=Mock())
+        self.assertIsNone(fv.fetch_mcneel_release(9))  # wrong major
+        mock_get.return_value = Mock(json=Mock(return_value={}), raise_for_status=Mock())
+        self.assertIsNone(fv.fetch_mcneel_release(9))
+        mock_get.side_effect = fv.requests.RequestException("down")
+        self.assertIsNone(fv.fetch_mcneel_release(9))
 
     def test_version_for_filename(self):
         # Valid 4-part version (already padded)
