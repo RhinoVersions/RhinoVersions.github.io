@@ -85,8 +85,10 @@ function isLocalEnvironment() {
  */
 // Bump the version suffix to invalidate stale client caches when the data
 // format or contents change (e.g. removing broken WIP links).
-const CACHE_KEY_PREFIX = 'rhino_versions_cache_v4_';
-const CACHE_EXPIRY_MS = 6 * 60 * 60 * 1000; // 6 hours
+const CACHE_KEY_PREFIX = 'rhino_versions_cache_v5_';
+// Short on purpose: new builds land several times a day, and raw.githubusercontent
+// already caches for 5 minutes. A 6-hour cache kept showing builds hours old.
+const CACHE_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
 
 async function fetchWithCache(url) {
     const cacheKey = CACHE_KEY_PREFIX + url;
