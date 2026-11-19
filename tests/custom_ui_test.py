@@ -34,13 +34,12 @@ class TestCustomUI(unittest.TestCase):
             # Click to expand
             first_card.click()
 
-            # Verify latest section is hidden
-            self.assertFalse(latest_section.is_visible())
+            # Expanding a row must not hide the latest cards
+            self.assertTrue(latest_section.is_visible())
 
             # Click to collapse
             first_card.click()
 
-            # Verify latest section is visible again
             self.assertTrue(latest_section.is_visible())
 
             browser.close()

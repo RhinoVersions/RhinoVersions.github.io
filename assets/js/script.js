@@ -497,11 +497,9 @@ function displayVersions(versions) {
     // Use DocumentFragment to batch DOM updates and minimize reflows
     const fragment = document.createDocumentFragment();
 
-    versions.forEach((versionGroup, index) => {
+    versions.forEach((versionGroup) => {
         const card = document.createElement('article');
         card.className = 'version-card glass-card';
-        card.style.animationDelay = `${index * 0.02}s`;
-        card.style.animation = 'fadeInUp 0.5s ease both';
         card.dataset.version = versionGroup.fullVersion;
 
         const isDeepLinkedCard = isDeepLinkedVersion(versionGroup);
@@ -610,7 +608,6 @@ function displayVersions(versions) {
             } else {
                 expandedVersionCards.delete(versionGroup.fullVersion);
             }
-            updateLatestSectionVisibility();
         };
 
         headerButton.addEventListener('click', (event) => {
@@ -635,17 +632,6 @@ function displayVersions(versions) {
 
     countEl.textContent = `Showing ${versions.length} version${versions.length !== 1 ? 's' : ''}`;
     scrollToDeepLinkedRowIfNeeded();
-    updateLatestSectionVisibility();
-}
-
-/**
- * Update the visibility of the latest version section based on expanded cards
- */
-function updateLatestSectionVisibility() {
-    const latestSection = document.getElementById('latest-section');
-    if (latestSection) {
-        latestSection.style.display = expandedVersionCards.size > 0 ? 'none' : 'block';
-    }
 }
 
 /**

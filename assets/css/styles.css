@@ -330,6 +330,20 @@ header h1,
     }
 }
 
+/* History rows: the download buttons are the primary action, so give them a
+   finger-sized target on touch screens. */
+@media (pointer: coarse) {
+    .table-download-btn,
+    .build-page-link {
+        min-height: 44px;
+        align-items: center;
+    }
+
+    .table-download-btn {
+        padding-inline: 0.75rem;
+    }
+}
+
 /* Hide native search cancel button */
 input[type="search"]::-webkit-search-cancel-button {
     -webkit-appearance: none;
@@ -603,10 +617,10 @@ input[type="search"]::-webkit-search-cancel-button {
    Versions Accordion
    ============================================ */
 .versions-section h2 {
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: 1.125rem;
+    font-weight: 700;
     margin-bottom: var(--spacing-md);
-    color: var(--color-text-secondary);
+    color: var(--color-text-primary);
 }
 
 .versions-list {
@@ -1122,14 +1136,40 @@ footer a:focus-visible {
         font-size: 1.25rem;
     }
 
+    /* Four stacked release cards pushed the history 2+ screens down on a
+       phone: lay Windows and Mac side by side and drop the divider. */
+    .latest-cards {
+        gap: var(--spacing-md);
+    }
+
+    .latest-card {
+        gap: var(--spacing-sm);
+    }
+
+    .latest-cards .version-details {
+        border-top: 0;
+        padding-top: 0;
+        gap: var(--spacing-md);
+    }
+
+    /* Channel wraps to a row of its own once Build and Build date fill the
+       width; read it as one line ("Channel  Stable") instead. */
+    .latest-cards .detail-item:last-child {
+        flex: 1 0 100%;
+        flex-direction: row;
+        align-items: baseline;
+        gap: var(--spacing-sm);
+    }
+
     .download-buttons {
-        flex-direction: column;
+        flex-direction: row;
     }
 
     .download-btn {
-        width: 100%;
+        flex: 1;
         justify-content: center;
         padding: 0.625rem;
+        min-height: 44px;
     }
 
     /* Switch to abbreviated labels */
